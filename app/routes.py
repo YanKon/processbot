@@ -11,56 +11,37 @@ PROJECT_ID = os.environ.get("PROJECT_ID")
 PROCESS_NAME_ENTITY_TYPE_ID = os.environ.get("PROCESS_NAME_ENTITY_TYPE_ID")
 TASK_NAME_ENTITY_TYPE_ID = os.environ.get("TASK_NAME_ENTITY_TYPE_ID")
 
+
 @app.route("/")
 def index():
     return render_template("index.html")
+
 
 @app.route("/init")
 def initDialogflow():
 
     for process in Process.query.all():
         processName = process.processName
-        #print(processName)
-        dialogflowHelper.create_entity(PROJECT_ID,PROCESS_NAME_ENTITY_TYPE_ID,processName,[])
+        # print(processName)
+        dialogflowHelper.create_entity(
+            PROJECT_ID, PROCESS_NAME_ENTITY_TYPE_ID, processName, [])
 
     for task in Node.query.filter_by(type="task"):
         taskName = task.name
         print(taskName)
-        dialogflowHelper.create_entity(PROJECT_ID,TASK_NAME_ENTITY_TYPE_ID,taskName,[])
-    
+        dialogflowHelper.create_entity(
+            PROJECT_ID, TASK_NAME_ENTITY_TYPE_ID, taskName, [])
+
     return render_template("index.html")
+
 
 @app.route('/send_message', methods=["POST"])
 def send_message():
     message = request.form["message"]
-    response = dialogflowHelper.detect_intent_texts(PROJECT_ID, "unique", message, 'en')
-    
-    # TODO: ALLLE FUNTKIONEN MÜSSEN TEXT als ARRAY zurückgeben
-    text = triggerIntentFunction.run(response)
-    # text = execIntentFunc(response.query_result.intent.display_name)
-    if (text == ""):
-        # responseMessage = {
-        #     "responseMessage": [response.query_result.fulfillment_text],
-        #     "buttons": [
-        #         {"text":"Ja", "value": "Ja"}, 
-        #         {"text":"Nein","value":"Nein"}, 
-        #         {"text":"Hilfe","value":"Hilfe"}
-        #     ]
-        # }
-        responseMessage = {
-            "responseMessage": [response.query_result.fulfillment_text]
-        }
-    else:
-        responseMessage = {
-            "responseMessage": text,
-            "buttons": [
-                {"text":"Ja", "value": "Ja"}, 
-                {"text":"Nein","value":"Nein"}, 
-                {"text":"Hilfe","value":"Hilfe"}
-            ]
-        }
-        # responseMessage = {
-        #     "responseMessage": text
-        # }
+    print(message)
+    dialogflowResponse = dialogflowHelper.detect_intent_texts(
+        PROJECT_ID, "unique", message, 'en')
 
-    return jsonify(responseMessage)    
+    responseObject = triggerIntentFunction.run(dialogflowResponse)
+
+    return responseObject

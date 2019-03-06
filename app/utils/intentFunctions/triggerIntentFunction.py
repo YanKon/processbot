@@ -1,5 +1,6 @@
 import sys
 from app.utils.intentFunctions import process_names, process_run
+from app.utils import responseHelper
 
 # Mapt alle Intents einer entsprechenden Intent-Funktion
 intentDict = {
@@ -17,6 +18,5 @@ def run(dialogflowResponse):
         # print("intent exist")
         return intentDict.get(intentDisplayName).run(dialogflowResponse)
     else:
-        # print("intent not exist")
-        return ""   #TODO: eigenen Typ definieren! 
+        return responseHelper.createResponseObject([dialogflowResponse.query_result.fulfillment_text])
 
