@@ -10,7 +10,7 @@ html,body {
       fill: green !important;
   }
   
-  .botui-container {
+  /* .botui-container {
       position: relative
   }
   
@@ -18,7 +18,7 @@ html,body {
       position: absolute;
       width: 100%;
       bottom: 0;
-  }
+  } */
   
   .botui-message-content {
       word-wrap:break-word;
@@ -69,4 +69,3 @@ html,body {
          outline: -webkit-focus-ring-color auto 0px;
          border: 2px solid #5A69E2;
   } 
-  }

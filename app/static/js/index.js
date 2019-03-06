@@ -3,12 +3,26 @@ function submit_message(message) {
   
     function handle_response(data) {
       console.log(data);
-      botui.message.bot({ // show bot message (now just Dialogflow Message)
-      content: data.responseMessage
-      })
+
+      data.responseMessage.forEach(message => {
+        botui.message.bot({ // show bot message (now just Dialogflow Message)
+          content: message
+        })
+      });
+      
+      if (data.hasOwnProperty("buttons")) {
+        botui.action.button({
+          action: data.buttons
+        }).then(function (res) { // will be called when a button is clicked.
+          $("#InputField").prop('disabled', false);
+          submit_message(res.value);
+        });
+      }
+
+      // deaktiviert das Inputfeld
+      // $("#InputField").prop('disabled', true);
     }
   }
-  
   
   var text;
   $(document).ready(function () {
@@ -25,4 +39,5 @@ function submit_message(message) {
       }
     });
   });
+  
   

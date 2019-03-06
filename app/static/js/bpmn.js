@@ -24,5 +24,6 @@ viewer.importXML(bpmnXML, function(err) {
 
     // add color
     canvas.addMarker('Task_03duqqg', 'highlight');
+    
   }
 });

@@ -10,7 +10,7 @@ intentDict = {
 # Führt die jeweiligen Intent-Funktion zum Intent aus
 # Input: response (dialogflow)
 # Ouput: TODO
-def main(dialogflowResponse):
+def run(dialogflowResponse):
     intentDisplayName = dialogflowResponse.query_result.intent.display_name
     # print(name)
     if intentDisplayName in intentDict:

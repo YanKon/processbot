@@ -35,12 +35,32 @@ def send_message():
     message = request.form["message"]
     response = dialogflowHelper.detect_intent_texts(PROJECT_ID, "unique", message, 'en')
     
-    text = triggerIntentFunction.main(response)
+    # TODO: ALLLE FUNTKIONEN MÜSSEN TEXT als ARRAY zurückgeben
+    text = triggerIntentFunction.run(response)
     # text = execIntentFunc(response.query_result.intent.display_name)
     if (text == ""):
-        responseMessage = {"responseMessage": response.query_result.fulfillment_text}
+        # responseMessage = {
+        #     "responseMessage": [response.query_result.fulfillment_text],
+        #     "buttons": [
+        #         {"text":"Ja", "value": "Ja"}, 
+        #         {"text":"Nein","value":"Nein"}, 
+        #         {"text":"Hilfe","value":"Hilfe"}
+        #     ]
+        # }
+        responseMessage = {
+            "responseMessage": [response.query_result.fulfillment_text]
+        }
     else:
-        responseMessage = {"responseMessage": text}
+        responseMessage = {
+            "responseMessage": text,
+            "buttons": [
+                {"text":"Ja", "value": "Ja"}, 
+                {"text":"Nein","value":"Nein"}, 
+                {"text":"Hilfe","value":"Hilfe"}
+            ]
+        }
+        # responseMessage = {
+        #     "responseMessage": text
+        # }
 
-    return jsonify(responseMessage)
-
+    return jsonify(responseMessage)    
