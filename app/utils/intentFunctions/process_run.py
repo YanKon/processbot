@@ -4,7 +4,7 @@ from google.protobuf.json_format import MessageToJson
 from app.models import Process, Edge, GeneralInstruction, DetailInstruction
 from app.utils import responseHelper, buttons
 
-# Weg: man kommt hier her über submit_message(JS) --> send_message(PY Route)
+# Weg: man kommt hier her über submit_message(JS) --> send_userText(PY Route)
 def run(dialogflowResponse):
 
     # NOCH NICHT GANZ KLAR! MESSAGETOJSON

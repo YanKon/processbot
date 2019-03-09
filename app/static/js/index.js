@@ -1,5 +1,5 @@
 function submit_userText(userText) {
-  $.post("/send_message", { userText: userText }, handle_response);
+  $.post("/send_userText", { userText: userText }, handle_response);
 
   function handle_response(responseObject) {
     

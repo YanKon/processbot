@@ -37,8 +37,8 @@ def initDialogflow():
     return render_template("index.html")
 
 # Route um eine Nachricht des Nutzers an Dialogflow zu schicken und dann die Bearbeitung für den Intent zu starten
-@app.route('/send_message', methods=["POST"])
-def send_message():
+@app.route('/send_userText', methods=["POST"])
+def send_userText():
     userText = request.form["userText"]
     print(userText)
     dialogflowResponse = dialogflowHelper.detect_intent_texts(
