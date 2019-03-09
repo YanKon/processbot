@@ -6,17 +6,19 @@ from app.models import Process, Node
 
 import app.utils.dialogflowHelper as dialogflowHelper
 import app.utils.intentFunctions.triggerIntentFunction as triggerIntentFunction
+import app.utils.intentFunctions.triggerButtonFunction as triggerButtonFunction
 
 PROJECT_ID = os.environ.get("PROJECT_ID")
 PROCESS_NAME_ENTITY_TYPE_ID = os.environ.get("PROCESS_NAME_ENTITY_TYPE_ID")
 TASK_NAME_ENTITY_TYPE_ID = os.environ.get("TASK_NAME_ENTITY_TYPE_ID")
 
-
+# Standard Route zum Anzeigen der Index.html
 @app.route("/")
 def index():
     return render_template("index.html")
 
 
+# Route um Dialogflow zu initialisieren
 @app.route("/init")
 def initDialogflow():
 
@@ -34,14 +36,27 @@ def initDialogflow():
 
     return render_template("index.html")
 
-
+# Route um eine Nachricht des Nutzers an Dialogflow zu schicken und dann die Bearbeitung für den Intent zu starten
 @app.route('/send_message', methods=["POST"])
 def send_message():
-    message = request.form["message"]
-    print(message)
+    userText = request.form["userText"]
+    print(userText)
     dialogflowResponse = dialogflowHelper.detect_intent_texts(
-        PROJECT_ID, "unique", message, 'en')
+        PROJECT_ID, "unique", userText, 'en')
 
     responseObject = triggerIntentFunction.run(dialogflowResponse)
 
     return responseObject
+
+# Route um einen gedrückten Button zu verarbeiten
+# TODO: POST Hier richtig?! 
+@app.route('/send_button', methods=["POST"])
+def send_button():
+    pressedButtonValue = request.form["pressedButtonValue"]
+    currentProcess = request.form["currentProcess"]
+    currentProcessStep = request.form["currentProcessStep"]
+    
+    responseObject = triggerButtonFunction.run(pressedButtonValue, currentProcess, currentProcessStep)
+
+    return responseObject
+ 

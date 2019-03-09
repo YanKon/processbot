@@ -1,16 +1,14 @@
 from flask import jsonify
 
 
-def createResponseObject(messages, buttons = None):
+def createResponseObject(messages, buttons, currentProcess, currentProcessStep):
 
-    if buttons is None:
-        responseObject = {
-        "messages": messages
-    }
-    else:
-        responseObject = {
+    responseObject = {
             "messages": messages,
-            "buttons": buttons
+            "buttons": buttons,
+            "currentProcess": currentProcess,
+            "currentProcessStep": currentProcessStep
        }
+
     return jsonify(responseObject)
 

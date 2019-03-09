@@ -1,15 +1,26 @@
-STANDARD_BUTTONS = [
+STANDARD_PROCESS_BUTTONS = [
     {
         "text": "Yes",
-        "value": "pressed_yes"
+        "value": "Process_pressed_yes"
     },
     {
         "text": "Cancel",
-        "value": "pressed_cancel"
+        "value": "Process_pressed_cancel"
     },
     {
         "text": "Help",
-        "value": "pressed_help"
+        "value": "Process_pressed_help"
+    }
+]
+
+REDUCED_PROCESS_BUTTONS = [
+    {
+        "text": "Yes",
+        "value": "Process_pressed_yes"
+    },
+    {
+        "text": "Cancel",
+        "value": "Process_pressed_cancel"
     }
 ]
 
