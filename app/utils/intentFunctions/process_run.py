@@ -31,6 +31,8 @@ def run(dialogflowResponse):
     currentProcess = processId
     currentProcessStep = firstActivityId
 
+    print(currentProcessStep)
+
     return responseHelper.createResponseObject(messages, buttons.STANDARD_PROCESS_BUTTONS,currentProcess, currentProcessStep)
 
 

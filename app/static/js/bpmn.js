@@ -20,10 +20,10 @@ viewer.importXML(bpmnXML, function(err) {
   } else {
     console.log("BPMN successfully imported")
     var canvas = viewer.get('canvas');
-    canvas.zoom('fit-viewport');
+    // canvas.zoom('fit-viewport');
 
     // add color
-    canvas.addMarker('Task_03duqqg', 'highlight');
+    // canvas.addMarker('Task_03duqqg', 'highlight');
     
   }
 });

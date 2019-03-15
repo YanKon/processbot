@@ -1,71 +1,124 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
 
-<head>
-  <!-- Required meta tags -->
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Bootstrap CSS -->
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+      integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
+      crossorigin="anonymous"
+    />
 
-  <!-- Bootstrap CSS -->
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
-    crossorigin="anonymous">
+    <!-- BotUi CSS -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/botui/build/botui.min.css"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/botui/build/botui-theme-default.css"
+      crossorigin="anonymous"
+    />
 
-  <!-- BotUi CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/botui/build/botui.min.css" crossorigin="anonymous">
-  <link rel="stylesheet" href="https://unpkg.com/botui/build/botui-theme-default.css" crossorigin="anonymous">
+    <!-- own Style -->
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+      crossorigin="anonymous"
+    />
 
-  <!-- own Style -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" crossorigin="anonymous">
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <title>Processbot</title>
+  </head>
 
-  <title>Processbot</title>
-</head>
+  <body>
+    <nav class="navbar">
+      <span class="navbar-brand mb-0 h1">Processbot Demo</span>
+    </nav>
 
-<body>
+    <div id="canvas"></div>
 
-  <div class="container-fluid h-100">
-    <div class="row h-100">
-      <div id="canvas" class="col-sm">
-      </div>
-      <div class="col-sm">
-        <div id="my-botui-app" class="botui-app-container">
-          <bot-ui></bot-ui>
-          <div class="row button-container d-none">
-            <div class="col-sm">
-              <button type="button" class="selectButtonChat btn btn-primary">Ja</button>
-            </div>
-            <div class="col-sm">
-              <button type="button" class="selectButtonChat btn btn-primary">Hilfe</button>
-            </div>
+    <div class="fabs">
+      <div id="live-chat">
+        <header class="clearfix">
+          <a href="#" class="chat-close">x</a>
+          <h4>Processbot</h4>
+        </header>
+        <div id="my-botui-app" class="chat botui-app-container">
+          <div class="chat-history">
+            <bot-ui></bot-ui>
           </div>
-          <input type="text" class="form-control" id="InputField" placeholder="Enter text">
+        </div>
+        <div class="chat_field">
+          <input
+            type="text"
+            class="form-control"
+            id="InputField"
+            placeholder="Enter text"
+          />
+          <a id="chat_send"><i class="material-icons">send</i></a>
         </div>
       </div>
+      <a id="prime" class="fab"
+        ><i class="material-icons">chat_bubble_outline</i></a
+      >
     </div>
-  </div>
 
-  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-    crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut"
-    crossorigin="anonymous"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k"
-    crossorigin="anonymous"></script>
+    <!-- <div class="col-sm"> -->
+    <!-- <div id="my-botui-app" class="botui-app-container">
+          <bot-ui></bot-ui>
+          <input type="text" class="form-control" id="InputField" placeholder="Enter text">
+        </div> -->
+    <!-- </div> -->
 
-  <!-- jQuery vielleicht noch raus-->
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script
+      src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+      integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"
+      integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"
+      integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k"
+      crossorigin="anonymous"
+    ></script>
 
-  <!-- BPMN -->
-  <script src="https://unpkg.com/bpmn-js@0.27.0-1/dist/bpmn-viewer.development.js"></script>
-  <script src="{{ url_for('static', filename='js/bpmn.js') }}"></script>
+    <!-- jQuery vielleicht noch raus-->
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
 
-  <!-- Botui -->
-  <script src="https://cdn.jsdelivr.net/vue/latest/vue.min.js" crossorigin="anonymous"></script>
-  <script src="https://unpkg.com/botui/build/botui.min.js" crossorigin="anonymous"></script>
-  <script src="{{ url_for('static', filename='js/botui.js') }}"></script>
+    <!-- BPMN -->
+    <!-- <script src="https://unpkg.com/bpmn-js@0.27.0-1/dist/bpmn-viewer.development.js"></script> -->
+    <script src="{{ url_for('static', filename='js/bpmn-viewer.development.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bpmn.js') }}"></script>
 
-  <!-- index.js -->
-  <script src="{{ url_for('static', filename='js/index.js') }}"></script>
+    <!-- Botui -->
+    <script
+      src="https://cdn.jsdelivr.net/vue/latest/vue.min.js"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://unpkg.com/botui/build/botui.min.js"
+      crossorigin="anonymous"
+    ></script>
+    <script src="{{ url_for('static', filename='js/botui.js') }}"></script>
 
-</body>
-
+    <!-- index.js -->
+    <script src="{{ url_for('static', filename='js/index.js') }}"></script>
+  </body>
 </html>
