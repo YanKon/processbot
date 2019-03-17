@@ -64,6 +64,6 @@ def button_run(pressedButtonValue, currentProcess, currentProcessStep, previousP
         except:
             print("End of process reached")
             message = "You have successfully gone through the process \"" + processName + "\"."
-            return responseHelper.createResponseObject([message], [], "", "", "")
+            return responseHelper.createResponseObject([message], [], "", nextActivityId, currentProcessStep)
 
         return responseHelper.createResponseObject([message], buttons.STANDARD_PROCESS_BUTTONS, currentProcess, nextActivityId, currentProcessStep)
