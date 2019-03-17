@@ -10,6 +10,10 @@ function submit_userText(userText) {
 
     if (responseObject.currentProcessStep !== "")
       viewer.get('canvas').addMarker(responseObject.currentProcessStep, 'highlight');
+    
+    if (responseObject.previousProcessStep !== "")
+      viewer.get('canvas').addMarker(responseObject.previousProcessStep, 'done');
+    
 
     // Bot Messages ausgeben
     responseObject.messages.forEach(function(message,index) {
@@ -60,6 +64,9 @@ function submit_button(currentProcess, currentProcessStep, previousProcessStep, 
 
     if (responseObject.currentProcessStep !== "")
       viewer.get('canvas').addMarker(responseObject.currentProcessStep, 'highlight');
+    
+    if (responseObject.previousProcessStep !== "")
+      viewer.get('canvas').addMarker(responseObject.previousProcessStep, 'done');
 
     // Bot Messages ausgeben
     responseObject.messages.forEach(function(message,index) {
@@ -95,6 +102,19 @@ function submit_button(currentProcess, currentProcessStep, previousProcessStep, 
 // Leitet die Usereingaben ans Backend weiter
 var userText;
 $(document).ready(function() {
+  
+  $("#chat_send").click(function(e) {
+      userText = $("#InputField").val();
+      submit_userText(userText);
+      console.log($("#InputField").val());
+      $("#InputField").val("");
+
+        // Zeigt den UserText im Chatfenster an
+      botui.message.human({
+        content: userText
+      });
+  });
+  
   $("#InputField").keypress(function(e) {
     if (e.keyCode == 13) {
       userText = $("#InputField").val();

@@ -23,6 +23,10 @@ body {
   fill: #56B228 !important;
 }
 
+.done:not(.djs-connection) .djs-visual > :nth-child(1) {
+    fill: #b2b2b2 !important;
+  }
+
 /* .botui-container {
       position: relative
   }
@@ -257,4 +261,21 @@ p {
 .bjs-powered-by{
     right:0px !important;
     left: 15px;
+}
+
+#chat_send:hover{
+    -webkit-transform: rotate(-90deg); /* Safari */
+    transform: rotate(-90deg);
+    transition: transform 0.2s;
+    cursor: pointer;
+}
+
+#chat_send:active {
+    transform: rotate(0deg);
+    transition: transform 0.2s;
+    cursor: pointer;
+}
+
+#chat_send{
+    cursor: pointer;
 }
