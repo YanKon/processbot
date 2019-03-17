@@ -11,4 +11,4 @@ def run(dialogflowResponse):
         message = message + " \"" + process.processName + "\","
     message = message.replace(message[len(message)-1], '.')
 
-    return responseHelper.createResponseObject([message],[],"","")
+    return responseHelper.createResponseObject([message],[],"","","")

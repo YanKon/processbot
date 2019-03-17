@@ -19,5 +19,5 @@ def run(dialogflowResponse):
         return intentDict.get(intentDisplayName).run(dialogflowResponse)
     else:
         # print("intent doesn't exists in intentDict")
-        return responseHelper.createResponseObject([dialogflowResponse.query_result.fulfillment_text],[], "", "")
+        return responseHelper.createResponseObject([dialogflowResponse.query_result.fulfillment_text],[],"","","")
 

@@ -12,16 +12,14 @@ function submit_userText(userText) {
       viewer.get('canvas').addMarker(responseObject.currentProcessStep, 'highlight');
 
     // Bot Messages ausgeben
-    indexGlobal = 0;
     responseObject.messages.forEach(function(message,index) {
-      indexGlobal = index;
       setTimeout(function(){
         botui.message.bot({
           delay: 1000,
           loading: true,
           content: message
         });
-      },1500*index);
+      },1000*index+500);
     });
     
     // Buttons? --> anzeigen & geklickter Button auslesen
@@ -34,23 +32,26 @@ function submit_userText(userText) {
           })
           .then(function(pressedButton) {
             // Wird ausgeführt, wenn ein Button geklickt wurde
-            submit_button(responseObject.currentProcess, responseObject.currentProcessStep, pressedButton.value);
+            submit_button(responseObject.currentProcess, responseObject.currentProcessStep, responseObject.previousProcessStep, pressedButton.value);
           });
-      },1500*indexGlobal+1000);
+      },1000*(responseObject.messages.length-1)+responseObject.messages.length*500);
     }
   }
 }
 
 // ResponseObject mitübergeben, damit klar ist, in welchem Prozessschritt man sich befindet
-function submit_button(currentProcess, currentProcessStep, pressedButtonValue) {
+function submit_button(currentProcess, currentProcessStep, previousProcessStep, pressedButtonValue) {
   console.log("currentProcess:")
   console.log(currentProcess)
   console.log("currentProcessStep:")
   console.log(currentProcessStep)
+  console.log("previousProcessStep:")
+  console.log(previousProcessStep)
   console.log("pressedButtonValue:")
   console.log(pressedButtonValue)
 
-  $.post("/send_button", { pressedButtonValue: pressedButtonValue, currentProcess: currentProcess, currentProcessStep: currentProcessStep }, handle_response);
+
+  $.post("/send_button", { pressedButtonValue: pressedButtonValue, currentProcess: currentProcess, previousProcessStep: previousProcessStep, currentProcessStep: currentProcessStep }, handle_response);
 
   function handle_response(responseObject) {
     console.log ("########## im handle Response von submitButton angekommen")
@@ -61,16 +62,14 @@ function submit_button(currentProcess, currentProcessStep, pressedButtonValue) {
       viewer.get('canvas').addMarker(responseObject.currentProcessStep, 'highlight');
 
     // Bot Messages ausgeben
-    indexGlobal = 0;
     responseObject.messages.forEach(function(message,index) {
-      indexGlobal = index;
       setTimeout(function(){
         botui.message.bot({
           delay:1000,
           loading: true,
           content: message
         });
-      },1500*index);
+      },1000*index+500);
     });
   
     // Buttons? --> anzeigen & geklickter Button auslesen
@@ -83,9 +82,9 @@ function submit_button(currentProcess, currentProcessStep, pressedButtonValue) {
           })
           .then(function(pressedButton) {
             // Wird ausgeführt, wenn ein Button geklickt wurde
-            submit_button(responseObject.currentProcess, responseObject.currentProcessStep, pressedButton.value);
+            submit_button(responseObject.currentProcess, responseObject.currentProcessStep, responseObject.previousProcessStep, pressedButton.value);
           });
-      },1500*indexGlobal+1000);
+      },1000*(responseObject.messages.length-1)+responseObject.messages.length*500);
     }
 
   }

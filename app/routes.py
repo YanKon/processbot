@@ -49,14 +49,14 @@ def send_userText():
     return responseObject
 
 # Route um einen gedrückten Button zu verarbeiten
-# TODO: POST Hier richtig?! 
 @app.route('/send_button', methods=["POST"])
 def send_button():
     pressedButtonValue = request.form["pressedButtonValue"]
     currentProcess = request.form["currentProcess"]
+    previousProcessStep = request.form["previousProcessStep"]
     currentProcessStep = request.form["currentProcessStep"]
     
-    responseObject = triggerButtonFunction.run(pressedButtonValue, currentProcess, currentProcessStep)
+    responseObject = triggerButtonFunction.run(pressedButtonValue, currentProcess, currentProcessStep, previousProcessStep)
 
     return responseObject
  

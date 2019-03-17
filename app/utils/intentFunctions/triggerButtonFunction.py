@@ -12,15 +12,15 @@ buttonDict = {
 }
 
 # Führt die jeweiligen Button-Funktion aus
-# Input: pressedButtonValue, currentProcess, currentProcessStep
+# Input: pressedButtonValue, currentProcess, currentProcessStep, previousProcessStep
 # Ouput: ResponseObject
-def run(pressedButtonValue, currentProcess, currentProcessStep):
+def run(pressedButtonValue, currentProcess, currentProcessStep, previousProcessStep):
     
     if pressedButtonValue in buttonDict:
         # print("button exists")
-        return buttonDict.get(pressedButtonValue).button_run(pressedButtonValue, currentProcess, currentProcessStep)
-    else:
+        return buttonDict.get(pressedButtonValue).button_run(pressedButtonValue, currentProcess, currentProcessStep, previousProcessStep)
+    else:  
         # print ("button does not exist, add it to the ButtonDict!")
         # TODO: Output überlegen, dürfte aber eigentlich nie passieren.
-        return responseHelper.createResponseObject(["Error: Button does not exist, please add it to the buttonDict!"],[],"","")
+        return responseHelper.createResponseObject(["Error: Button does not exist, please add it to the buttonDict!"],[],"","","")
 

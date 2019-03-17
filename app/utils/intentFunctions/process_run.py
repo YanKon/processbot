@@ -21,6 +21,7 @@ def run(dialogflowResponse):
     # erste Aktivität im Prozess nehmen
     firstActivityId = Edge.query.filter(Edge.sourceId.like(
         'StartEvent_%')).filter_by(processId=process.id).first().targetId
+    previousStepId = Edge.query.filter(Edge.processId == process.id).filter(Edge.targetId == firstActivityId).first().sourceId
 
    
     message1 = dialogflowResponse.query_result.fulfillment_text # Okay, let's start process "Entity".
@@ -30,27 +31,28 @@ def run(dialogflowResponse):
     
     currentProcess = processId
     currentProcessStep = firstActivityId
+    previousProcessStep = previousStepId
 
     print(currentProcessStep)
 
-    return responseHelper.createResponseObject(messages, buttons.STANDARD_PROCESS_BUTTONS,currentProcess, currentProcessStep)
+    return responseHelper.createResponseObject(messages, buttons.STANDARD_PROCESS_BUTTONS,currentProcess, currentProcessStep,previousProcessStep)
 
 
 # Weg: man kommt hier her über submit_button(JS) --> send_button(PY Route)
-def button_run(pressedButtonValue, currentProcess, currentProcessStep):
+def button_run(pressedButtonValue, currentProcess, currentProcessStep, previousProcessStep):
     
     processName = Process.query.filter_by(id=currentProcess).first().processName
 
     # Aktueller Prozesslauf abrechen
     if pressedButtonValue == "Process_pressed_cancel":
         message = "Okay, the current process instance of process \"" + processName + "\" will be canceled."
-        return responseHelper.createResponseObject([message],[],"","")
+        return responseHelper.createResponseObject([message],[],"","","")
     
     # Gebe die DetailInstruction aus
     elif pressedButtonValue == "Process_pressed_help":
       
         message = DetailInstruction.query.filter_by(nodeId=currentProcessStep).first().text # Detail Anweisungen für aktuellen Schritt
-        return responseHelper.createResponseObject([message],buttons.REDUCED_PROCESS_BUTTONS,currentProcess, currentProcessStep)
+        return responseHelper.createResponseObject([message],buttons.REDUCED_PROCESS_BUTTONS,currentProcess, currentProcessStep, previousProcessStep)
     
     else: # Nächster Schritt --> "Process_pressed_yes"
 
@@ -62,6 +64,6 @@ def button_run(pressedButtonValue, currentProcess, currentProcessStep):
         except:
             print("End of process reached")
             message = "You have successfully gone through the process \"" + processName + "\"."
-            return responseHelper.createResponseObject([message], [], "", "")
+            return responseHelper.createResponseObject([message], [], "", "", "")
 
-        return responseHelper.createResponseObject([message], buttons.STANDARD_PROCESS_BUTTONS, currentProcess, nextActivityId)
+        return responseHelper.createResponseObject([message], buttons.STANDARD_PROCESS_BUTTONS, currentProcess, nextActivityId, currentProcessStep)
