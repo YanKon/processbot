@@ -9,13 +9,18 @@ def run(dialogflowResponse):
 
     # NOCH NICHT GANZ KLAR! MESSAGETOJSON
     # TODO: Error wenn kein Parameter vorhanden!! --> zB. bei der Anfrage: "start process"
-    parameters_json = json.loads(MessageToJson(
-        dialogflowResponse.query_result.parameters))
+
+    parameters_json = json.loads(MessageToJson(dialogflowResponse.query_result.parameters))
     processName = parameters_json['process_name_parameter']
 
-    # Aktuellen Prozess holen
-    process = Process.query.filter_by(processName=processName).first()
-    processId = process.id
+    try:
+        # Aktuellen Prozess holen
+        process = Process.query.filter_by(processName=processName).first()
+        processId = process.id
+    except: #Kein Prozess angegeben, bzw. Prozess nicht gefunden TODO: Prozess nicht gefunden?
+        message1 = dialogflowResponse.query_result.fulfillment_text
+        return responseHelper.createResponseObject([message1],[],"","","")
+
 
     # TODO: Mehrere Startevents
     # erste Aktivität im Prozess nehmen
