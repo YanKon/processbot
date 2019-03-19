@@ -1,3 +1,4 @@
+from app.utils.intentFunctions import triggerButtonFunction
 STANDARD_PROCESS_BUTTONS = [
     {
         "text": "Yes",
@@ -24,9 +25,8 @@ REDUCED_PROCESS_BUTTONS = [
     }
 ]
 
-def addCustomButtons(buttonTextList):
-    
-    buttons = []
-    for buttonText in buttonTextList:
-        buttons.append({"text": buttonText, "value" : "pressed_" + buttonText})
-    return buttons
+def addCustomButton(buttonText, buttonValue, buttonFunction):
+   
+    button = {"text": buttonText, "value" : buttonValue}
+    triggerButtonFunction.buttonDict[buttonValue] = buttonFunction
+    return button

@@ -1,8 +1,13 @@
 import sys
+import os
 import json
 from google.protobuf.json_format import MessageToJson
 from app.models import Process, Edge, GeneralInstruction, DetailInstruction
-from app.utils import responseHelper, buttons
+from app.utils import responseHelper, dialogflowHelper
+from app.utils import buttons as buttons
+from app.utils.intentFunctions import process_run as process_run
+
+PROJECT_ID = os.environ.get("PROJECT_ID")
 
 # Weg: man kommt hier her über submit_message(JS) --> send_userText(PY Route)
 def run(dialogflowResponse):
@@ -16,9 +21,13 @@ def run(dialogflowResponse):
         # Aktuellen Prozess holen
         process = Process.query.filter_by(processName=processName).first()
         processId = process.id
-    except: #Kein Prozess angegeben, bzw. Prozess nicht gefunden TODO: Prozess nicht gefunden?
+    except: #Kein Prozess angegeben, bzw. Prozess nicht gefunden --> alle Prozesse als Button anzeigen
         message1 = dialogflowResponse.query_result.fulfillment_text
-        return responseHelper.createResponseObject([message1],[],"","","")
+        processButtons = []
+        for process in Process.query.all():
+            processButton = buttons.addCustomButton(process.processName,"Name_pressed_" + process.processName,process_run)
+            processButtons.append(processButton)  
+        return responseHelper.createResponseObject([message1],processButtons,"","","")
 
 
     # TODO: Mehrere Startevents
@@ -47,7 +56,13 @@ def button_run(pressedButtonValue, currentProcess, currentProcessStep, previousP
 
     # TODO: Hier eine Abfrage für Prozess Start Buttons
     # Dabei den Pressed Value an Dialogflow übergeben und dann mit dessen Response obige run Methode aufrufen um den Prozess zu starten.
-    
+  
+    if (pressedButtonValue.startswith("Name_pressed_")):
+        selectedProcess = pressedButtonValue[13:]
+        dialogflowResponse = dialogflowHelper.detect_intent_texts(PROJECT_ID, "unique", selectedProcess, 'en')
+        return run(dialogflowResponse)
+        
+
     processName = Process.query.filter_by(id=currentProcess).first().processName
 
     # Aktueller Prozesslauf abrechen
