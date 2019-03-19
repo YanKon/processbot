@@ -8,7 +8,6 @@ from app.utils import responseHelper, buttons
 def run(dialogflowResponse):
 
     # NOCH NICHT GANZ KLAR! MESSAGETOJSON
-    # TODO: Error wenn kein Parameter vorhanden!! --> zB. bei der Anfrage: "start process"
 
     parameters_json = json.loads(MessageToJson(dialogflowResponse.query_result.parameters))
     processName = parameters_json['process_name_parameter']
@@ -45,6 +44,9 @@ def run(dialogflowResponse):
 
 # Weg: man kommt hier her über submit_button(JS) --> send_button(PY Route)
 def button_run(pressedButtonValue, currentProcess, currentProcessStep, previousProcessStep):
+
+    # TODO: Hier eine Abfrage für Prozess Start Buttons
+    # Dabei den Pressed Value an Dialogflow übergeben und dann mit dessen Response obige run Methode aufrufen um den Prozess zu starten.
     
     processName = Process.query.filter_by(id=currentProcess).first().processName
 
@@ -69,6 +71,6 @@ def button_run(pressedButtonValue, currentProcess, currentProcessStep, previousP
         except:
             print("End of process reached")
             message = "You have successfully gone through the process \"" + processName + "\"."
-            return responseHelper.createResponseObject([message], [], "", nextActivityId, currentProcessStep)
+            return responseHelper.createResponseObject([message], [], "", "", "")
 
         return responseHelper.createResponseObject([message], buttons.STANDARD_PROCESS_BUTTONS, currentProcess, nextActivityId, currentProcessStep)
