@@ -19,8 +19,10 @@ function handle_messages(responseObject) {
 // erkennt button klick und führt Funktion aus
 function handle_buttons(responseObject) {
   // Buttons? --> anzeigen & geklickter Button auslesen
-  if (responseObject.buttons != []) {
-    // TODO : Eingabe Feld ausblenden
+
+  //  geändert zu length ungleich 0, weil er bei != [] trotz leerer Liste reingegangen ist
+  if (responseObject.buttons.length != 0) {
+    deactivateInput();
     setTimeout(function() {
       botui.action
         .button({
@@ -38,20 +40,25 @@ function handle_buttons(responseObject) {
     }, 1000 * (responseObject.messages.length - 1) +
       responseObject.messages.length * 500);
   }
+  else 
+    reactivateInput();
 }
 
 function highlightStep(responseObject) {
-  console.log("highlight start");
   if (responseObject.currentProcessStep !== "")
     viewer.get("canvas").addMarker(responseObject.currentProcessStep, "highlight");
 
   if (responseObject.previousProcessStep !== "")
     viewer.get("canvas").addMarker(responseObject.previousProcessStep, "done");
-    console.log("highlight end");
 }
 
 function submit_userText(userText) {
-  $.post("/send_userText", { userText: userText }, handle_response);
+  $.post("/send_userText", 
+    { 
+     userText: userText 
+    }, 
+    handle_response
+  );
 
   function handle_response(responseObject) {
         
@@ -63,7 +70,6 @@ function submit_userText(userText) {
             loadBPMN(responseObject.currentProcess).then(function () {
               console.log("BPMN successfully imported")
               highlightStep(responseObject);
-              toggleInputActive();
             })
             .catch(function(err) {
               console.error("could not import BPMN 2.0 diagram", err);
@@ -76,7 +82,7 @@ function submit_userText(userText) {
         }
 
         handle_messages(responseObject);
-        handle_buttons(responseObject);
+        handle_buttons(responseObject)  ;
 
   }
 }
@@ -84,8 +90,7 @@ function submit_userText(userText) {
 // ResponseObject mitübergeben, damit klar ist, in welchem Prozessschritt man sich befindet
 function submit_button(currentProcess, currentProcessStep, previousProcessStep, pressedButtonValue) {
 
-  $.post(
-    "/send_button",
+  $.post("/send_button",
     {
       pressedButtonValue: pressedButtonValue,
       currentProcess: currentProcess,
@@ -100,9 +105,17 @@ function submit_button(currentProcess, currentProcessStep, previousProcessStep, 
     if (viewer.get("canvas").hasOwnProperty("_rootElement")){ // BPMN Model angezeigt
       if (responseObject.currentProcess !== "") // currentProcess ist gesetzt
         highlightStep(responseObject);
-      else { // currentProcess nicht gesetzt --> dann lösche das Model raus (entweder Cancel oder Prozess durchlaufen)
+      else {// currentProcess nicht gesetzt --> dann lösche das Model raus (entweder Cancel oder Prozess durchlaufen)
         unloadBPMN();
-        toggleInputActive();
+      }
+    } else {
+      if (responseObject.currentProcess !== "") {
+        loadBPMN(responseObject.currentProcess).then(function () {
+          console.log("BPMN successfully imported")
+          highlightStep(responseObject);
+        }).catch(function(err) {
+          console.error("could not import BPMN 2.0 diagram", err);
+        });
       }
     }
 
@@ -112,29 +125,24 @@ function submit_button(currentProcess, currentProcessStep, previousProcessStep, 
   }
 };
 
-function toggleInputActive() {
+function reactivateInput() {
+  $("#InputField").removeAttr("disabled");  // unclickable
+  $("#InputField").removeClass("InputField-inactive");
+  $("#chat_send").removeClass("disable-me");  // unclickable
+};
 
-  // Eingaben (Input) wieder aktivieren
-  if ($("#InputField").hasClass("InputField-inactive")) {
-    $("#InputField").removeAttr("disabled");  // unclickable
-    $("#InputField").removeClass("InputField-inactive");
-    $("#chat_send").removeClass("disable-me");  // unclickable
-  }
-  // Eingabe (Input) daektivieren
-  else {
-    $("#InputField").attr("disabled", "disabled");  // unclickable
-    $("#InputField").addClass("InputField-inactive");
-    $("#chat_send").addClass("disable-me");  // unclickable
-  }
-
-}
+function deactivateInput() {
+  $("#InputField").attr("disabled", "disabled");  // unclickable
+  $("#InputField").addClass("InputField-inactive");
+  $("#chat_send").addClass("disable-me");  // unclickable
+};
 
 // Leitet die Usereingaben ans Backend weiter
-var userText;
+// var userText;
 $(document).ready(function() {
 
   function handleUserInput() {
-    userText = $("#InputField").val();
+    var userText = $("#InputField").val();
     submit_userText(userText);
     $("#InputField").val("");
 

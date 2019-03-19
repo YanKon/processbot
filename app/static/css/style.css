@@ -264,6 +264,7 @@ p {
 .bjs-powered-by{
     right:0px !important;
     left: 15px;
+    width: 52px;
 }
 
 #chat_send:hover{
@@ -285,4 +286,12 @@ p {
 .disable-me {
   pointer-events: none !important;
   opacity: 0.1;
+}
+
+.botui-actions-container {
+  padding-top: 0px !important;
+}
+
+.botui-messages-container {
+  padding-bottom: 0px !important;
 }
