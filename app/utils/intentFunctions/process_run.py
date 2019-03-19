@@ -25,6 +25,7 @@ def run(dialogflowResponse):
         message1 = dialogflowResponse.query_result.fulfillment_text
         processButtons = []
         for process in Process.query.all():
+            # TODO: Testen ob Button schon existiert ODER ProzessButtons global Speichern
             processButton = buttons.addCustomButton(process.processName,"Name_pressed_" + process.processName,process_run)
             processButtons.append(processButton)  
         return responseHelper.createResponseObject([message1],processButtons,"","","")
@@ -54,9 +55,7 @@ def run(dialogflowResponse):
 # Weg: man kommt hier her über submit_button(JS) --> send_button(PY Route)
 def button_run(pressedButtonValue, currentProcess, currentProcessStep, previousProcessStep):
 
-    # TODO: Hier eine Abfrage für Prozess Start Buttons
-    # Dabei den Pressed Value an Dialogflow übergeben und dann mit dessen Response obige run Methode aufrufen um den Prozess zu starten.
-  
+    # Wenn ein ProzessButton geklickt wird, starte ihn!
     if (pressedButtonValue.startswith("Name_pressed_")):
         selectedProcess = pressedButtonValue[13:]
         dialogflowResponse = dialogflowHelper.detect_intent_texts(PROJECT_ID, "unique", selectedProcess, 'en')
