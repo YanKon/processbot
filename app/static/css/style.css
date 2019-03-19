@@ -249,6 +249,9 @@ p {
   border-color: none;
   box-shadow: none;
 }
+.InputField-inactive::placeholder {
+  opacity: 0.1;
+}
 
 .botui-app-container {
     height:auto;
@@ -273,9 +276,13 @@ p {
 #chat_send:active {
     transform: rotate(0deg);
     transition: transform 0.2s;
-    cursor: pointer;
 }
 
 #chat_send{
     cursor: pointer;
+}
+
+.disable-me {
+  pointer-events: none !important;
+  opacity: 0.1;
 }

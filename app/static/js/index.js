@@ -63,6 +63,7 @@ function submit_userText(userText) {
             loadBPMN(responseObject.currentProcess).then(function () {
               console.log("BPMN successfully imported")
               highlightStep(responseObject);
+              toggleInputActive();
             })
             .catch(function(err) {
               console.error("could not import BPMN 2.0 diagram", err);
@@ -99,21 +100,40 @@ function submit_button(currentProcess, currentProcessStep, previousProcessStep, 
     if (viewer.get("canvas").hasOwnProperty("_rootElement")){ // BPMN Model angezeigt
       if (responseObject.currentProcess !== "") // currentProcess ist gesetzt
         highlightStep(responseObject);
-      else  // currentProcess nicht gesetzt --> dann lösche das Model raus (entweder Cancel oder Prozess durchlaufen)
+      else { // currentProcess nicht gesetzt --> dann lösche das Model raus (entweder Cancel oder Prozess durchlaufen)
         unloadBPMN();
-    } 
+        toggleInputActive();
+      }
+    }
 
     handle_messages(responseObject);
     handle_buttons(responseObject);
 
   }
+};
+
+function toggleInputActive() {
+
+  // Eingaben (Input) wieder aktivieren
+  if ($("#InputField").hasClass("InputField-inactive")) {
+    $("#InputField").removeAttr("disabled");  // unclickable
+    $("#InputField").removeClass("InputField-inactive");
+    $("#chat_send").removeClass("disable-me");  // unclickable
+  }
+  // Eingabe (Input) daektivieren
+  else {
+    $("#InputField").attr("disabled", "disabled");  // unclickable
+    $("#InputField").addClass("InputField-inactive");
+    $("#chat_send").addClass("disable-me");  // unclickable
+  }
+
 }
 
 // Leitet die Usereingaben ans Backend weiter
 var userText;
 $(document).ready(function() {
 
-  $("#chat_send").click(function(e) {
+  function handleUserInput() {
     userText = $("#InputField").val();
     submit_userText(userText);
     $("#InputField").val("");
@@ -122,30 +142,27 @@ $(document).ready(function() {
     botui.message.human({
       content: userText
     });
+  }
+
+  $("#chat_send").click(function(e) {
+    handleUserInput();
   });
 
   $("#InputField").keypress(function(e) {
-    if (e.keyCode == 13) {
-      userText = $("#InputField").val();
-      submit_userText(userText);
-      $("#InputField").val("");
-
-      // Zeigt den UserText im Chatfenster an
-      botui.message.human({
-        content: userText
-      });
-    }
+    if (e.keyCode == 13)
+      handleUserInput();
   });
-});
 
-$(".chat-close").on("click", function(e) {
-  e.preventDefault();
-  $("#live-chat").fadeOut(300);
-  $("#prime").fadeIn(300);
-});
+  $(".chat-close").on("click", function(e) {
+    e.preventDefault();
+    $("#live-chat").fadeOut(300);
+    $("#prime").fadeIn(300);
+  });
+  
+  $("#prime").on("click", function(e) {
+    e.preventDefault();
+    $("#live-chat").fadeIn(300);
+    $("#prime").hide(0);
+  });  
 
-$("#prime").on("click", function(e) {
-  e.preventDefault();
-  $("#live-chat").fadeIn(300);
-  $("#prime").hide(0);
 });
