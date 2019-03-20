@@ -35,6 +35,13 @@
       crossorigin="anonymous"
     />
 
+    <!-- animate.css -->
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/animate.css') }}"
+      crossorigin="anonymous"
+    />
+
     <link
       href="https://fonts.googleapis.com/icon?family=Material+Icons"
       rel="stylesheet"
@@ -62,14 +69,12 @@
           </div>
         </div>
         <div class="chat_field">
-          <input
-            type="text"
-            class="form-control"
-            id="InputField"
-            placeholder="Enter text"
-          />
-          <a id="chat_send" title="Some tooltip text!"
-          ><i class="material-icons">send</i></a>
+          <div class='wrapper-div' data-toggle="tooltip" title="Please click a button from above" data-placement="left" onmouseover="popoverInput()" onclick="popoverInput()">
+            <input type="text" class="form-control" id="InputField" placeholder="Enter text"/>
+          </div>
+          <a id="chat_send" title="Some tooltip text!">
+            <i class="material-icons">send</i>
+          </a>
         </div>
       </div>
       <a id="prime" class="fab">
