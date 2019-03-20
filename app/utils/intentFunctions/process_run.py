@@ -1,13 +1,9 @@
 import sys
-import os
 import json
 from google.protobuf.json_format import MessageToJson
 from app.models import Process, Edge, GeneralInstruction, DetailInstruction
 from app.utils import responseHelper, dialogflowHelper
 from app.utils import buttons as buttons
-from app.utils.intentFunctions import process_run as process_run
-
-PROJECT_ID = os.environ.get("PROJECT_ID")
 
 # Weg: man kommt hier her über submit_message(JS) --> send_userText(PY Route)
 def run(dialogflowResponse):
@@ -23,11 +19,12 @@ def run(dialogflowResponse):
         processId = process.id
     except: #Kein Prozess angegeben, bzw. Prozess nicht gefunden --> alle Prozesse als Button anzeigen
         message1 = dialogflowResponse.query_result.fulfillment_text
-        processButtons = []
+        processButtonsTexts = []
         for process in Process.query.all():
-            # TODO: Testen ob Button schon existiert ODER ProzessButtons global Speichern
-            processButton = buttons.addCustomButton(process.processName,"Name_pressed_" + process.processName,process_run)
-            processButtons.append(processButton)  
+            processButtonsTexts.append(process.processName)
+        processButtons = buttons.addCustomButtons(processButtonsTexts)
+        processButtons.extend(buttons.CANCEL_PROCESS_BUTTON)
+
         return responseHelper.createResponseObject([message1],processButtons,"","","")
 
 
@@ -54,13 +51,6 @@ def run(dialogflowResponse):
 
 # Weg: man kommt hier her über submit_button(JS) --> send_button(PY Route)
 def button_run(pressedButtonValue, currentProcess, currentProcessStep, previousProcessStep):
-
-    # Wenn ein ProzessButton geklickt wird, starte ihn!
-    if (pressedButtonValue.startswith("Name_pressed_")):
-        selectedProcess = pressedButtonValue[13:]
-        dialogflowResponse = dialogflowHelper.detect_intent_texts(PROJECT_ID, "unique", selectedProcess, 'en')
-        return run(dialogflowResponse)
-        
 
     processName = Process.query.filter_by(id=currentProcess).first().processName
 

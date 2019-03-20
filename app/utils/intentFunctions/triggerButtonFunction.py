@@ -1,5 +1,6 @@
 import sys
 from app.utils.intentFunctions import process_names, process_run
+from app.utils.intentFunctions import customButtonFunction
 from app.utils import responseHelper
 
 # Mapt alle Buttons einer entsprechenden Button-Funktion
@@ -19,8 +20,7 @@ def run(pressedButtonValue, currentProcess, currentProcessStep, previousProcessS
     if pressedButtonValue in buttonDict:
         # print("button exists")
         return buttonDict.get(pressedButtonValue).button_run(pressedButtonValue, currentProcess, currentProcessStep, previousProcessStep)
-    else:  
-        # print ("button does not exist, add it to the ButtonDict!")
-        # TODO: Output überlegen, dürfte aber eigentlich nie passieren.
-        return responseHelper.createResponseObject(["Error: Button does not exist, please add it to the buttonDict!"],[],"","","")
-
+    else:  # Button nicht im Dict --> customButton
+        return customButtonFunction.button_run(pressedButtonValue, currentProcess, currentProcessStep, previousProcessStep)
+        
+    
