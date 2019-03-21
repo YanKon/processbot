@@ -304,3 +304,16 @@ p {
 .red-tooltip + .tooltip > .tooltip-inner {
   background-color: #293239;
 }
+
+button.botui-actions-buttons-button {
+  background-color: #56B228;
+  box-shadow: 0px 0px 6px #b2b2b2;
+}
+
+.cancelButton {
+  background-color:red !important;
+}
+
+.tooltip-inner{
+  background-color: #293239;
+}

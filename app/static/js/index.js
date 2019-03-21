@@ -173,17 +173,12 @@ $(document).ready(function() {
     $("#prime").hide(0);
   });  
 
-
-
 });
 
 function popoverInput() {
-  if ($("#InputField").hasClass("InputField-inactive")){
-    $('[data-toggle="tooltip"]').tooltip();
-
-    // $(".wrapper-div").tooltip()
-    // $('[data-toggle="tooltip"]').on('shown.bs.tooltip', function () {
-    //   $('.botui-actions-buttons  .botui-actions-buttons-button').addClass('animated pulse');
-  // })
-  }
+  $('[data-toggle="tooltip"]').tooltip({ animation: true })
+  if ($("#InputField").hasClass("InputField-inactive"))
+    $('[data-toggle="tooltip"]').tooltip('enable');
+  else 
+    $('[data-toggle="tooltip"]').tooltip('disable');
 }
