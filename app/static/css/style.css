@@ -307,7 +307,7 @@ p {
 
 button.botui-actions-buttons-button {
   background-color: #56B228;
-  box-shadow: 0px 0px 6px #b2b2b2;
+  /* box-shadow: 0px 0px 6px #b2b2b2; */
 }
 
 .cancelButton {

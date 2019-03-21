@@ -26,7 +26,8 @@ function handle_buttons(responseObject) {
     setTimeout(function() {
       botui.action
         .button({
-          action: responseObject.buttons
+          action: responseObject.buttons,
+          delay: 1000
         })
         .then(function(pressedButton) {
           // Wird ausgeführt, wenn ein Button geklickt wurde

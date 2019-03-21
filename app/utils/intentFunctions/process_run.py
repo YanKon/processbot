@@ -52,12 +52,15 @@ def run(dialogflowResponse):
 # Weg: man kommt hier her über submit_button(JS) --> send_button(PY Route)
 def button_run(pressedButtonValue, currentProcess, currentProcessStep, previousProcessStep):
 
-    processName = Process.query.filter_by(id=currentProcess).first().processName
-
     # Aktueller Prozesslauf abrechen
     if pressedButtonValue == "Process_pressed_cancel":
-        message = "Okay, the current process instance of process \"" + processName + "\" will be canceled."
-        return responseHelper.createResponseObject([message],[],"","","")
+        try:
+            processName = Process.query.filter_by(id=currentProcess).first().processName
+            message = "Okay, the current process instance of process \"" + processName + "\" will be canceled."
+            return responseHelper.createResponseObject([message],[],"","","")
+        except:
+            message = "Alright, the request will be canceled."
+            return responseHelper.createResponseObject([message],[],"","","")
     
     # Gebe die DetailInstruction aus
     elif pressedButtonValue == "Process_pressed_help":
@@ -74,6 +77,7 @@ def button_run(pressedButtonValue, currentProcess, currentProcessStep, previousP
             message = GeneralInstruction.query.filter_by(nodeId=nextActivityId).first().text # Generelle Anweisungen für den nächsten Schritt
         except:
             print("End of process reached")
+            processName = Process.query.filter_by(id=currentProcess).first().processName
             message = "You have successfully gone through the process \"" + processName + "\"."
             return responseHelper.createResponseObject([message], [], "", "", "")
 
