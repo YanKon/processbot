@@ -8,7 +8,6 @@ import app.utils.dialogflowHelper as dialogflowHelper
 import app.utils.intentFunctions.triggerIntentFunction as triggerIntentFunction
 import app.utils.intentFunctions.triggerButtonFunction as triggerButtonFunction
 
-PROJECT_ID = os.environ.get("PROJECT_ID")
 PROCESS_NAME_ENTITY_TYPE_ID = os.environ.get("PROCESS_NAME_ENTITY_TYPE_ID")
 TASK_NAME_ENTITY_TYPE_ID = os.environ.get("TASK_NAME_ENTITY_TYPE_ID")
 
@@ -25,14 +24,12 @@ def initDialogflow():
     for process in Process.query.all():
         processName = process.processName
         # print(processName)
-        dialogflowHelper.create_entity(
-            PROJECT_ID, PROCESS_NAME_ENTITY_TYPE_ID, processName, [])
+        dialogflowHelper.create_entity(PROCESS_NAME_ENTITY_TYPE_ID, processName, [])
 
     for task in Node.query.filter_by(type="task"):
         taskName = task.name
         print(taskName)
-        dialogflowHelper.create_entity(
-            PROJECT_ID, TASK_NAME_ENTITY_TYPE_ID, taskName, [])
+        dialogflowHelper.create_entity(TASK_NAME_ENTITY_TYPE_ID, taskName, [])
 
     return render_template("index.html")
 
@@ -41,8 +38,7 @@ def initDialogflow():
 def send_userText():
     userText = request.form["userText"]
     print(userText)
-    dialogflowResponse = dialogflowHelper.detect_intent_texts(
-        PROJECT_ID, "unique", userText, 'en')
+    dialogflowResponse = dialogflowHelper.detect_intent_texts(userText)
 
     responseObject = triggerIntentFunction.run(dialogflowResponse)
 

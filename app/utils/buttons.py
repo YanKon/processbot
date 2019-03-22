@@ -43,7 +43,7 @@ CANCEL_PROCESS_BUTTON = [
     }
 ]
 
-def addCustomButtons(buttonTextList):
+def createCustomButtonList(buttonTextList):
 
     buttons = []
     for buttonText in buttonTextList:
@@ -53,3 +53,10 @@ def addCustomButtons(buttonTextList):
             }
         buttons.append(button)
     return buttons
+
+def createCustomButtonWithValue(buttonText, buttonValue):
+    button = {
+        "text": buttonText,
+        "value": buttonValue
+        }
+    return button

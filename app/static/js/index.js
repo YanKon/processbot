@@ -1,5 +1,33 @@
 //$("#live-chat").hide(0);
 
+function handle_model(responseObject) {
+ 
+  if (responseObject.currentProcess !== "") { // CurrentProcess ist gesetzt
+    if(!viewer.get("canvas").hasOwnProperty("_rootElement")) { // --> model noch nicht angezeigt)
+      loadBPMN(responseObject.currentProcess).then(function () { // MODEL LADEN, dann warten, dann Highlighten
+        highlightStep(responseObject);
+      })
+      .catch(function(err) {
+        console.error("could not import BPMN 2.0 diagram", err);
+      });
+    } 
+    else // --> model schon angezeigt --> also direkt HIGHLIGHT
+      highlightStep(responseObject);
+  } 
+  else { // CurrentProcess ist nicht gesetzt
+    if(viewer.get("canvas").hasOwnProperty("_rootElement")) // --> model ist angezeigt)
+      unloadBPMN();;
+  }
+}
+
+function highlightStep(responseObject) {
+  if (responseObject.currentProcessStep !== "")
+    viewer.get("canvas").addMarker(responseObject.currentProcessStep, "highlight");
+
+  if (responseObject.previousProcessStep !== "")
+    viewer.get("canvas").addMarker(responseObject.previousProcessStep, "done");
+}
+
 // Geht über alle Messages und gibt sie aus
 // 1000 * index + 500 => gibt messages mit Verzögerung aus (abhängig von index größe)
 function handle_messages(responseObject) {
@@ -45,13 +73,6 @@ function handle_buttons(responseObject) {
     reactivateInput();
 }
 
-function highlightStep(responseObject) {
-  if (responseObject.currentProcessStep !== "")
-    viewer.get("canvas").addMarker(responseObject.currentProcessStep, "highlight");
-
-  if (responseObject.previousProcessStep !== "")
-    viewer.get("canvas").addMarker(responseObject.previousProcessStep, "done");
-}
 
 function submit_userText(userText) {
   $.post("/send_userText", 
@@ -63,27 +84,9 @@ function submit_userText(userText) {
 
   function handle_response(responseObject) {
         
-        if (responseObject.currentProcess !== ""){
-          // Model laden, wenn noch nicht geschehen
-          if (!viewer.get("canvas").hasOwnProperty("_rootElement")){  // --> model noch nicht angezeigt
-            console.log("BPMN Model is loading ...")
-            // MODEL LADEN, dann warten, dann Highlighten
-            loadBPMN(responseObject.currentProcess).then(function () {
-              console.log("BPMN successfully imported")
-              highlightStep(responseObject);
-            })
-            .catch(function(err) {
-              console.error("could not import BPMN 2.0 diagram", err);
-            });
-          } else { // --> model schon angezeigt --> also direkt HIGHLIGHT
-            highlightStep(responseObject);
-          }
-        } else { //currentProcess ist nicht gesetzt
-          console.log("######### Anderer Intent als Process Run #########")
-        }
-
-        handle_messages(responseObject);
-        handle_buttons(responseObject)  ;
+    handle_model(responseObject);
+    handle_messages(responseObject);
+    handle_buttons(responseObject);
 
   }
 }
@@ -103,23 +106,7 @@ function submit_button(currentProcess, currentProcessStep, previousProcessStep, 
 
   function handle_response(responseObject) {
 
-    if (viewer.get("canvas").hasOwnProperty("_rootElement")){ // BPMN Model angezeigt
-      if (responseObject.currentProcess !== "") // currentProcess ist gesetzt
-        highlightStep(responseObject);
-      else {// currentProcess nicht gesetzt --> dann lösche das Model raus (entweder Cancel oder Prozess durchlaufen)
-        unloadBPMN();
-      }
-    } else {
-      if (responseObject.currentProcess !== "") {
-        loadBPMN(responseObject.currentProcess).then(function () {
-          console.log("BPMN successfully imported")
-          highlightStep(responseObject);
-        }).catch(function(err) {
-          console.error("could not import BPMN 2.0 diagram", err);
-        });
-      }
-    }
-
+    handle_model(responseObject);
     handle_messages(responseObject);
     handle_buttons(responseObject);
 

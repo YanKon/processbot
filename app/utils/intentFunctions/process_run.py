@@ -8,8 +8,6 @@ from app.utils import buttons as buttons
 # Weg: man kommt hier her über submit_message(JS) --> send_userText(PY Route)
 def run(dialogflowResponse):
 
-    # NOCH NICHT GANZ KLAR! MESSAGETOJSON
-
     parameters_json = json.loads(MessageToJson(dialogflowResponse.query_result.parameters))
     processName = parameters_json['process_name_parameter']
 
@@ -23,7 +21,7 @@ def run(dialogflowResponse):
         processButtonsTexts = []
         for process in Process.query.all():
             processButtonsTexts.append(process.processName)
-        processButtons = buttons.addCustomButtons(processButtonsTexts)
+        processButtons = buttons.createCustomButtonList(processButtonsTexts)
         processButtons.extend(buttons.CANCEL_PROCESS_BUTTON)
 
         return responseHelper.createResponseObject([message1, message2],processButtons,"","","")
