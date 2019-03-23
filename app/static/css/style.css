@@ -317,3 +317,64 @@ button.botui-actions-buttons-button {
 .tooltip-inner{
   background-color: #293239;
 }
+
+.overlay {
+  border: 2px solid #008000;
+  border-radius:10px;
+  width: 200px;
+  text-align: center;
+  padding: 5px;
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  fill: black;
+}
+
+.pheader1{
+  border-bottom: 1px solid #293239;
+  font-weight: bold;
+}
+
+.pheader2{
+  font-weight: bold;
+  border-bottom: 1px solid #293239;
+  padding-top: 10px;
+}
+
+.node-instruction {
+  border: 1px solid;
+  background-color: white;
+}
+
+.node-instruction-current {
+  width: 100%;
+  font-style: italic;
+}
+
+.arrow_box {
+	position: relative;
+	background: #ffffff;
+	border: 2px solid #008000;
+}
+.arrow_box:after, .arrow_box:before {
+	bottom: 100%;
+	left: 50%;
+	border: solid transparent;
+	content: " ";
+	height: 0;
+	width: 0;
+	position: absolute;
+	pointer-events: none;
+}
+
+.arrow_box:after {
+	border-color: rgba(255, 255, 255, 0);
+	border-bottom-color: #fffffff;
+	border-width: 5px;
+	margin-left: -5px;
+}
+.arrow_box:before {
+	border-color: rgba(0, 128, 0, 0);
+	border-bottom-color: #008000;
+	border-width: 8px;
+	margin-left: -8px;
+}

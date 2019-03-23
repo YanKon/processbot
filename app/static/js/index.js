@@ -21,11 +21,34 @@ function handle_model(responseObject) {
 }
 
 function highlightStep(responseObject) {
-  if (responseObject.currentProcessStep !== "")
+  if (responseObject.currentProcessStep !== "") {
     viewer.get("canvas").addMarker(responseObject.currentProcessStep, "highlight");
+    
+    var instruction = elementRegistry.get(responseObject.currentProcessStep).businessObject.get("chatbot:instruction");
+    var detailInstruction= elementRegistry.get(responseObject.currentProcessStep).businessObject.get("chatbot:detailInstruction");
 
-  if (responseObject.previousProcessStep !== "")
+    overlays.add(responseObject.currentProcessStep, 'note', {
+      position: {
+        bottom: -7,
+        left: -(elementRegistry.get(responseObject.currentProcessStep).width/2)
+      },
+      html: 
+        '<div class="overlay arrow_box">'+
+          '<p class="pheader1">general instruction</p>' +
+          '<div class="node-instruction-current">'+ instruction + '</div>'+
+          '<p class="pheader2">detail instruction</p>' +
+          '<div class="node-instruction-current">'+ detailInstruction + '</div>'+
+        '</div>'
+    });
+
+  }
+
+  if (responseObject.previousProcessStep !== "") {
     viewer.get("canvas").addMarker(responseObject.previousProcessStep, "done");
+
+    overlays.remove({ element: responseObject.previousProcessStep });
+  }
+
 }
 
 // Geht über alle Messages und gibt sie aus
