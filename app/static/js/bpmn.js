@@ -13,6 +13,14 @@ function loadBPMN(uri) {
           if (err) {
             reject(err);
           } else {
+            var overlays = viewer.get("overlays");
+            overlays.add('Task_0roorh4', 'note', {
+              position: {
+                bottom: 0,
+                right: 0
+              },
+              html: '<div class="diagram-note">Mixed up the labels?</div>'
+            });
             resolve();
           }
         });

@@ -17,15 +17,15 @@ def run(dialogflowResponse):
         message1 = dialogflowResponse.query_result.fulfillment_text
         message2 = "These are the processes I can show you a model for:"
 
-        processButtons = []
+        showButtons = []
         for process in Process.query.all():
             button = buttons.createCustomButtonWithValue(process.processName,"Show_Button_" + process.processName)
-            processButtons.append(button)
+            showButtons.append(button)
         # TODO: Hier noch ein eigener Cancel Button machen & eigene button_run definieren!
-        processButtons.extend(buttons.CANCEL_PROCESS_BUTTON)
+        showButtons.extend(buttons.CANCEL_PROCESS_BUTTON)
 
 
-        return responseHelper.createResponseObject([message1, message2],processButtons,"","","")
+        return responseHelper.createResponseObject([message1, message2],showButtons,"","","")
     
     message = dialogflowResponse.query_result.fulfillment_text
     currentProcess = processId

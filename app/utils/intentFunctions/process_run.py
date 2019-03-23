@@ -18,13 +18,13 @@ def run(dialogflowResponse):
     except: #Kein Prozess angegeben, bzw. Prozess nicht gefunden --> alle Prozesse als Button anzeigen
         message1 = dialogflowResponse.query_result.fulfillment_text
         message2 = "These are the processes I can help you with:"
-        processButtonsTexts = []
+        runButtons = []
         for process in Process.query.all():
-            processButtonsTexts.append(process.processName)
-        processButtons = buttons.createCustomButtonList(processButtonsTexts)
-        processButtons.extend(buttons.CANCEL_PROCESS_BUTTON)
+            button = buttons.createCustomButtonWithValue(process.processName,"Run_Button_" + process.processName)
+            runButtons.append(button)
+        runButtons.extend(buttons.CANCEL_PROCESS_BUTTON)
 
-        return responseHelper.createResponseObject([message1, message2],processButtons,"","","")
+        return responseHelper.createResponseObject([message1, message2],runButtons,"","","")
 
 
     # TODO: Mehrere Startevents
