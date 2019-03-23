@@ -411,3 +411,7 @@ button.botui-actions-buttons-button {
   display:none;
 }
 
+.custom-control-input:checked~.custom-control-label::before {
+  background-color: #008000;
+  border-color: #008000;
+}
