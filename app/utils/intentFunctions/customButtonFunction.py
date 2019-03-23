@@ -9,17 +9,17 @@ PROJECT_ID = os.environ.get("PROJECT_ID")
 # --> gebe ButtonText an Dialogflow
 def button_run(pressedButtonValue, currentProcess, currentProcessStep, previousProcessStep):
     
-    if (pressedButtonValue.startswith("Run_Button_")):
-        buttonText = pressedButtonValue[12:]
+    if (pressedButtonValue.startswith("Run_CustomButton_")):
+        buttonText = pressedButtonValue[18:]
         dialogflowResponse = dialogflowHelper.detect_intent_texts(buttonText)
         return process_run.run(dialogflowResponse)
     
-    elif(pressedButtonValue.startswith("Show_Button_")):
-        buttonText = pressedButtonValue[13:]
+    elif(pressedButtonValue.startswith("Show_CustomButton_")):
+        buttonText = pressedButtonValue[19:]
         dialogflowResponse = dialogflowHelper.detect_intent_texts(buttonText)
         return process_show.run(dialogflowResponse)
     else:
-        return responseHelper.createResponseObject(["Error: Button does not exist, please add it to the buttonDict!"],[],"","","")
+        return responseHelper.createResponseObject(["Error: Button does not exist, please add it to the customButtonDict!"],[],"","","")
 
 
     

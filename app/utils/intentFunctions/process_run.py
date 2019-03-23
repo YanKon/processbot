@@ -20,9 +20,9 @@ def run(dialogflowResponse):
         message2 = "These are the processes I can help you with:"
         runButtons = []
         for process in Process.query.all():
-            button = buttons.createCustomButtonWithValue(process.processName,"Run_Button_" + process.processName)
+            button = buttons.createCustomButton(process.processName,"process_run", process.processName)
             runButtons.append(button)
-        runButtons.extend(buttons.CANCEL_PROCESS_BUTTON)
+        runButtons.extend(buttons.CANCEL_RUN_BUTTON)
 
         return responseHelper.createResponseObject([message1, message2],runButtons,"","","")
 
@@ -45,29 +45,28 @@ def run(dialogflowResponse):
 
     print(currentProcessStep)
 
-    return responseHelper.createResponseObject(messages, buttons.STANDARD_PROCESS_BUTTONS,currentProcess, currentProcessStep,previousProcessStep)
+    return responseHelper.createResponseObject(messages, buttons.STANDARD_RUN_BUTTONS,currentProcess, currentProcessStep,previousProcessStep)
 
 
-# Weg: man kommt hier her über submit_button(JS) --> send_button(PY Route)
+# Weg: man kommt hier her über submit_button(JS) --> send_button(PY Route) --> triggerButtonFunction (ButtonDict)
 def button_run(pressedButtonValue, currentProcess, currentProcessStep, previousProcessStep):
 
     # Aktueller Prozesslauf abrechen
-    if pressedButtonValue == "Process_pressed_cancel":
+    if pressedButtonValue == "process_run_cancel":
         try:
             processName = Process.query.filter_by(id=currentProcess).first().processName
             message = "Okay, the current process instance of process \"" + processName + "\" will be canceled."
-            return responseHelper.createResponseObject([message],[],"","","")
-        except:
+        except: # kein Prozessname
             message = "Alright, the request will be canceled."
-            return responseHelper.createResponseObject([message],[],"","","")
+        return responseHelper.createResponseObject([message],[],"","","")    
     
     # Gebe die DetailInstruction aus
-    elif pressedButtonValue == "Process_pressed_help":
+    elif pressedButtonValue == "process_run_help":
       
         message = DetailInstruction.query.filter_by(nodeId=currentProcessStep).first().text # Detail Anweisungen für aktuellen Schritt
-        return responseHelper.createResponseObject([message],buttons.REDUCED_PROCESS_BUTTONS,currentProcess, currentProcessStep, previousProcessStep)
+        return responseHelper.createResponseObject([message],buttons.REDUCED_RUN_BUTTONS,currentProcess, currentProcessStep, previousProcessStep)
     
-    else: # Nächster Schritt --> "Process_pressed_yes"
+    else: # Nächster Schritt --> "process_run_yes"
 
         nextActivityId = Edge.query.filter(Edge.sourceId == currentProcessStep).filter_by(processId=currentProcess).first().targetId
         
@@ -80,4 +79,11 @@ def button_run(pressedButtonValue, currentProcess, currentProcessStep, previousP
             message = "You have successfully gone through the process \"" + processName + "\"."
             return responseHelper.createResponseObject([message], [], "", "", "")
 
-        return responseHelper.createResponseObject([message], buttons.STANDARD_PROCESS_BUTTONS, currentProcess, nextActivityId, currentProcessStep)
+        return responseHelper.createResponseObject([message], buttons.STANDARD_RUN_BUTTONS, currentProcess, nextActivityId, currentProcessStep)
+
+# Weg: man kommt hier her über submit_button(JS) --> send_button(PY Route) --> triggerButtonFunction (customButtonDict)
+def customButton_run(pressedButtonValue, currentProcess, currentProcessStep, previousProcessStep):
+     # zB. CustomButtonValue = "process_run$customButton$Reisekosten"
+    entity = pressedButtonValue[26:]
+    dialogflowResponse = dialogflowHelper.detect_intent_texts(entity)
+    return run(dialogflowResponse)

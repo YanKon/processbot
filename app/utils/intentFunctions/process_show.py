@@ -19,10 +19,10 @@ def run(dialogflowResponse):
 
         showButtons = []
         for process in Process.query.all():
-            button = buttons.createCustomButtonWithValue(process.processName,"Show_Button_" + process.processName)
+            button = buttons.createCustomButton(process.processName,"process_show",process.processName)
             showButtons.append(button)
         # TODO: Hier noch ein eigener Cancel Button machen & eigene button_run definieren!
-        showButtons.extend(buttons.CANCEL_PROCESS_BUTTON)
+        showButtons.extend(buttons.CANCEL_SHOW_BUTTON)
 
 
         return responseHelper.createResponseObject([message1, message2],showButtons,"","","")
@@ -31,3 +31,19 @@ def run(dialogflowResponse):
     currentProcess = processId
 
     return responseHelper.createResponseObject([message],[],currentProcess,"","")
+
+# Weg: man kommt hier her über submit_button(JS) --> send_button(PY Route) --> triggerButtonFunction (ButtonDict)
+def button_run(pressedButtonValue, currentProcess, currentProcessStep, previousProcessStep):
+    if pressedButtonValue == "process_show_cancel":
+        message = "Alright, the request will be canceled."
+        return responseHelper.createResponseObject([message],[],"","","")   
+    else:
+        #TODO RAISE ERROR RESPONSEOBJECT 
+        pass
+
+# Weg: man kommt hier her über submit_button(JS) --> send_button(PY Route) --> triggerButtonFunction (customButtonDict)
+def customButton_run(pressedButtonValue, currentProcess, currentProcessStep, previousProcessStep):
+    # zB. CustomButtonValue = "process_show$customButton$Reisekosten"
+    entity = pressedButtonValue[27:]
+    dialogflowResponse = dialogflowHelper.detect_intent_texts(entity)
+    return run(dialogflowResponse)

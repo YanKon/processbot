@@ -1,5 +1,5 @@
 import sys
-from app.utils.intentFunctions import process_names, process_run
+from app.utils.intentFunctions import process_names, process_run, process_show
 from app.utils.intentFunctions import customButtonFunction
 from app.utils import responseHelper
 
@@ -7,9 +7,17 @@ from app.utils import responseHelper
 # TODO: Hier eventuell andere Lösung anstatt Dict
 buttonDict = {
     # Process Fälle zusammenfassen
-    "Process_pressed_yes": process_run,
-    "Process_pressed_help": process_run,
-    "Process_pressed_cancel": process_run
+    "process_run_yes": process_run,
+    "process_run_help": process_run,
+    "process_run_cancel": process_run,
+    "process_show_cancel": process_show,
+    "process_names_cancel": process_names
+}
+
+customButtonDict = {
+    "process_run": process_run,
+    "process_names": process_names,
+    "process_show": process_show
 }
 
 # Führt die jeweiligen Button-Funktion aus
@@ -18,9 +26,18 @@ buttonDict = {
 def run(pressedButtonValue, currentProcess, currentProcessStep, previousProcessStep):
     
     if pressedButtonValue in buttonDict:
-        # print("button exists")
         return buttonDict.get(pressedButtonValue).button_run(pressedButtonValue, currentProcess, currentProcessStep, previousProcessStep)
     else:  # Button nicht im Dict --> customButton
-        return customButtonFunction.button_run(pressedButtonValue, currentProcess, currentProcessStep, previousProcessStep)
+        try: #Intent und Value aus Button holen (vgl. buttons.createCustomButton(text,intent,value))
+            customButtonIntent = pressedButtonValue.split("$")[0]
+        except:
+            raise ValueError("Button wrong format!")
+
+        if customButtonIntent in customButtonDict:
+            return customButtonDict.get(customButtonIntent).customButton_run(pressedButtonValue, currentProcess, currentProcessStep, previousProcessStep)
+
+    #TODO Message ausgeben (Falscher Button) oder HTML Alert Fehler
+    # neuer response Object Typ = Error und dann in index.js prüfen und Error anzeigen
+    # return customButtonFunction.button_run(pressedButtonValue, currentProcess, currentProcessStep, previousProcessStep)
         
     

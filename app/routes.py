@@ -14,6 +14,7 @@ TASK_NAME_ENTITY_TYPE_ID = os.environ.get("TASK_NAME_ENTITY_TYPE_ID")
 # Standard Route zum Anzeigen der Index.html
 @app.route("/")
 def index():
+    # TODO: Welcome Messages anzeigen!
     return render_template("index.html")
 
 

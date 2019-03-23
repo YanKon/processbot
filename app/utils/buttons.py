@@ -1,62 +1,65 @@
-from app.utils.intentFunctions import triggerButtonFunction
-
-STANDARD_PROCESS_BUTTONS = [
+STANDARD_RUN_BUTTONS = [
     {
         "text": "Yes",
-        "value": "Process_pressed_yes",
+        "value": "process_run_yes"
         # "icon": "check"
 
     },
     {
         "text": "Help",
-        "value": "Process_pressed_help",
+        "value": "process_run_help"
         # "icon": "question"
     },
     {
         "text": "Cancel",
-        "value": "Process_pressed_cancel",
-        "cssClass": 'cancelButton',
+        "value": "process_run_cancel",
+        "cssClass": 'cancelButton'
         # "icon": "times"
     }
 ]
 
-REDUCED_PROCESS_BUTTONS = [
+REDUCED_RUN_BUTTONS = [
     {
         "text": "Yes",
-        "value": "Process_pressed_yes",
+        "value": "process_run_yes"
         # "icon": "check"
     },
     {
         "text": "Cancel",
-        "value": "Process_pressed_cancel",
-        "cssClass": 'cancelButton',
+        "value": "process_run_cancel",
+        "cssClass": 'cancelButton'
         # "icon": "times"
     }
 ]
 
-CANCEL_PROCESS_BUTTON = [
+CANCEL_RUN_BUTTON = [
      {
         "text": "Cancel",
-        "value": "Process_pressed_cancel",
-        "cssClass": 'cancelButton',
-        # "icon": "times"
+        "value": "process_run_cancel",
+        "cssClass": 'cancelButton'
     }
 ]
 
-def createCustomButtonList(buttonTextList):
+CANCEL_SHOW_BUTTON = [
+    {
+        "text": "Cancel",
+        "value": "process_show_cancel",
+        "cssClass": 'cancelButton'
+    }
+]
 
-    buttons = []
-    for buttonText in buttonTextList:
-        button = {
-            "text": buttonText,
-            "value": "Button_pressed_" + buttonText
-            }
-        buttons.append(button)
-    return buttons
+CANCEL_NAMES_BUTTON = [
+    {
+        "text": "Cancel",
+        "value": "process_names_cancel",
+        "cssClass": 'cancelButton'
+    }
+]
 
-def createCustomButtonWithValue(buttonText, buttonValue):
+# INTENT IMMER OHNE "process_"
+def createCustomButton(buttonText, intent, value):
     button = {
         "text": buttonText,
-        "value": buttonValue
+        "value": intent + "$customButton$" + value
         }
     return button
