@@ -6,6 +6,7 @@ body {
 .navbar {
     background-color: #293239;
     text-align: center;
+    color:white;
 }
 
 .navbar-brand {
@@ -318,17 +319,6 @@ button.botui-actions-buttons-button {
   background-color: #293239;
 }
 
-.overlay {
-  border: 2px solid #008000;
-  border-radius:10px;
-  width: 200px;
-  text-align: center;
-  padding: 5px;
-  font-family: Arial, sans-serif;
-  font-size: 12px;
-  fill: black;
-}
-
 .pheader1{
   border-bottom: 1px solid #293239;
   font-weight: bold;
@@ -340,20 +330,58 @@ button.botui-actions-buttons-button {
   padding-top: 10px;
 }
 
-.node-instruction {
-  border: 1px solid;
-  background-color: white;
-}
-
 .node-instruction-current {
   width: 100%;
   font-style: italic;
 }
 
-.arrow_box {
+.arrow_box_highlight {
+  z-index: 9998;
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  fill: black;
+  border-radius:10px;
+  padding: 5px;
+  text-align: center;
 	position: relative;
 	background: #ffffff;
 	border: 2px solid #008000;
+}
+.arrow_box_highlight:after, .arrow_box:before {
+	bottom: 100%;
+	left: 50%;
+	border: solid transparent;
+	content: " ";
+	height: 0;
+	width: 0;
+	position: absolute;
+	pointer-events: none;
+}
+
+.arrow_box_highlight:after {
+	border-color: rgba(255, 255, 255, 0);
+	border-bottom-color: #008000;
+	border-width: 8px;
+	margin-left: -8px;
+}
+.arrow_box_highlight:before {
+	border-color: rgba(0, 128, 0, 0);
+	border-bottom-color: #008000;
+	border-width: 8px;
+	margin-left: -8px;
+}
+
+.arrow_box {
+  z-index: 9999;
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  fill: black;
+  border-radius:10px;
+  padding: 5px;
+  text-align: center;
+	position: relative;
+	background: #ffffff;
+	border: 2px solid #293239;
 }
 .arrow_box:after, .arrow_box:before {
 	bottom: 100%;
@@ -368,13 +396,18 @@ button.botui-actions-buttons-button {
 
 .arrow_box:after {
 	border-color: rgba(255, 255, 255, 0);
-	border-bottom-color: #fffffff;
-	border-width: 5px;
-	margin-left: -5px;
-}
-.arrow_box:before {
-	border-color: rgba(0, 128, 0, 0);
-	border-bottom-color: #008000;
+	border-bottom-color: #293239;
 	border-width: 8px;
 	margin-left: -8px;
 }
+.arrow_box:before {
+	border-color: rgba(0, 128, 0, 0);
+	border-bottom-color: #293239;
+	border-width: 8px;
+	margin-left: -8px;
+}
+
+.hidden {
+  display:none;
+}
+

@@ -38,19 +38,10 @@
       crossorigin="anonymous"
     />
 
-    <!-- animate.css -->
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='css/animate.css') }}"
-      crossorigin="anonymous"
-    />
-
     <link
       href="https://fonts.googleapis.com/icon?family=Material+Icons"
       rel="stylesheet"
     />
-
-
 
     <title>Processbot</title>
   </head>
@@ -58,6 +49,10 @@
   <body>
     <nav class="navbar">
       <span class="navbar-brand mb-0 h1">Processbot Demo</span>
+      <div class="custom-control custom-switch">
+          <input type="checkbox" class="custom-control-input" id="customSwitch1">
+          <label class="custom-control-label" for="customSwitch1">Overlays</label>
+        </div>
     </nav>
 
     <div id="canvas"></div>

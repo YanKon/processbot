@@ -3,6 +3,20 @@ var viewer = new BpmnJS({ container: "#canvas" });
 var elementRegistry;
 var overlays;
 var eventBus;
+var activateOverlay = false;
+
+$("#customSwitch1").click(function(){
+  var check = $(this).prop('checked');
+  console.log(check);
+  if(check == true) {
+    $('.arrow_box_highlight').removeClass("hidden");
+    $('.checkbox').prop('checked', true);
+  } else {
+    $('.arrow_box_highlight').addClass("hidden");
+    $('.checkbox').prop('checked', false);
+  }
+});
+
 
 function loadBPMN(uri) {
     
@@ -31,22 +45,39 @@ function loadBPMN(uri) {
             events.forEach(function(event) {
 
               eventBus.on(event, function(e) {
-                if (event === "element.hover") {
-                  if (e.element.type === "bpmn:Task") {
-                    
-                    var instruction = elementRegistry.get(e.element.id).businessObject.get("chatbot:instruction");
-                    var detailInstruction= elementRegistry.get(e.element.id).businessObject.get("chatbot:instruction");
-                    overlays.add(e.element.id, 'note', {
-                      position: {
-                        bottom: -5,
-                        left: -2
-                      },
-                      html: '<div class="node-instruction">'+detailInstruction+'</div>'
-                    });
+                if ($("#customSwitch1").prop('checked')) {
+                  if (event === "element.hover") {
+                    if (e.element.type === "bpmn:Task") {
+                      if (!viewer.get('canvas').hasMarker(e.element.id, "highlight")) {
+                        
+                        var instruction = elementRegistry.get(e.element.id).businessObject.get("chatbot:instruction");
+                        var detailInstruction= elementRegistry.get(e.element.id).businessObject.get("chatbot:detailInstruction");
+                        var $overlayHtml = 
+                          $('<div class="arrow_box">'+
+                              '<p class="pheader1">general instruction</p>' +
+                              '<div class="node-instruction-current">'+ instruction + '</div>'+
+                              '<p class="pheader2">detail instruction</p>' +
+                              '<div class="node-instruction-current">'+ detailInstruction + '</div>'+
+                            '</div>').css({
+                            width: elementRegistry.get(e.element.id).width * 2,
+                          });
+
+                        overlays.add(e.element.id, 'note', {
+                          position: {
+                            bottom: -7,
+                            left: -(elementRegistry.get(e.element.id).width / 2)
+                          },
+                          html: $overlayHtml
+                        });
+
+                      } 
+                    }
                   }
                 }
                 if (event === "element.out") {
-                  overlays.remove({ element: e.element.id });
+                  if (!viewer.get('canvas').hasMarker(e.element.id, "highlight")) {
+                    overlays.remove({ element: e.element.id });
+                  }
                 }
               });
             });
@@ -69,7 +100,7 @@ function loadBPMN(uri) {
           }
         });
       },
-      async: false // <- this turns it into synchronous
+      async: true // <- this turns it into synchronous
     });
   });
   return modelLoadPromise;

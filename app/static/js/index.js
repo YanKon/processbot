@@ -20,33 +20,43 @@ function handle_model(responseObject) {
   }
 }
 
+function showOverlays(processStep) {
+  var instruction = elementRegistry.get(processStep).businessObject.get("chatbot:instruction");
+  var detailInstruction = elementRegistry.get(processStep).businessObject.get("chatbot:detailInstruction");
+
+  var $overlayHtml =
+    $('<div class="arrow_box_highlight hidden">' +
+      '<p class="pheader1">general instruction</p>' +
+      '<div class="node-instruction-current">' + instruction + '</div>' +
+      '<p class="pheader2">detail instruction</p>' +
+      '<div class="node-instruction-current">' + detailInstruction + '</div>' +
+      '</div>').css({
+        width: elementRegistry.get(processStep).width * 2,
+      });
+
+  overlays.add(processStep, 'note', {
+    position: {
+      bottom: -7,
+      left: -(elementRegistry.get(processStep).width / 2)
+    },
+    html: $overlayHtml
+  });
+}
+
+function hideOverlays(processStep) {
+  overlays.remove({ element: processStep });
+}
+
 function highlightStep(responseObject) {
   if (responseObject.currentProcessStep !== "") {
     viewer.get("canvas").addMarker(responseObject.currentProcessStep, "highlight");
-    
-    var instruction = elementRegistry.get(responseObject.currentProcessStep).businessObject.get("chatbot:instruction");
-    var detailInstruction= elementRegistry.get(responseObject.currentProcessStep).businessObject.get("chatbot:detailInstruction");
-
-    overlays.add(responseObject.currentProcessStep, 'note', {
-      position: {
-        bottom: -7,
-        left: -(elementRegistry.get(responseObject.currentProcessStep).width/2)
-      },
-      html: 
-        '<div class="overlay arrow_box">'+
-          '<p class="pheader1">general instruction</p>' +
-          '<div class="node-instruction-current">'+ instruction + '</div>'+
-          '<p class="pheader2">detail instruction</p>' +
-          '<div class="node-instruction-current">'+ detailInstruction + '</div>'+
-        '</div>'
-    });
-
+    showOverlays(responseObject.currentProcessStep);
   }
 
   if (responseObject.previousProcessStep !== "") {
+    viewer.get("canvas").removeMarker(responseObject.previousProcessStep, "highlight");
     viewer.get("canvas").addMarker(responseObject.previousProcessStep, "done");
-
-    overlays.remove({ element: responseObject.previousProcessStep });
+    hideOverlays(responseObject.previousProcessStep)
   }
 
 }
