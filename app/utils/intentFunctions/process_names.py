@@ -1,4 +1,3 @@
-import sys
 from app.models import Process
 from flask import jsonify
 from app.utils import responseHelper, dialogflowHelper

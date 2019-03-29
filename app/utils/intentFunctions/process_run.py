@@ -25,9 +25,7 @@ def run(dialogflowResponse):
         runButtons.extend(buttons.CANCEL_RUN_BUTTON)
 
         return responseHelper.createResponseObject([message1, message2],runButtons,"","","")
-
-
-    # TODO: Mehrere Startevents
+    
     # erste Aktivität im Prozess nehmen
     firstActivityId = Edge.query.filter(Edge.sourceId.like(
         'StartEvent_%')).filter_by(processId=process.id).first().targetId
@@ -42,8 +40,6 @@ def run(dialogflowResponse):
     currentProcess = processId
     currentProcessStep = firstActivityId
     previousProcessStep = previousStepId
-
-    print(currentProcessStep)
 
     return responseHelper.createResponseObject(messages, buttons.STANDARD_RUN_BUTTONS,currentProcess, currentProcessStep,previousProcessStep)
 

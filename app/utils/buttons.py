@@ -56,6 +56,14 @@ CANCEL_NAMES_BUTTON = [
     }
 ]
 
+CANCEL_DOC_BUTTON = [
+    {
+        "text": "Cancel",
+        "value": "process_doc_cancel",
+        "cssClass": 'cancelButton'
+    }
+]
+
 # INTENT IMMER OHNE "process_"
 def createCustomButton(buttonText, intent, value):
     button = {

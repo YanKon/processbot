@@ -38,9 +38,7 @@ def initDialogflow():
 @app.route('/send_userText', methods=["POST"])
 def send_userText():
     userText = request.form["userText"]
-    print(userText)
     dialogflowResponse = dialogflowHelper.detect_intent_texts(userText)
-
     responseObject = triggerIntentFunction.run(dialogflowResponse)
 
     return responseObject

@@ -1,9 +1,9 @@
 import sys
-from app.utils.intentFunctions import process_names, process_run, process_show
+from app.utils.intentFunctions import process_names, process_run, process_show, process_doc
 from app.utils.intentFunctions import customButtonFunction
 from app.utils import responseHelper
 
-# Mapt alle Buttons einer entsprechenden Button-Funktion
+# Mapt alle Button Values einer entsprechenden Button-Funktion
 # TODO: Hier eventuell andere Lösung anstatt Dict
 buttonDict = {
     # Process Fälle zusammenfassen
@@ -11,13 +11,15 @@ buttonDict = {
     "process_run_help": process_run,
     "process_run_cancel": process_run,
     "process_show_cancel": process_show,
-    "process_names_cancel": process_names
+    "process_names_cancel": process_names,
+    "process_doc_cancel": process_doc
 }
 
 customButtonDict = {
     "process_run": process_run,
     "process_names": process_names,
-    "process_show": process_show
+    "process_show": process_show,
+    "process_doc": process_doc
 }
 
 # Führt die jeweiligen Button-Funktion aus
