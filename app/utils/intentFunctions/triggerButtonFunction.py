@@ -1,5 +1,5 @@
 import sys
-from app.utils.intentFunctions import process_names, process_run, process_show, process_doc
+from app.utils.intentFunctions import process_names, process_run, process_show, process_doc, process_step
 from app.utils.intentFunctions import customButtonFunction
 from app.utils import responseHelper
 
@@ -19,7 +19,8 @@ customButtonDict = {
     "process_run": process_run,
     "process_names": process_names,
     "process_show": process_show,
-    "process_doc": process_doc
+    "process_doc": process_doc,
+    "process_step": process_step
 }
 
 # Führt die jeweiligen Button-Funktion aus

@@ -1,4 +1,3 @@
-import sys
 import json
 from google.protobuf.json_format import MessageToJson
 from app.models import Process, Edge, GeneralInstruction, DetailInstruction
@@ -23,8 +22,8 @@ def run(dialogflowResponse):
             button = buttons.createCustomButton(process.processName,"process_run", process.processName)
             runButtons.append(button)
         runButtons.extend(buttons.CANCEL_RUN_BUTTON)
-
-        return responseHelper.createResponseObject([message1, message2],runButtons,"","","")
+        messages = [message1, message2]
+        return responseHelper.createResponseObject(messages,runButtons,"","","")
     
     # erste Aktivität im Prozess nehmen
     firstActivityId = Edge.query.filter(Edge.sourceId.like(
