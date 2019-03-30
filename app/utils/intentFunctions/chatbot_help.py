@@ -2,6 +2,7 @@ from app.utils import responseHelper
 
 # Weg: man kommt hier her über submit_message(JS) --> send_userText(PY Route)
 def run(dialogflowResponse):
+    # TODO implement a better way to show example commands
     message1 = "These are some commands you could type in, if you need support with your processes:"
     message2 = "Start process \"Reisekosten\""
     message3 = "What do I have to do at step \"Name eintragen\" in process \"Reisekosten\"?"
