@@ -61,8 +61,6 @@ def button_run(pressedButtonValue, currentProcess, currentProcessStep, previousP
             message1 = "There is no next step. You have reached the end of the process."
             messages = [message1]
             return responseHelper.createResponseObject(messages,buttons.PREVIOUS_STEP_BUTTONS,currentProcess,currentProcessStep,"")
-        
-        #TODO Highlight bei next unterdrücken
     
     else: #"process_step_cancel"
         message = "Alright, the request will be canceled."

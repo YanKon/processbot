@@ -369,7 +369,7 @@ button.botui-actions-buttons-button {
 }
 
 .arrow_box_highlight {
-  z-index: 9998;
+  z-index: 500;
   font-family: Arial, sans-serif;
   font-size: 12px;
   fill: black;
@@ -405,7 +405,7 @@ button.botui-actions-buttons-button {
 }
 
 .arrow_box {
-  z-index: 9999;
+  z-index: 501;
   font-family: Arial, sans-serif;
   font-size: 12px;
   fill: black;

@@ -47,16 +47,21 @@ function hideOverlays(processStep) {
   overlays.remove({ element: processStep });
 }
 
+var lastHighlighted = "";
 function highlightStep(responseObject) {
   if (responseObject.currentProcessStep !== "") {
+    if (lastHighlighted !== ""){
+      viewer.get("canvas").removeMarker(lastHighlighted, "highlight");
+      hideOverlays(lastHighlighted)
+
+    } 
     viewer.get("canvas").addMarker(responseObject.currentProcessStep, "highlight");
+    lastHighlighted = responseObject.currentProcessStep;
     showOverlays(responseObject.currentProcessStep);
   }
 
   if (responseObject.previousProcessStep !== "") {
-    viewer.get("canvas").removeMarker(responseObject.previousProcessStep, "highlight");
     viewer.get("canvas").addMarker(responseObject.previousProcessStep, "done");
-    hideOverlays(responseObject.previousProcessStep)
   }
 
 }
