@@ -12,7 +12,10 @@ buttonDict = {
     "process_run_cancel": process_run,
     "process_show_cancel": process_show,
     "process_names_cancel": process_names,
-    "process_doc_cancel": process_doc
+    "process_doc_cancel": process_doc,
+    "process_step_previous": process_step,
+    "process_step_next": process_step,
+    "process_step_cancel": process_step
 }
 
 customButtonDict = {

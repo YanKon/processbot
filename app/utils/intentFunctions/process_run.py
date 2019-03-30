@@ -6,7 +6,7 @@ from app.utils import buttons as buttons
 
 # Weg: man kommt hier her über submit_message(JS) --> send_userText(PY Route)
 def run(dialogflowResponse):
-
+    #TODO: Check if next Edge is task!!
     parameters_json = json.loads(MessageToJson(dialogflowResponse.query_result.parameters))
     processName = parameters_json['process_name_parameter']
 
