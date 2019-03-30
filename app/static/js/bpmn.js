@@ -5,9 +5,9 @@ var overlays;
 var eventBus;
 var activateOverlay = false;
 
-$("#customSwitch1").click(function(){
+
+$("#overlaySwitch").click(function(){
   var check = $(this).prop('checked');
-  console.log(check);
   if(check == true) {
     $('.arrow_box_highlight').removeClass("hidden");
     $('.checkbox').prop('checked', true);
@@ -16,7 +16,6 @@ $("#customSwitch1").click(function(){
     $('.checkbox').prop('checked', false);
   }
 });
-
 
 function loadBPMN(uri) {
     
@@ -31,6 +30,7 @@ function loadBPMN(uri) {
           if (err) {
             reject(err);
           } else {
+            $("body").css("background-image","none")
             overlays = viewer.get("overlays");
             elementRegistry = viewer.get('elementRegistry');
             eventBus = viewer.get('eventBus');
@@ -45,7 +45,7 @@ function loadBPMN(uri) {
             events.forEach(function(event) {
 
               eventBus.on(event, function(e) {
-                if ($("#customSwitch1").prop('checked')) {
+                if ($("#overlaySwitch").prop('checked')) {
                   if (event === "element.hover") {
                     if (e.element.type === "bpmn:Task") {
                       if (!viewer.get('canvas').hasMarker(e.element.id, "highlight")) {
@@ -108,5 +108,6 @@ function loadBPMN(uri) {
 
 function unloadBPMN() {
   viewer.clear();
+  $("body").css("background-image","url('/static/resources/icon/background-trans-20.png')")
   delete viewer.get("canvas")['_rootElement'];
 }

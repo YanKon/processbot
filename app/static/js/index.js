@@ -25,11 +25,11 @@ function showOverlays(processStep) {
   var detailInstruction = elementRegistry.get(processStep).businessObject.get("chatbot:detailInstruction");
 
   var $overlayHtml =
-    $('<div class="arrow_box_highlight hidden">' +
-      '<p class="pheader1">general instruction</p>' +
-      '<div class="node-instruction-current">' + instruction + '</div>' +
-      '<p class="pheader2">detail instruction</p>' +
-      '<div class="node-instruction-current">' + detailInstruction + '</div>' +
+    $('<div class="arrow_box_highlight">' +
+        '<p class="pheader1">general instruction</p>' +
+        '<div class="node-instruction-current">' + instruction + '</div>' +
+        '<p class="pheader2">detail instruction</p>' +
+        '<div class="node-instruction-current">' + detailInstruction + '</div>' +
       '</div>').css({
         width: elementRegistry.get(processStep).width * 2,
       });
@@ -162,6 +162,8 @@ function deactivateInput() {
 // var userText;
 $(document).ready(function() {
 
+
+
   function handleUserInput() {
     var userText = $("#InputField").val();
     submit_userText(userText);
@@ -194,6 +196,29 @@ $(document).ready(function() {
     $("#prime").hide(0);
   });  
 
+  
+  // soll nachher in dialog.js und für jeden intent eigene funktion 
+  $('#toggleScreenOverlay').click(function(e) {
+    var html;
+    $.ajax({
+      url: "/static/resources/svg/pizza.svg",
+      success: function(data) {
+        html = new XMLSerializer().serializeToString(data.documentElement);
+        createDialogOverlay('Pizza.bpmn',html);
+      },
+      async: false // <- this turns it into synchronous
+    });
+
+    // var html = 
+    //   '<p style="text-align:left; border-bottom: 1px solid LightGrey; font-weight:bold;">Process</p>' +
+    //   '<p>"run process Reisekosten"</p>' +
+    //   '<p>"which processes?"</p>' +
+    //   '</br>' +
+    //   '<p style="text-align:left; border-bottom: 1px solid LightGrey; font-weight:bold;">Task</p>' +
+    //   '<p>"Ask 1"</p>' 
+    // createDialogOverlay('For example, you could ask me the following:',html)
+  });
+
 });
 
 function popoverInput() {
@@ -203,3 +228,4 @@ function popoverInput() {
   else 
     $('[data-toggle="tooltip"]').tooltip('disable');
 }
+

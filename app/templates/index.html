@@ -3,7 +3,7 @@
   <head profile="http://www.w3.org/2005/10/profile">
     <link rel="icon" 
       type="image/png" 
-      href="{{ url_for('static', filename='resources/icon/favicon.png') }}"">
+      href="{{ url_for('static', filename='resources/icon/favicon.png') }}">
     <!-- Required meta tags -->
     <meta charset="utf-8" />
     <meta
@@ -14,20 +14,19 @@
     <!-- Bootstrap CSS -->
     <link
       rel="stylesheet"
-      href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
-      integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
+      href="{{ url_for('static', filename='css/bootstrap/bootstrap.min.css') }}"
       crossorigin="anonymous"
     />
 
     <!-- BotUi CSS -->
     <link
       rel="stylesheet"
-      href="https://unpkg.com/botui/build/botui.min.css"
+      href="{{ url_for('static', filename='css/botui/botui.min.css') }}"
       crossorigin="anonymous"
     />
     <link
       rel="stylesheet"
-      href="https://unpkg.com/botui/build/botui-theme-default.css"
+      href="{{ url_for('static', filename='css/botui/botui-theme-default.css') }}"
       crossorigin="anonymous"
     />
 
@@ -37,23 +36,77 @@
       href="{{ url_for('static', filename='css/style.css') }}"
       crossorigin="anonymous"
     />
-
     <link
-      href="https://fonts.googleapis.com/icon?family=Material+Icons"
       rel="stylesheet"
+      href="{{ url_for('static', filename='css/dialog.css') }}"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/animate/animate.min.css') }}"
+      crossorigin="anonymous"
+    />
+    <!-- Icons -->
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/fontawesome/all.min.css') }}"
+      crossorigin="anonymous"
     />
 
     <title>Processbot</title>
   </head>
 
   <body>
-    <nav class="navbar">
+    <!-- <nav class="navbar">
       <span class="navbar-brand mb-0 h1">Processbot Demo</span>
       <div class="custom-control custom-switch">
-          <input type="checkbox" class="custom-control-input" id="customSwitch1">
-          <label class="custom-control-label" for="customSwitch1">Overlays</label>
-        </div>
-    </nav>
+        <input type="checkbox" class="custom-control-input" id="overlaySwitch">
+        <label class="custom-control-label" for="overlaySwitch">Overlays</label>
+      </div>
+    </nav> -->
+
+    <nav class="navbar navbar-expand-md">
+      <div class="navbar-collapse collapse w-100 order-1 order-md-0 dual-collapse2">
+          <ul class="navbar-nav mr-auto">
+              <li class="nav-item active">
+                  <!-- <a class="nav-link" href="#">Left</a> -->
+              </li>
+              <li class="nav-item">
+                  <!-- <a class="nav-link" href="//codeply.com">Codeply</a> -->
+              </li>
+              <li class="nav-item">
+                  <!-- <a class="nav-link" href="#">Link</a> -->
+              </li>
+              <li class="nav-item">
+                  <!-- <a class="nav-link" href="#">Link</a> -->
+              </li>
+              <li class="nav-item">
+                  <!-- <a class="nav-link" href="#">Link</a> -->
+              </li>
+          </ul>
+      </div>
+      <div class="mx-auto order-0">
+          <a class="navbar-brand mx-auto">Processbot Demo</a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".dual-collapse2">
+              <i class="fa fa-navicon"></i>
+          </button>
+      </div>
+      <div class="navbar-collapse collapse w-100 order-3 dual-collapse2">
+          <ul class="navbar-nav ml-auto rightNav">
+              <li class="nav-item">
+                  <button class="btn btn-sm btn-outline-secondary" id="toggleScreenOverlay" type="submit">Button</button>
+              </li>
+              <li class="nav-item">                
+                <div class="custom-control custom-switch">
+                  <input type="checkbox" class="custom-control-input" id="overlaySwitch">
+                  <label class="custom-control-label" for="overlaySwitch">Overlays</label>
+                </div>
+              </li>
+          </ul>
+      </div>
+  </nav>
+
+
 
     <div id="canvas"></div>
 
@@ -74,59 +127,35 @@
             <input type="text" class="form-control" id="InputField" placeholder="Enter text"/>
           </div>
           <a id="chat_send" title="Some tooltip text!">
-            <i class="material-icons">send</i>
+            <i class="fab fa-telegram-plane"></i>
           </a>
         </div>
       </div>
-      <a id="prime" class="fab">
-        <i class="material-icons">chat_bubble_outline</i>
+      <a id="prime">
+        <i class="far fa-comment"></i>
       </a>
     </div>
 
-    <!-- <div class="col-sm"> -->
-    <!-- <div id="my-botui-app" class="botui-app-container">
-          <bot-ui></bot-ui>
-          <input type="text" class="form-control" id="InputField" placeholder="Enter text">
-        </div> -->
-    <!-- </div> -->
-
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <!-- habe sie von unten nach oben geholt weil es Probleme gab -->
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
-
-    <!-- <script
-      src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-      integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-      crossorigin="anonymous"
-    ></script> -->
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"
-      integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut"
-      crossorigin="anonymous"
-    ></script>
-    <script
-      src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"
-      integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k"
-      crossorigin="anonymous"
-    ></script>
+    <script src="{{ url_for('static', filename='js/jquery/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/popper/popper.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap/bootstrap.min.js') }}"></script>
 
     <!-- BPMN -->
-    <!-- <script src="https://unpkg.com/bpmn-js@0.27.0-1/dist/bpmn-viewer.development.js"></script> -->
-    <script src="{{ url_for('static', filename='js/bpmn-viewer.development.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bpmnIO/bpmn-viewer.development.js') }}"></script>
     <script src="{{ url_for('static', filename='js/bpmn.js') }}"></script>
 
     <!-- Botui -->
-    <script
-      src="https://cdn.jsdelivr.net/vue/latest/vue.min.js"
-      crossorigin="anonymous"
-    ></script>
-    <script
-      src="https://unpkg.com/botui/build/botui.min.js"
-      crossorigin="anonymous"
-    ></script>
+    <script src="{{ url_for('static', filename='js/vue/config.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/botui/botui.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/botui.js') }}"></script>
 
     <!-- index.js -->
     <script src="{{ url_for('static', filename='js/index.js') }}"></script>
+
+    <!-- dialog.js -->
+    <script src="{{ url_for('static', filename='js/dialog.js') }}"></script>
+
   </body>
 </html>

@@ -1,6 +1,13 @@
 html,
 body {
+  overflow: hidden;
   height: 100%;
+  background-image: url('/static/resources/icon/background-trans-20.png');
+  background-repeat: no-repeat;
+  background-position: center; 
+  background-size: 500px 500px;
+
+
 }
 
 .navbar {
@@ -12,6 +19,15 @@ body {
 .navbar-brand {
     color: white;
 }
+
+.rightNav li{
+  margin-left: 10px;
+}
+
+.fa-navicon {
+  color: white;
+}
+
 
 
 #canvas {
@@ -25,7 +41,7 @@ body {
 }
 
 .done:not(.djs-connection) .djs-visual > :nth-child(1) {
-    fill: #b2b2b2 !important;
+    fill: #b0b0b0 !important;
   }
 
 /* .botui-container {
@@ -74,13 +90,13 @@ body {
 .fabs {
   bottom: 0;
   position: fixed;
-  margin-right: 2em;
+  margin-right: 1em;
   margin-bottom: 1em;
   right: 0;
   z-index: 998;
 }
 
-.fab {
+#prime {
   display: block;
   width: 56px;
   height: 56px;
@@ -98,7 +114,7 @@ body {
   background: #293239;
 }
 
-.fab > i {
+#prime > i {
   color: white;
   font-size: 2em;
   line-height: 55px;
@@ -175,7 +191,8 @@ p {
 
 
 #live-chat {
-    max-width: 90%;
+  margin-right: -1em;
+  max-width: 90%;
   margin-bottom: 1em;
   z-index: 999;
   /* background-color: white; */
@@ -191,8 +208,7 @@ p {
   background: #293239;
   border-radius: 5px 5px 0 0;
   color: #fff;
-  cursor: pointer;
-  padding: 16px 24px;
+  padding: 16px 24px 16px 11px;
 }
 
 #live-chat h4:before {
@@ -225,7 +241,8 @@ p {
 
 .chat-close:hover {
   text-decoration: none;
-  color: red;
+  color: white;
+  font-size: 25px;
 }
 
 .chat_field {
@@ -238,14 +255,45 @@ p {
 }
 
 #chat_send {
+  color: #555555;
   margin: 5px;
+  margin-right: 20px;
+  font-size: 22px;
+  cursor: pointer;
+
 }
+
+#chat_send:hover{
+  color:black;
+  font-size: 25px;
+  margin-top: 1px;
+  /* webkit-transform: rotate(-45eg);
+  transform: rotate(-45deg);
+  transition: transform 0.2s;
+  cursor: pointer; */
+}
+
+/* #chat_send:active {
+  transform: rotate(0deg);
+  transition: transform 0.2s;
+} */
+
 
 #InputField {
   z-index: 999;
   border: none;
   background: none;
 }
+
+#InputField::placeholder {
+  color:#555555;
+}
+
+#InputField:hover::placeholder {
+  color:black;
+}
+
+
 #InputField:focus {
   border-color: none;
   box-shadow: none;
@@ -268,21 +316,6 @@ p {
     width: 52px;
 }
 
-#chat_send:hover{
-    -webkit-transform: rotate(-90deg); /* Safari */
-    transform: rotate(-90deg);
-    transition: transform 0.2s;
-    cursor: pointer;
-}
-
-#chat_send:active {
-    transform: rotate(0deg);
-    transition: transform 0.2s;
-}
-
-#chat_send{
-    cursor: pointer;
-}
 
 .disable-me {
   pointer-events: none !important;
@@ -415,3 +448,7 @@ button.botui-actions-buttons-button {
   background-color: #008000;
   border-color: #008000;
 }
+
+
+
+
