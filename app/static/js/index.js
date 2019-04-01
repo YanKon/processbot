@@ -163,11 +163,61 @@ function deactivateInput() {
   $("#chat_send").addClass("disable-me");  // unclickable
 };
 
+// holt sich alle Prozesse dich sich verändert haben und gibt notification aus
+// gibt aber die Notification nur aus, wenn sie nicht schonmal ausgegeben wurde => toastedProcesses
+// TODO: wenn button für die ABfrage geklickt wird (also nicht automatisch abgefragt wird) muss alle Ausgaben nochmal ausgegeben werden
+var toastedProcesses = [];
+var uptodateProcesses = false;
+function threadingBPMN() {
+  // Warumm $SCRIPT_ROOT ? (siehe http://flask.pocoo.org/docs/0.12/patterns/jquery/)
+  $.getJSON($SCRIPT_ROOT + '/get_status_bpmnDir', function(data) {
+    if (data.length !== 0) {
+      data.forEach(function(process){
+        if (!toastedProcesses.includes(process)) {
+          // $.toast({
+          //   heading: 'Information',
+          //   text: 'The process <b>' + process + '</b> has changed.',
+          //   hideAfter: false,
+          //   icon: 'info'
+          // })
+
+          $.toast({
+            title: 'Process changed!',
+            subtitle: '11 mins ago', // könnte man noch berechnen!!!!
+            content: 'The process ' + process + ' has changed.',
+            type: 'success'
+          });
+          toastedProcesses.push(process);
+        }
+      })
+    }
+    else {
+      if (data.length === 0 && !uptodateProcesses) {
+        uptodateProcesses = true;
+
+        // $.toast({
+        //   heading: 'No processes changes!',
+        //   text: 'All processes are up-to-date.',
+        //   hideAfter: false,
+        //   icon: 'success'
+        // })
+
+        $.toast({
+          title: 'No processes changed!',
+          subtitle: '11 mins ago', // könnte man noch berechnen!!!!
+          content: 'All processes are up-to-date.',
+          type: 'success',
+          delay: '5000'
+        });
+      }
+    }
+  });
+  
+}
+
 // Leitet die Usereingaben ans Backend weiter
 // var userText;
 $(document).ready(function() {
-
-
 
   function handleUserInput() {
     var userText = $("#InputField").val();
@@ -201,6 +251,9 @@ $(document).ready(function() {
     $("#prime").hide(0);
   });  
 
+  $("#bpmnStatus").on("click", function(e) {
+    threadingBPMN();
+  });  
   
   // soll nachher in dialog.js und für jeden intent eigene funktion 
   $('#toggleScreenOverlay').click(function(e) {
@@ -214,6 +267,8 @@ $(document).ready(function() {
       async: false // <- this turns it into synchronous
     });
 
+    // BEISPIEL WAS DER BOT KANN OVERLAY
+
     // var html = 
     //   '<p style="text-align:left; border-bottom: 1px solid LightGrey; font-weight:bold;">Process</p>' +
     //   '<p>"run process Reisekosten"</p>' +
@@ -224,6 +279,10 @@ $(document).ready(function() {
     // createDialogOverlay('For example, you could ask me the following:',html)
   });
 
+  setInterval(function() {
+    threadingBPMN();
+  }, 2000);
+
 });
 
 function popoverInput() {
@@ -233,4 +292,19 @@ function popoverInput() {
   else 
     $('[data-toggle="tooltip"]').tooltip('disable');
 }
+
+$(".botui-messages-container").on("click",".botui-message", function(e){
+  var processList = e.target.src.split("/");
+  var processName = processList[processList.length-1].split(".")[0];
+  console.log(processName);
+  var html;
+  $.ajax({
+    url: "/static/resources/svg/"+processName+".svg",
+    success: function(data) {
+      html = new XMLSerializer().serializeToString(data.documentElement);
+      createDialogOverlay(processName+'.bpmn',html);
+    },
+    async: false // <- this turns it into synchronous
+  });
+});
 

@@ -449,6 +449,7 @@ button.botui-actions-buttons-button {
   border-color: #008000;
 }
 
-
-
-
+#toast-wrapper {
+  left: 0px !important;
+  margin-top: 60px;
+}

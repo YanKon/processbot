@@ -18,6 +18,13 @@
       crossorigin="anonymous"
     />
 
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/toast/toast.min.css') }}"
+      crossorigin="anonymous"
+    />
+
+
     <!-- BotUi CSS -->
     <link
       rel="stylesheet"
@@ -94,7 +101,10 @@
       <div class="navbar-collapse collapse w-100 order-3 dual-collapse2">
           <ul class="navbar-nav ml-auto rightNav">
               <li class="nav-item">
-                  <button class="btn btn-sm btn-outline-secondary" id="toggleScreenOverlay" type="submit">Button</button>
+                  <button class="btn btn-sm btn-outline-secondary" id="toggleScreenOverlay" type="submit">Example</button>
+              </li>
+              <li class="nav-item">
+                <button class="btn btn-sm btn-outline-secondary" id="bpmnStatus" type="submit">Status</button>
               </li>
               <li class="nav-item">                
                 <div class="custom-control custom-switch">
@@ -105,8 +115,6 @@
           </ul>
       </div>
   </nav>
-
-
 
     <div id="canvas"></div>
 
@@ -119,7 +127,7 @@
         </header>
         <div id="my-botui-app" class="chat botui-app-container">
           <div class="chat-history">
-            <bot-ui></bot-ui>
+            <bot-ui id="botui"></bot-ui>
           </div>
         </div>
         <div class="chat_field">
@@ -136,11 +144,19 @@
       </a>
     </div>
 
+
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <!-- habe sie von unten nach oben geholt weil es Probleme gab -->
     <script src="{{ url_for('static', filename='js/jquery/jquery.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/popper/popper.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/bootstrap/bootstrap.min.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='js/toast/toast.min.js') }}"></script>
+
+
+    <script type=text/javascript>
+      $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+    </script>
 
     <!-- BPMN -->
     <script src="{{ url_for('static', filename='js/bpmnIO/bpmn-viewer.development.js') }}"></script>
@@ -148,7 +164,7 @@
 
     <!-- Botui -->
     <script src="{{ url_for('static', filename='js/vue/config.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/botui/botui.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/botui/botui.js') }}"></script>
     <script src="{{ url_for('static', filename='js/botui.js') }}"></script>
 
     <!-- index.js -->
@@ -156,6 +172,8 @@
 
     <!-- dialog.js -->
     <script src="{{ url_for('static', filename='js/dialog.js') }}"></script>
+
+
 
   </body>
 </html>

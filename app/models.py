@@ -2,8 +2,6 @@
 from app import db
 from datetime import datetime
 
-
-
 class Process(db.Model):
     id= db.Column(db.String(40), primary_key=True)
     processName= db.Column(db.String(64), index=True, unique=True)
