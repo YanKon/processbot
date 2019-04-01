@@ -1,5 +1,5 @@
 import sys
-from app.utils.intentFunctions import process_names, process_run, process_show, process_doc, process_step
+from app.utils.intentFunctions import process_names, process_run, process_show, process_doc, process_step, chatbot_help
 from app.utils.intentFunctions import customButtonFunction
 from app.utils import responseHelper
 
@@ -23,7 +23,8 @@ customButtonDict = {
     "process_names": process_names,
     "process_show": process_show,
     "process_doc": process_doc,
-    "process_step": process_step
+    "process_step": process_step,
+    "chatbot_help": chatbot_help
 }
 
 # Führt die jeweiligen Button-Funktion aus
