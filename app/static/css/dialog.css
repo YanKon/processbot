@@ -1,6 +1,6 @@
 .io-dialog {
     padding: 20px 30px 20px 30px;
-    z-index: 1001;
+    z-index: 9999;
     background-color: rgba(255, 255, 255, 1);
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
     /* border-radius: 5px; */

@@ -5,7 +5,7 @@ body {
   background-image: url('/static/resources/icon/background-trans-20.png');
   background-repeat: no-repeat;
   background-position: center; 
-  background-size: 500px 500px;
+  background-size: 200px 200px;
 
 
 }
@@ -452,4 +452,12 @@ button.botui-actions-buttons-button {
 #toast-wrapper {
   left: 0px !important;
   margin-top: 60px;
+}
+
+.bg-info {
+  background-color: #4683B2 !important;
+}
+
+.bg-success {
+  background-color: #1a8a34 !important;
 }

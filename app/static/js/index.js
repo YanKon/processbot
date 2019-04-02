@@ -174,34 +174,20 @@ function threadingBPMN() {
     if (data.length !== 0) {
       data.forEach(function(process){
         if (!toastedProcesses.includes(process)) {
-          // $.toast({
-          //   heading: 'Information',
-          //   text: 'The process <b>' + process + '</b> has changed.',
-          //   hideAfter: false,
-          //   icon: 'info'
-          // })
-
           $.toast({
             title: 'Process changed!',
             subtitle: '11 mins ago', // könnte man noch berechnen!!!!
-            content: 'The process ' + process + ' has changed.',
-            type: 'success'
+            content: 'The process <b id="processName">' + process + '</b> has changed.',
+            type: 'info',
+            delay: -1
           });
           toastedProcesses.push(process);
         }
-      })
+      })  
     }
     else {
       if (data.length === 0 && !uptodateProcesses) {
         uptodateProcesses = true;
-
-        // $.toast({
-        //   heading: 'No processes changes!',
-        //   text: 'All processes are up-to-date.',
-        //   hideAfter: false,
-        //   icon: 'success'
-        // })
-
         $.toast({
           title: 'No processes changed!',
           subtitle: '11 mins ago', // könnte man noch berechnen!!!!
@@ -308,3 +294,8 @@ $(".botui-messages-container").on("click",".botui-message", function(e){
   });
 });
 
+
+$('body').on('hide.bs.toast', '.toast', function () {
+  $(this).removeClass('animated fadeInLeft');
+  $(this).addClass('animated fadeOutLeft slow');
+});
