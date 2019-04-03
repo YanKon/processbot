@@ -27,14 +27,13 @@ def run(dialogflowResponse):
 
         return responseHelper.createResponseObject([message1, message2],showButtons,"","","")
     
-    message = dialogflowResponse.query_result.fulfillment_text
+    message1 = dialogflowResponse.query_result.fulfillment_text
     currentProcess = processId 
 
     # TODO: CurrentProcess am besten einfach Dateiname => würde meiner Meinung nach vieles auch in der Datenbank vereinfachen
     message2 = '<div id="processSVG" style="cursor:pointer;padding: 5px 0 5px 0;">![product image](http://127.0.0.1:5000/get_image/Reisekosten.html)</div>'
 
-
-    return responseHelper.createResponseObject([message, message2],[],currentProcess,"","")
+    return responseHelper.createResponseObject([message1, message2],[],currentProcess,"","")
 
 # Weg: man kommt hier her über submit_button(JS) --> send_button(PY Route) --> triggerButtonFunction (ButtonDict)
 def button_run(pressedButtonValue, currentProcess, currentProcessStep, previousProcessStep):
