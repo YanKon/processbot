@@ -4,7 +4,7 @@ function handle_model(responseObject) {
  
   if (responseObject.currentProcess !== "") { // CurrentProcess ist gesetzt
     if(!viewer.get("canvas").hasOwnProperty("_rootElement")) { // --> model noch nicht angezeigt)
-      loadBPMN(responseObject.currentProcess).then(function () { // MODEL LADEN, dann warten, dann Highlighten
+      loadBPMN(responseObject.currentProcess, viewer).then(function () { // MODEL LADEN, dann warten, dann Highlighten
         highlightStep(responseObject);
       })
       .catch(function(err) {
@@ -172,6 +172,7 @@ function threadingBPMN() {
   // Warumm $SCRIPT_ROOT ? (siehe http://flask.pocoo.org/docs/0.12/patterns/jquery/)
   $.getJSON($SCRIPT_ROOT + '/get_status_bpmnDir', function(data) {
     if (data.length !== 0) {
+      $("#updatesBadge").html(data.length)
       data.forEach(function(process){
         if (!toastedProcesses.includes(process)) {
           $.toast({
@@ -179,7 +180,7 @@ function threadingBPMN() {
             subtitle: '11 mins ago', // könnte man noch berechnen!!!!
             content: 'The process <b id="processName">' + process + '</b> has changed.',
             type: 'info',
-            delay: -1
+            delay: '5000'
           });
           toastedProcesses.push(process);
         }
@@ -207,13 +208,15 @@ $(document).ready(function() {
 
   function handleUserInput() {
     var userText = $("#InputField").val();
-    submit_userText(userText);
-    $("#InputField").val("");
 
-    // Zeigt den UserText im Chatfenster an
-    botui.message.human({
-      content: userText
-    });
+    if (userText !== "") {
+      submit_userText(userText);
+      $("#InputField").val("");
+      // Zeigt den UserText im Chatfenster an
+      botui.message.human({
+        content: userText
+      });
+    }
   }
 
   $("#chat_send").click(function(e) {
@@ -282,20 +285,33 @@ function popoverInput() {
 $(".botui-messages-container").on("click",".botui-message", function(e){
   var processList = e.target.src.split("/");
   var processName = processList[processList.length-1].split(".")[0];
-  console.log(processName);
-  var html;
-  $.ajax({
-    url: "/static/resources/svg/"+processName+".svg",
-    success: function(data) {
-      html = new XMLSerializer().serializeToString(data.documentElement);
-      createDialogOverlay(processName+'.bpmn',html);
-    },
-    async: false // <- this turns it into synchronous
+  
+  var html = '<div id="bpmnCanvasOverlay" style="height:95%"></div>'
+  createDialogOverlay(processName,html);
+  var bpmnViewerOverlay = new BpmnJS({ container: "#bpmnCanvasOverlay" });
+  $("#overlaySwitch").click();
+  loadBPMN(processName, bpmnViewerOverlay);
+
+  // AKTION DIE BEIM SCHLIESSEN DES OVERLAYS AUSGEFÜHRT WERDEN
+  $('.fa-times').click(function() {
+    $("#overlaySwitch").click();
   });
+
+  // BEISPIEL FÜR SVG LADEN
+  // $.ajax({
+  //   url: "/static/resources/svg/"+processName+".svg",
+  //   success: function(data) {
+  //     html = new XMLSerializer().serializeToString(data.documentElement);
+  //     createDialogOverlay(processName+'.svg',html);
+  //   },
+  //   async: true // <- this turns it into synchronous
+  // });
+
 });
 
 
-$('body').on('hide.bs.toast', '.toast', function () {
-  $(this).removeClass('animated fadeInLeft');
-  $(this).addClass('animated fadeOutLeft slow');
-});
+// ANIMATION LINKS RAUS FUNKTIONIERT LEIDER NICHT!!!
+// $('body').on('hide.bs.toast', '.toast', function () {
+//     $(this).removeClass('animated fadeInLeft');
+//     $(this).addClass('animated fadeOutLeft slow');
+// });

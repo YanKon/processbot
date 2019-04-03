@@ -5,9 +5,8 @@ var overlays;
 var eventBus;
 var activateOverlay = false;
 
-
 $("#overlaySwitch").click(function(){
-  var check = $(this).prop('checked');
+  var check = $("#overlaySwitch").prop('checked');
   if(check == true) {
     $('.arrow_box_highlight').removeClass("hidden");
     $('.checkbox').prop('checked', true);
@@ -17,7 +16,7 @@ $("#overlaySwitch").click(function(){
   }
 });
 
-function loadBPMN(uri) {
+function loadBPMN(uri, bpmnViewer) {
     
   let modelLoadPromise = new Promise (function(resolve,reject){
     var bpmnXML;
@@ -26,14 +25,14 @@ function loadBPMN(uri) {
       // url: "/static/resources/" + uri + ".bpmn",
       success: function(data) {
         bpmnXML = data;
-        viewer.importXML(bpmnXML, function(err) {
+        bpmnViewer.importXML(bpmnXML, function(err) {
           if (err) {
             reject(err);
           } else {
             $("body").css("background-image","none")
-            overlays = viewer.get("overlays");
-            elementRegistry = viewer.get('elementRegistry');
-            eventBus = viewer.get('eventBus');
+            overlays = bpmnViewer.get("overlays");
+            elementRegistry = bpmnViewer.get('elementRegistry');
+            eventBus = bpmnViewer.get('eventBus');
 
             // you may hook into any of the following events
             var events = [
@@ -48,7 +47,7 @@ function loadBPMN(uri) {
                 if ($("#overlaySwitch").prop('checked')) {
                   if (event === "element.hover") {
                     if (e.element.type === "bpmn:Task") {
-                      if (!viewer.get('canvas').hasMarker(e.element.id, "highlight")) {
+                      if (!bpmnViewer.get('canvas').hasMarker(e.element.id, "highlight")) {
                         
                         var instruction = elementRegistry.get(e.element.id).businessObject.get("chatbot:instruction");
                         var detailInstruction= elementRegistry.get(e.element.id).businessObject.get("chatbot:detailInstruction");

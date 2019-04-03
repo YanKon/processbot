@@ -461,3 +461,7 @@ button.botui-actions-buttons-button {
 .bg-success {
   background-color: #1a8a34 !important;
 }
+
+#updatesBadge {
+  background-color: #008000 !important;
+}
