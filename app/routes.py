@@ -9,6 +9,7 @@ import app.utils.intentFunctions.triggerIntentFunction as triggerIntentFunction
 import app.utils.intentFunctions.triggerButtonFunction as triggerButtonFunction
 
 from app.utils import threadingBpmn
+from app.utils import bpmnReader
 
 import json
 
@@ -43,11 +44,9 @@ TASK_NAME_ENTITY_TYPE_ID = os.environ.get("TASK_NAME_ENTITY_TYPE_ID")
 
 # Standard Route zum Anzeigen der Index.html
 
-threadingBpmn.ThreadingBpmn()
-
 @app.route("/")
 def index():
-    # checkBpmnFiles(bpmnResourcesFolder)
+    # threadingBpmn.ThreadingBpmn()
     return render_template("index.html")
 
 #TODO:  sich klassen angucken; => mit getMethoden aus threadingBPMN eine Prozessliste bekommen mit den Prozessen die sich geändert haben 
@@ -103,4 +102,8 @@ def send_button():
     responseObject = triggerButtonFunction.run(pressedButtonValue, currentProcess, currentProcessStep, previousProcessStep)
 
     return responseObject
- 
+
+@app.route("/test")
+def test():
+    bpmnReader.readBpmn()
+    return jsonify("Success")

@@ -1,8 +1,8 @@
-"""empty message
+"""init
 
-Revision ID: ceb7383f3d91
+Revision ID: ad486c67feee
 Revises: 
-Create Date: 2019-03-06 18:52:41.014659
+Create Date: 2019-04-04 15:24:48.524289
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'ceb7383f3d91'
+revision = 'ad486c67feee'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -21,7 +21,7 @@ def upgrade():
     op.create_table('process',
     sa.Column('id', sa.String(length=40), nullable=False),
     sa.Column('processName', sa.String(length=64), nullable=True),
-    sa.Column('importDate', sa.DateTime(), nullable=True),
+    sa.Column('importDate', sa.Integer(), nullable=True),
     sa.Column('noExecutes', sa.Integer(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
@@ -30,7 +30,7 @@ def upgrade():
     sa.Column('id', sa.String(length=40), nullable=False),
     sa.Column('name', sa.String(length=100), nullable=True),
     sa.Column('type', sa.String(length=100), nullable=True),
-    sa.Column('highlighted', sa.Boolean(), nullable=True),
+    sa.Column('currentStep', sa.Boolean(), nullable=True),
     sa.Column('processId', sa.String(length=40), nullable=True),
     sa.ForeignKeyConstraint(['processId'], ['process.id'], ),
     sa.PrimaryKeyConstraint('id')
@@ -51,7 +51,7 @@ def upgrade():
     )
     op.create_table('edge',
     sa.Column('id', sa.String(length=40), nullable=False),
-    sa.Column('highlighted', sa.Boolean(), nullable=True),
+    sa.Column('edgeText', sa.Text(), nullable=True),
     sa.Column('processId', sa.String(length=40), nullable=True),
     sa.Column('sourceId', sa.String(length=40), nullable=True),
     sa.Column('targetId', sa.String(length=40), nullable=True),

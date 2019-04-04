@@ -58,6 +58,7 @@ def button_run(pressedButtonValue, currentProcess, currentProcessStep, previousP
     # Gebe die DetailInstruction aus
     elif pressedButtonValue == "process_run_help":
       
+        # TODO: Wenn kein General, dann Nachricht ausgeben
         message = DetailInstruction.query.filter_by(nodeId=currentProcessStep).first().text # Detail Anweisungen für aktuellen Schritt
         return responseHelper.createResponseObject([message],buttons.REDUCED_RUN_BUTTONS,currentProcess, currentProcessStep, previousProcessStep)
     
