@@ -177,12 +177,23 @@ function threadingBPMN() {
         if (!toastedProcesses.includes(process)) {
           $.toast({
             title: 'Process changed!',
-            subtitle: '11 mins ago', // könnte man noch berechnen!!!!
-            content: 'The process <b id="processName">' + process + '</b> has changed.',
+            // subtitle: '11 mins ago', // könnte man noch berechnen!!!!
+            content: 'The process <b id="processName">' + process + '</b> has updates.',
             type: 'info',
             delay: '5000'
           });
           toastedProcesses.push(process);
+
+          $("#updateDropdown").append(
+            '<div class="row" style="margin-bottom: 2px">' +
+              '<div class="col-8" style="margin-left: 3px">' +
+                '<a class="align-middle">' + process + '</a>' +
+              '</div>' +
+              '<div class="col-4 text-center" style="margin-right: -3px">' +
+                '<button class="btn btn-sm btn-success" id="' + process + '" onclick="bpmnUpdate(event)" type="submit">Update</button>' +
+              '</div>' +
+            '</div>'
+          )
         }
       })  
     }
@@ -191,7 +202,7 @@ function threadingBPMN() {
         uptodateProcesses = true;
         $.toast({
           title: 'No processes changed!',
-          subtitle: '11 mins ago', // könnte man noch berechnen!!!!
+          // subtitle: '11 mins ago', // könnte man noch berechnen!!!!
           content: 'All processes are up-to-date.',
           type: 'success',
           delay: '5000'
@@ -240,9 +251,6 @@ $(document).ready(function() {
     $("#prime").hide(0);
   });  
 
-  $("#bpmnStatus").on("click", function(e) {
-    threadingBPMN();
-  });  
   
   // soll nachher in dialog.js und für jeden intent eigene funktion 
   $('#toggleScreenOverlay').click(function(e) {
@@ -271,6 +279,25 @@ $(document).ready(function() {
   setInterval(function() {
     threadingBPMN();
   }, 2000);
+
+  $.getJSON($SCRIPT_ROOT + '/get_all_processes', function(data) {
+    console.log(data)
+    if (data.length !== 0) {
+      data.forEach(function(process) {
+        $("#deleteDropdown").prepend(
+          '<div class="row" style="margin: 0 10px 0 10px; border-bottom: 1px solid #eee; padding-bottom: 5px;">' +
+          '<div class="col-8">' +
+            '<a class="align-middle">' + process + '</a>' +
+          '</div>' +
+          '<div class="col-4 text-center">' +
+            '<button class="btn btn-sm btn-danger" id="' + process + '" onclick="bpmnDelete(event)" type="submit">Delete</button>' +
+          '</div>' +
+        '</div>'
+        )
+      })
+    }
+  });
+
 
 });
 
@@ -309,9 +336,25 @@ $(".botui-messages-container").on("click",".botui-message", function(e){
 
 });
 
+function bpmnDelete(e) {
+  $.post($SCRIPT_ROOT + '/delete_database_select', 
+    { 
+      processName: e.target.id 
+    },
+    handle_response
+    );
+  
+    function handle_response(message) {
+        console.log(message)
+    }  
+};  
 
-// ANIMATION LINKS RAUS FUNKTIONIERT LEIDER NICHT!!!
-// $('body').on('hide.bs.toast', '.toast', function () {
-//     $(this).removeClass('animated fadeInLeft');
-//     $(this).addClass('animated fadeOutLeft slow');
-// });
+function bpmnDeleteAll() {
+  $.post($SCRIPT_ROOT + '/delete_database_all',
+    handle_response
+  );
+  
+  function handle_response(message) {
+    console.log(message)
+  }
+};

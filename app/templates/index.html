@@ -76,33 +76,45 @@
       <div class="navbar-collapse collapse w-100 order-1 order-md-0 dual-collapse2">
           <ul class="navbar-nav mr-auto">
               <li class="nav-item">
+                <div class="dropdown">
+                  <button class="btn btn-sm btn-outline-light dropdown-toggle" type="button" id="dropdownMenuButton"
+                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Imports
+                    <span id="importBadge" class="badge badge-pill badge-secondary"></span>
+                  </button>
+                  <div class="dropdown-menu" id="importDropdown" aria-labelledby="dropdownMenuButton" style="width: 300px !important">
+                  </div>
+                </div>
+              </li>
+              <li class="nav-item">
+                <div class="dropdown">
+                  <button class="btn btn-sm btn-outline-light dropdown-toggle" type="button" id="dropdownMenuButton"
+                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Updates
+                    <span id="updatesBadge" class="badge badge-pill badge-secondary"></span>
+                  </button>
+                  <div class="dropdown-menu" id="updateDropdown" aria-labelledby="dropdownMenuButton" style="width: 300px !important">
+                  </div>
+                </div>
+              </li>
+              <li class="nav-item">
                   <div class="dropdown">
-                      <button class="btn btn-sm btn-outline-light dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Updates
-                        <span id="updatesBadge" class="badge badge-pill badge-secondary"></span>
-
-                      </button>
-                      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="width: 300px !important">
-                            <div class="row" style="margin-bottom: 2px">
-                                <div class="col-6 text-center">
-                                  <a class="align-middle">Reisekosten 1</a>
-                                </div>
-                                <div class="col-6 text-center">
-                                  <button class="btn btn-sm btn-success" id="bpmnStatus" type="submit">Update</button>      
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-6 text-center">
-                                  <a class="align-middle">Reisekosten 2</a>
-                                </div>
-                                <div class="col-6 text-center">
-                                  <button class="btn btn-sm btn-success" id="bpmnStatus" type="submit">Update</button>      
-                                </div>
-                            </div>
-                          
+                    <button class="btn btn-sm btn-outline-light dropdown-toggle" type="button" id="dropdownMenuButton"
+                      data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      Delete
+                    </button>
+                    <div class="dropdown-menu" id="deleteDropdown" aria-labelledby="dropdownMenuButton" style="width: 300px !important">
+                      <div class="row" style="margin-bottom: 2px">
+                        <div class="col-12 text-center">
+                          <button class="btn btn-sm btn-danger" style="margin-top:10px;" onclick="bpmnDeleteAll()" type="submit">Delete all processes</button>
+                        </div>
                       </div>
                     </div>
-              </li>
+                  </div>
+                </li>
+              <!-- <li class="nav-item">
+                <button class="btn btn-sm btn-outline-light" id="bpmnDelete" type="submit">Delete</button>
+              </li> -->
           </ul>
       </div>
       <div class="mx-auto order-0">

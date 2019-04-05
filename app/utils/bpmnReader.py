@@ -30,7 +30,8 @@ def path_base_name(path):
 
 def readBpmn():
     filename = "Order Pizza"
-    path = "/Users/wizzy/Development/processbot/app/static/resources/bpmn/" + filename +".bpmn"
+    # path = "/Users/wizzy/Development/processbot/app/static/resources/bpmn/" + filename +".bpmn"
+    path = "/Users/yannick/Developer/Projects/processbot/app/static/resources/bpmn/" + filename +".bpmn"
 
     tree = ET.parse(path)
     root = tree.getroot()
@@ -42,84 +43,82 @@ def readBpmn():
     # Process in Datenbank
     process = models.Process(id = processId, processName = processName, importDate = importDate)
     db.session.add(process)
+    db.session.commit()
     
     #ProcessDoc in Datenbank
     procsesDoc = models.ProcessDoc(description = root[0][0].text, processId = processId)
     db.session.add(procsesDoc)
-
-    nodes = []
-    edges = []
-    generalInstructions = []
-    detailInstructions = []
-    buttonName = []
-    splitQuestion = []
-    detailDescription = []
-    
-
-    
     db.session.commit()
+    
+    for actor in root[0].iter():
+        tagType = actor.tag.split("}")[1]
 
-    #     for actor in root[0].iter():
-    #         tagType = actor.tag.split("}")[1]
+        if (tagType == "task"):
+            for attribute in actor.attrib.items():
+                attributeType = attribute[0].split("}")
+                if len(attributeType) == 2:
+                    if (attributeType[1] == "detailInstruction"):
+                        detailInstruction = models.DetailInstruction(text = attribute[1], nodeId = actor.attrib['id'])
+                    elif (attributeType[1] == "instruction"):
+                        instruction = models.GeneralInstruction(text = attribute[1], nodeId = actor.attrib['id'])
+            node = models.Node(id = actor.attrib['id'], name = actor.attrib['name'], type = 'task', processId = processId)
+            db.session.add(node)
+            db.session.commit()
+            db.session.add(detailInstruction)
+            db.session.add(instruction)
+            db.session.commit()
 
-    #         if (tagType == "task"):
-    #             for attribute in actor.attrib.items():
-    #                 attributeType = attribute[0].split("}")
-    #                 if len(attributeType) == 2:
-    #                     if (attributeType[1] == "detailInstruction"):
-    #                         detailInstructions.append((attribute[1],actor.attrib['id']))
-    #                     elif (attributeType[1] == "instruction"):
-    #                         generalInstructions.append((attribute[1],actor.attrib['id']))
-    #             nodes.append((actor.attrib['id'],actor.attrib['name'],'task',processId))
-
-    #         elif (tagType == "startEvent"):
-    #             nodes.append((actor.attrib['id'],actor.attrib['id'],'startEvent',processId))
-
-    #         elif (tagType == "endEvent"):
-    #             nodes.append((actor.attrib['id'],actor.attrib['id'],'endEvent',processId))
-
-    #         elif (tagType == "sequenceFlow"):
-    #             edges.append((actor.attrib['id'],processId,actor.attrib['sourceRef'],actor.attrib['targetRef']))
-
-    #     # print(nodes)
-    #     # print(edges)
-    #     # print(generalInstructions)
-    #     # print(detailInstructions)
-
-
-    #     #   
-    #     # FÜGT ALLES IN DIE DATENBANK EIN 
-    #     #
-    #     cursor.execute("INSERT INTO process VALUES (%s, %s, %s)",(processId, processName, modifiedDate))
+        elif (tagType == "startEvent"):
+            node = models.Node(id = actor.attrib['id'], name = actor.attrib['name'], type = 'startEvent', processId = processId)
+            db.session.add(node)
+            db.session.commit()
         
-    #     insert_query = 'INSERT INTO node (id, name, type, processId) VALUES %s'
-    #     psycopg2.extras.execute_values (
-    #         cursor, insert_query, nodes, template=None, page_size=100
-    #     )
+        elif (tagType == "exclusiveGateway"):
+            # wenn exlusiveGateway kein Name hat <=> exclusiveGateway ist ein join
+            if "name" not in actor.attrib:
+                node = models.Node(id = actor.attrib['id'], type = 'exclusiveGateway', processId = processId)
+                db.session.add(node)
+                db.session.commit()
 
-    #     insert_query = 'INSERT INTO edge (id, processid, sourceid, targetid) VALUES %s'
-    #     psycopg2.extras.execute_values (
-    #         cursor, insert_query, edges, template=None, page_size=100
-    #     )
+            else:
+                node = models.Node(id = actor.attrib['id'], name = actor.attrib['name'], type = 'exclusiveGateway', processId = processId)
+                db.session.add(node)
+                db.session.commit()
 
-    #     insert_query = 'INSERT INTO general_instruction (text, nodeid) VALUES %s'
-    #     psycopg2.extras.execute_values (
-    #         cursor, insert_query, generalInstructions, template=None, page_size=100
-    #     )
+                for attribute in actor.attrib.items():
+                    attributeType = attribute[0].split("}")
+                    if len(attributeType) == 2:
+                        if (attributeType[1] == "splitQuestion"):
+                            splitQuestion = models.SplitQuestion(text = attribute[1], nodeId = actor.attrib['id'])
+                            db.session.add(splitQuestion)
+                db.session.commit()
 
-    #     insert_query = 'INSERT INTO detail_instruction (text, nodeid) VALUES %s'
-    #     psycopg2.extras.execute_values (
-    #         cursor, insert_query, detailInstructions, template=None, page_size=100
-    #     )
+        elif (tagType == "intermediateThrowEvent"):
+            node = models.Node(id = actor.attrib['id'], name = actor.attrib['name'], type = 'intermediateThrowEvent', processId = processId)
+            db.session.add(node)
+            db.session.commit()
 
-    #     connection.commit()
+            for attribute in actor.attrib.items():
+                attributeType = attribute[0].split("}")
+                if len(attributeType) == 2:
+                    print(attributeType[1])
+                    if (attributeType[1] == "detailDescription"):
+                        detailDescription = models.DetailDescription(text = attribute[1], nodeId = actor.attrib['id'])
+                        db.session.add(detailDescription)
+                    elif (attributeType[1] == "button"):
+                        buttonName = models.ButtonName(text = attribute[1], nodeId = actor.attrib['id'])
+                        db.session.add(buttonName)
+            db.session.commit()
+                    
+        elif (tagType == "endEvent"):
+            node = models.Node(id = actor.attrib['id'], name = actor.attrib['name'], type = 'endEvent', processId = processId)
+            db.session.add(node)
+            db.session.commit()
 
-    #     # Print PostgreSQL Connection properties
-    #     # print ( connection.get_dsn_parameters(),"\n")
-    #     # Print PostgreSQL version
-    #     cursor.execute("SELECT version();")
-    #     record = cursor.fetchone()
-    #     print("\nConnected to -", record,"\n")
+        elif (tagType == "sequenceFlow"):
+            edge = models.Edge(id = actor.attrib['id'], processId = processId, sourceId = actor.attrib['sourceRef'], targetId = actor.attrib['targetRef'])
+            db.session.add(edge)
+            db.session.commit()
 
     # except (Exception, psycopg2.Error) as error :
     #     print ("Error while connecting to PostgreSQL", error)
