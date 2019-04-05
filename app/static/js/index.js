@@ -170,10 +170,21 @@ var toastedProcesses = [];
 var uptodateProcesses = false;
 function threadingBPMN() {
   // Warumm $SCRIPT_ROOT ? (siehe http://flask.pocoo.org/docs/0.12/patterns/jquery/)
-  $.getJSON($SCRIPT_ROOT + '/get_status_bpmnDir', function(data) {
-    if (data.length !== 0) {
-      $("#updatesBadge").html(data.length)
-      data.forEach(function(process){
+  $.post($SCRIPT_ROOT + '/get_status_bpmnDir', function (data) {
+    console.log(data)
+    // if (data.imports.length === 0 && data.updates.length === 0 && !uptodateProcesses) {
+    //   uptodateProcesses = true;
+    //   $.toast({
+    //     title: 'No processes changed!',
+    //     // subtitle: '11 mins ago', // könnte man noch berechnen!!!!
+    //     content: 'All processes are up-to-date.',
+    //     type: 'success',
+    //     delay: '5000'
+    //   });
+    // }
+    if (data.updates.length !== 0) {
+      $("#updatesBadge").html(data.updates.length)
+      data.updates.forEach(function (process) {
         if (!toastedProcesses.includes(process)) {
           $.toast({
             title: 'Process changed!',
@@ -185,37 +196,94 @@ function threadingBPMN() {
           toastedProcesses.push(process);
 
           $("#updateDropdown").append(
-            '<div class="row" style="margin-bottom: 2px">' +
-              '<div class="col-8" style="margin-left: 3px">' +
-                '<a class="align-middle">' + process + '</a>' +
-              '</div>' +
-              '<div class="col-4 text-center" style="margin-right: -3px">' +
-                '<button class="btn btn-sm btn-success" id="' + process + '" onclick="bpmnUpdate(event)" type="submit">Update</button>' +
-              '</div>' +
+            '<div class="row" style="margin: 5px 10px 0 10px; border-top: 1px solid #eee; padding-top: 5px;">' +
+            '<div class="col-8" style="margin-left: 3px">' +
+            '<a class="align-middle">' + process + '</a>' +
+            '</div>' +
+            '<div class="col-4 text-center" style="margin-right: -3px">' +
+            '<button class="btn btn-sm btn-success" id="' + process + '" onclick="bpmnUpdate(event)" type="submit">Update</button>' +
+            '</div>' +
             '</div>'
           )
         }
-      })  
+      });
     }
-    else {
-      if (data.length === 0 && !uptodateProcesses) {
-        uptodateProcesses = true;
-        $.toast({
-          title: 'No processes changed!',
-          // subtitle: '11 mins ago', // könnte man noch berechnen!!!!
-          content: 'All processes are up-to-date.',
-          type: 'success',
-          delay: '5000'
-        });
-      }
+
+    if (data.imports.length !== 0) {
+      $("#importBadge").html(data.imports.length)
+      data.imports.forEach(function (process) {
+        if (!toastedProcesses.includes(process)) {
+          $.toast({
+            title: 'New process!',
+            // subtitle: '11 mins ago', // könnte man noch berechnen!!!!
+            content: 'You can now import the process <b id="processName">' + process + '</b>.',
+            type: 'info',
+            delay: '5000'
+          });
+          toastedProcesses.push(process);
+
+          $("#importDropdown").append(
+            '<div class="row" id="' + process.replace(/\s+/g, '') + '_row" style="margin: 5px 10px 0 10px; border-top: 1px solid #eee; padding-top: 5px;">' +
+            '<div class="col-8" style="margin-left: 3px">' +
+            '<a class="align-middle">' + process + '</a>' +
+            '</div>' +
+            '<div class="col-4 text-center" style="margin-right: -3px">' +
+            '<button class="btn btn-sm btn-success" id="' + process + '" onclick="bpmnImport(event)" type="submit">Import</button>' +
+            '</div>' +
+            '</div>'
+          )
+        }
+      });
     }
   });
-  
 }
+
+    // if (data.length !== 0) {
+    //   $("#updatesBadge").html(data.length)
+    //   data.forEach(function(process){
+        // if (!toastedProcesses.includes(process)) {
+        //   $.toast({
+        //     title: 'Process changed!',
+        //     // subtitle: '11 mins ago', // könnte man noch berechnen!!!!
+        //     content: 'The process <b id="processName">' + process + '</b> has updates.',
+        //     type: 'info',
+        //     delay: '5000'
+        //   });
+        //   toastedProcesses.push(process);
+
+        //   $("#updateDropdown").append(
+        //     '<div class="row" style="margin-bottom: 2px">' +
+        //       '<div class="col-8" style="margin-left: 3px">' +
+        //         '<a class="align-middle">' + process + '</a>' +
+        //       '</div>' +
+        //       '<div class="col-4 text-center" style="margin-right: -3px">' +
+        //         '<button class="btn btn-sm btn-success" id="' + process + '" onclick="bpmnUpdate(event)" type="submit">Update</button>' +
+        //       '</div>' +
+        //     '</div>'
+        //   )
+        // }
+        // })  
+    //   }
+    // else {
+    //   if (data.length === 0 && !uptodateProcesses) {
+    //     uptodateProcesses = true;
+    //     $.toast({
+    //       title: 'No processes changed!',
+    //       // subtitle: '11 mins ago', // könnte man noch berechnen!!!!
+    //       content: 'All processes are up-to-date.',
+    //       type: 'success',
+    //       delay: '5000'
+    //     });
+    //   }
+    // }
+  // });
+// }
 
 // Leitet die Usereingaben ans Backend weiter
 // var userText;
 $(document).ready(function() {
+
+  threadingBPMN();
 
   function handleUserInput() {
     var userText = $("#InputField").val();
@@ -278,7 +346,7 @@ $(document).ready(function() {
 
   setInterval(function() {
     threadingBPMN();
-  }, 2000);
+  }, 10000);
 
   $.post($SCRIPT_ROOT + '/get_all_processes', function(data) {
     console.log(data)
@@ -345,8 +413,14 @@ function bpmnDelete(e) {
     );
   
     function handle_response(message) {
-        console.log(message)
-    }  
+      $.toast({
+        title: 'Processes deleted!',
+        // subtitle: '11 mins ago', // könnte man noch berechnen!!!!
+        content: "Successfully delete process: " + message,
+        type: 'success',
+        delay: '5000'
+      });
+    }
 };  
 
 function bpmnDeleteAll() {
@@ -355,6 +429,35 @@ function bpmnDeleteAll() {
   );
   
   function handle_response(message) {
-    console.log(message)
+    $.toast({
+      title: 'Processes deleted!',
+      // subtitle: '11 mins ago', // könnte man noch berechnen!!!!
+      content: "Successfully delete all processes.",
+      type: 'success',
+      delay: '5000'
+    });
   }
 };
+
+function bpmnImport(e) {  
+  
+  $.post($SCRIPT_ROOT + '/import_process',
+    { 
+      processName: e.target.id 
+    },
+    handle_response
+  );
+
+  function handle_response(message) {
+    $.toast({
+      title: 'Process imported!',
+      // subtitle: '11 mins ago', // könnte man noch berechnen!!!!
+      content: "Successfully import the process:" + message,
+      type: 'success',
+      delay: '5000'
+    });
+
+    $("#" + e.target.id.replace(/\s+/g, '') + "_row").remove();
+    $("#importBadge").html(parseInt($("#importBadge").html()) - 1)
+  }
+}

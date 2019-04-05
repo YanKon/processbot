@@ -28,11 +28,10 @@ def path_base_name(path):
     file_name = os.path.basename(path)
     return file_base_name(file_name)
 
-def readBpmn():
+def readBpmn(processName):
 
-    filename = "Order pizza"
-    path = "/Users/wizzy/Development/processbot/app/static/resources/bpmn/" + filename +".bpmn"
-    #path = "/Users/yannick/Developer/Projects/processbot/app/static/resources/bpmn/" + filename +".bpmn"
+    # path = "/Users/wizzy/Development/processbot/app/static/resources/bpmn/" + processName +".bpmn"
+    path = "/Users/yannick/Developer/Projects/processbot/app/static/resources/bpmn/" + processName +".bpmn"
 
     # Versucht die Prozess Metadaten zu lesen und in Datenbank zu committen.
     try:

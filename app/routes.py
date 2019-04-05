@@ -52,10 +52,13 @@ def index():
     return render_template("index.html")
 
 #TODO:  sich klassen angucken; => mit getMethoden aus threadingBPMN eine Prozessliste bekommen mit den Prozessen die sich geändert haben 
-@app.route("/get_status_bpmnDir")
+@app.route("/get_status_bpmnDir", methods=["POST"])
 def get_status_bpmnDir():
-    print(threadingBpmn.processGlobal)
-    return jsonify(threadingBpmn.processGlobal)
+    response = {
+        "imports": threadingBpmn.processGlobalImport,
+        "updates": threadingBpmn.processGlobalUpdate
+    }
+    return jsonify(response)
     # return jsonify([])
 
 
@@ -106,10 +109,10 @@ def send_button():
 
     return responseObject
 
-@app.route("/test")
-def test():
-    bpmnReader.readBpmn()
-    return jsonify("Success")
+# @app.route("/test")
+# def test():
+#     bpmnReader.readBpmn()
+#     return jsonify("Success")
 
 @app.route("/delete_database_select", methods=["POST"])
 def delete_database_select():
@@ -117,14 +120,14 @@ def delete_database_select():
     process = Process.query.filter_by(processName=processName).first()
     db.session.delete(process)
     db.session.commit()
-    return jsonify("Successfully delete process: " + processName)
+    return jsonify(processName)
 
 @app.route("/delete_database_all", methods=["POST"])
 def delete_database_all():
     for process in Process.query.all():
         db.session.delete(process)
         db.session.commit()
-    return jsonify("Successfully delete all processes.")
+    return jsonify("")
 
 @app.route("/get_all_processes", methods=["POST"])
 def get_all_processes():
@@ -133,3 +136,9 @@ def get_all_processes():
         processList.append(process.processName)
     return jsonify(processList)
     # return jsonify([])
+
+@app.route("/import_process", methods=["POST"])
+def import_process():
+    processName = request.form["processName"]
+    bpmnReader.readBpmn(processName)
+    return jsonify(processName)

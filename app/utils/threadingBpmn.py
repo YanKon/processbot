@@ -7,7 +7,8 @@ import config as con
 from app.models import Process
 
 
-processGlobal= []
+processGlobalImport= []
+processGlobalUpdate= []
 
 class ThreadingBpmn(object):
     """ Threading example class
@@ -29,8 +30,10 @@ class ThreadingBpmn(object):
 
         """ Method that runs forever """
         while True:
-            global processGlobal
-            processGlobal = []
+            global processGlobalImport
+            global processGlobalUpdate
+            processGlobalImport = []
+            processGlobalUpdate = []
             bpmnResourcesFolder = con.basedir + "/app/static/resources/bpmn"
 
             for filename in os.listdir(bpmnResourcesFolder):
@@ -41,7 +44,7 @@ class ThreadingBpmn(object):
 
                     if (process == None):
                         print("There is a new process: " + filename)
-                        processGlobal.append(processName)
+                        processGlobalImport.append(processName)
                         continue
                         
                     path = (os.path.join(bpmnResourcesFolder, filename))
@@ -51,7 +54,7 @@ class ThreadingBpmn(object):
                         print("Process '" + process.processName + "' is up-to-date.")
                     else:
                         print("Process '" + process.processName + "' has updates.")
-                        processGlobal.append(process.processName)
+                        processGlobalUpdate.append(process.processName)
                     
                 else:
                     continue

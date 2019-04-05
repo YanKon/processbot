@@ -462,6 +462,10 @@ button.botui-actions-buttons-button {
   background-color: #1a8a34 !important;
 }
 
-#updatesBadge {
+#updatesBadge, #importBadge {
   background-color: #008000 !important;
+}
+
+.nav-left .nav-item {
+  margin-right: 5px;
 }
