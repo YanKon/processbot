@@ -126,7 +126,7 @@ def delete_database_all():
         db.session.commit()
     return jsonify("Successfully delete all processes.")
 
-@app.route("/get_all_processes")
+@app.route("/get_all_processes", methods=["POST"])
 def get_all_processes():
     processList = []
     for process in Process.query.all():

@@ -280,7 +280,7 @@ $(document).ready(function() {
     threadingBPMN();
   }, 2000);
 
-  $.getJSON($SCRIPT_ROOT + '/get_all_processes', function(data) {
+  $.post($SCRIPT_ROOT + '/get_all_processes', function(data) {
     console.log(data)
     if (data.length !== 0) {
       data.forEach(function(process) {

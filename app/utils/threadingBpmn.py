@@ -32,14 +32,10 @@ class ThreadingBpmn(object):
             global processGlobal
             processGlobal = []
             bpmnResourcesFolder = con.basedir + "/app/static/resources/bpmn"
-            
-            processesList = []
-            for process in Process.query.all():
-                processesList.append((process.processName, process.importDate))
-            # processGlobal = processesList
 
             for filename in os.listdir(bpmnResourcesFolder):
                 if filename.endswith(".bpmn"):
+                    # TODO: prozessName aus BPMN Datei holen (ReadFileName funktion schreiben)
                     processName = filename.split(".")[0]
                     process = Process.query.filter_by(processName = processName).first()
 
