@@ -1,5 +1,6 @@
 //$("#live-chat").hide(0);
 
+// BESCHREIBUNG
 function handle_model(responseObject) {
  
   if (responseObject.currentProcess !== "") { // CurrentProcess ist gesetzt
@@ -20,6 +21,7 @@ function handle_model(responseObject) {
   }
 }
 
+// BESCHREIBUNG
 function showOverlays(processStep) {
   var instruction = elementRegistry.get(processStep).businessObject.get("chatbot:instruction");
   var detailInstruction = elementRegistry.get(processStep).businessObject.get("chatbot:detailInstruction");
@@ -43,6 +45,7 @@ function showOverlays(processStep) {
   });
 }
 
+// BESCHREIBUNG
 function hideOverlays(processStep) {
   overlays.remove({ element: processStep });
 }
@@ -66,6 +69,7 @@ function highlightStep(responseObject) {
 
 }
 
+// BESCHREIBUNG
 // Geht über alle Messages und gibt sie aus
 // 1000 * index + 500 => gibt messages mit Verzögerung aus (abhängig von index größe)
 function handle_messages(responseObject) {
@@ -81,6 +85,7 @@ function handle_messages(responseObject) {
   });
 }
 
+// BESCHREIBUNG
 // blendet Buttons, falls vorhanden, ein
 // erkennt button klick und führt Funktion aus
 function handle_buttons(responseObject) {
@@ -111,7 +116,7 @@ function handle_buttons(responseObject) {
     reactivateInput();
 }
 
-
+// BESCHREIBUNG
 function submit_userText(userText) {
   $.post("/send_userText", 
     { 
@@ -129,6 +134,7 @@ function submit_userText(userText) {
   }
 }
 
+// BESCHREIBUNG
 // ResponseObject mitübergeben, damit klar ist, in welchem Prozessschritt man sich befindet
 function submit_button(currentProcess, currentProcessStep, previousProcessStep, pressedButtonValue) {
 
@@ -151,12 +157,14 @@ function submit_button(currentProcess, currentProcessStep, previousProcessStep, 
   }
 };
 
+// BESCHREIBUNG
 function reactivateInput() {
   $("#InputField").removeAttr("disabled");  // unclickable
   $("#InputField").removeClass("InputField-inactive");
   $("#chat_send").removeClass("disable-me");  // unclickable
 };
 
+// BESCHREIBUNG
 function deactivateInput() {
   $("#InputField").attr("disabled", "disabled");  // unclickable
   $("#InputField").addClass("InputField-inactive");
@@ -168,6 +176,8 @@ function deactivateInput() {
 // TODO: wenn button für die ABfrage geklickt wird (also nicht automatisch abgefragt wird) muss alle Ausgaben nochmal ausgegeben werden
 var toastedProcesses = [];
 var uptodateProcesses = false;
+
+// BESCHREIBUNG
 function threadingBPMN() {
   // Warumm $SCRIPT_ROOT ? (siehe http://flask.pocoo.org/docs/0.12/patterns/jquery/)
   $.post($SCRIPT_ROOT + '/get_status_bpmnDir', function (data) {
@@ -238,53 +248,13 @@ function threadingBPMN() {
   });
 }
 
-    // if (data.length !== 0) {
-    //   $("#updatesBadge").html(data.length)
-    //   data.forEach(function(process){
-        // if (!toastedProcesses.includes(process)) {
-        //   $.toast({
-        //     title: 'Process changed!',
-        //     // subtitle: '11 mins ago', // könnte man noch berechnen!!!!
-        //     content: 'The process <b id="processName">' + process + '</b> has updates.',
-        //     type: 'info',
-        //     delay: '5000'
-        //   });
-        //   toastedProcesses.push(process);
-
-        //   $("#updateDropdown").append(
-        //     '<div class="row" style="margin-bottom: 2px">' +
-        //       '<div class="col-8" style="margin-left: 3px">' +
-        //         '<a class="align-middle">' + process + '</a>' +
-        //       '</div>' +
-        //       '<div class="col-4 text-center" style="margin-right: -3px">' +
-        //         '<button class="btn btn-sm btn-success" id="' + process + '" onclick="bpmnUpdate(event)" type="submit">Update</button>' +
-        //       '</div>' +
-        //     '</div>'
-        //   )
-        // }
-        // })  
-    //   }
-    // else {
-    //   if (data.length === 0 && !uptodateProcesses) {
-    //     uptodateProcesses = true;
-    //     $.toast({
-    //       title: 'No processes changed!',
-    //       // subtitle: '11 mins ago', // könnte man noch berechnen!!!!
-    //       content: 'All processes are up-to-date.',
-    //       type: 'success',
-    //       delay: '5000'
-    //     });
-    //   }
-    // }
-  // });
-// }
-
-// Leitet die Usereingaben ans Backend weiter
-// var userText;
+// BESCHREIBUNG
 $(document).ready(function() {
 
+  // BESCHREIBUNG
   threadingBPMN();
 
+  // BESCHREIBUNG
   function handleUserInput() {
     var userText = $("#InputField").val();
 
@@ -298,21 +268,25 @@ $(document).ready(function() {
     }
   }
 
+  // BESCHREIBUNG
   $("#chat_send").click(function(e) {
     handleUserInput();
   });
 
+  // BESCHREIBUNG
   $("#InputField").keypress(function(e) {
     if (e.keyCode == 13)
       handleUserInput();
   });
 
+  // BESCHREIBUNG
   $(".chat-close").on("click", function(e) {
     e.preventDefault();
     $("#live-chat").fadeOut(300);
     $("#prime").fadeIn(300);
   });
   
+  // BESCHREIBUNG
   $("#prime").on("click", function(e) {
     e.preventDefault();
     $("#live-chat").fadeIn(300);
@@ -344,10 +318,12 @@ $(document).ready(function() {
     // createDialogOverlay('For example, you could ask me the following:',html)
   });
 
+  // BESCHREIBUNG
   setInterval(function() {
     threadingBPMN();
   }, 10000);
 
+  // BESCHREIBUNG => EIGENE FUNKTION NOCH SCHREIBEN
   $.post($SCRIPT_ROOT + '/get_all_processes', function(data) {
     console.log(data)
     if (data.length !== 0) {
@@ -369,6 +345,7 @@ $(document).ready(function() {
 
 });
 
+// BESCHREIBUNG
 function popoverInput() {
   $('[data-toggle="tooltip"]').tooltip({ animation: true })
   if ($("#InputField").hasClass("InputField-inactive"))
@@ -377,6 +354,7 @@ function popoverInput() {
     $('[data-toggle="tooltip"]').tooltip('disable');
 }
 
+// BESCHREIBUNG
 $(".botui-messages-container").on("click",".botui-message", function(e){
   var processList = e.target.src.split("/");
   var processName = processList[processList.length-1].split(".")[0];
@@ -404,6 +382,7 @@ $(".botui-messages-container").on("click",".botui-message", function(e){
 
 });
 
+// BESCHREIBUNG
 function bpmnDelete(e) {
   $.post($SCRIPT_ROOT + '/delete_database_select', 
     { 
@@ -423,6 +402,7 @@ function bpmnDelete(e) {
     }
 };  
 
+// BESCHREIBUNG
 function bpmnDeleteAll() {
   $.post($SCRIPT_ROOT + '/delete_database_all',
     handle_response
@@ -439,6 +419,8 @@ function bpmnDeleteAll() {
   }
 };
 
+
+// BESCHREIBUNG
 function bpmnImport(e) {  
   
   $.post($SCRIPT_ROOT + '/import_process',
