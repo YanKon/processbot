@@ -76,17 +76,20 @@ def get_image(process):
 @app.route("/init")
 def initDialogflow():
 
+    processes = []
+    tasks = []
+
     for process in Process.query.all():
         processName = process.processName
-        # print(processName)
+        processes.append(processName)
         dialogflowHelper.create_entity(PROCESS_NAME_ENTITY_TYPE_ID, processName, [])
 
     for task in Node.query.filter_by(type="task"):
         taskName = task.name
-        print(taskName)
+        tasks.append(taskName)
         dialogflowHelper.create_entity(TASK_NAME_ENTITY_TYPE_ID, taskName, [])
 
-    return render_template("index.html")
+    return jsonify(processes, tasks)
 
 # Route um eine Nachricht des Nutzers an Dialogflow zu schicken und dann die Bearbeitung für den Intent zu starten
 @app.route('/send_userText', methods=["POST"])

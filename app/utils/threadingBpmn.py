@@ -23,8 +23,8 @@ class ThreadingBpmn(object):
         """
         self.interval = interval
         thread = threading.Thread(target=self.run, args=())
-        thread.daemon = True                            # Daemonize thread
-        thread.start()                                  # Start the execution
+        thread.daemon = True    # Daemonize thread
+        thread.start()          # Start the execution
 
     def run(self):
 

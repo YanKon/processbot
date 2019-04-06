@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:chatbot="http://chatbot" id="Definitions_1dr5re4" targetNamespace="http://bpmn.io/schema/bpmn">
+  <bpmn:process id="travel_expenses_claim" name="Travel expenses claim" isExecutable="false" chatbot:instruction="Process Instruction" chatbot:detailInstruction="Detail: Process Instruction">
+    <bpmn:documentation>This model implements the process for the reimbursement of travel expenses.</bpmn:documentation>
+    <bpmn:startEvent id="StartEvent_1" name="start">
+      <bpmn:outgoing>SequenceFlow_1tnm953</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="Task_0roorh4" name="Enter name" chatbot:instruction="Enter your name." chatbot:detailInstruction="Enter your name in the dedicated name field. It&#39;s your first name followed bei your last name.">
+      <bpmn:incoming>SequenceFlow_1tnm953</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1oq08s4</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="SequenceFlow_1tnm953" sourceRef="StartEvent_1" targetRef="Task_0roorh4" />
+    <bpmn:task id="Task_0jd5hrb" name="Enter contact data" chatbot:instruction="Enter your mobile and home number." chatbot:detailInstruction="The number should start with the country code (either with &#34;+&#34; or &#34;00&#34;) followed by the number without the leading &#34;0&#34;.">
+      <bpmn:incoming>SequenceFlow_1oq08s4</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_07ia5iu</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="SequenceFlow_1oq08s4" sourceRef="Task_0roorh4" targetRef="Task_0jd5hrb" />
+    <bpmn:task id="Task_03duqqg" name="Price inquiry" chatbot:instruction="Is it a price inquiry or do you want to make a final booking?" chatbot:detailInstruction="You should tick &#34;Yes&#34;, if you just want to get an offer. For a fixed booking please tick &#34;No&#34; in the price inquiry field.">
+      <bpmn:incoming>SequenceFlow_07ia5iu</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1qglcqm</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="SequenceFlow_07ia5iu" sourceRef="Task_0jd5hrb" targetRef="Task_03duqqg" />
+    <bpmn:task id="Task_0qap5cy" name="Travel type" chatbot:instruction="What is the travel type?" chatbot:detailInstruction="Please enter the type of travel. You can choose between:&#10;&#34;Customer contact&#34;, &#34;Futher education&#34;, &#34;Team meeting&#34; or &#34;Exhibition&#34;.">
+      <bpmn:incoming>SequenceFlow_1qglcqm</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1gea8kj</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="SequenceFlow_1qglcqm" sourceRef="Task_03duqqg" targetRef="Task_0qap5cy" />
+    <bpmn:task id="Task_0apze4e" name="Trip for project acquisition" chatbot:instruction="Is the purpose of the trip to aquire a project?" chatbot:detailInstruction="If you travel with the intention to win a project for the company tick &#34;Yes&#34;.">
+      <bpmn:incoming>SequenceFlow_1gea8kj</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0ca4nd0</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="SequenceFlow_1gea8kj" sourceRef="Task_0qap5cy" targetRef="Task_0apze4e" />
+    <bpmn:task id="Task_1rg0l1d" name="Conference or workshop visit" chatbot:instruction="Do you visit a conference or a workshop?" chatbot:detailInstruction="If you visit a conference please tick &#34;Conference&#34; and write something about the conference. Else tick &#34;Workshop&#34; and choose the corresponding customer from the list.">
+      <bpmn:incoming>SequenceFlow_0ca4nd0</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1kgdzxr</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="SequenceFlow_0ca4nd0" sourceRef="Task_0apze4e" targetRef="Task_1rg0l1d" />
+    <bpmn:endEvent id="EndEvent_03bl43z" name="end">
+      <bpmn:incoming>SequenceFlow_1kgdzxr</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_1kgdzxr" sourceRef="Task_1rg0l1d" targetRef="EndEvent_03bl43z" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="travel_expenses_claim">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="55" y="205" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="62" y="248" width="22" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_0roorh4_di" bpmnElement="Task_0roorh4">
+        <dc:Bounds x="141" y="183" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1tnm953_di" bpmnElement="SequenceFlow_1tnm953">
+        <di:waypoint x="91" y="223" />
+        <di:waypoint x="141" y="223" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Task_0jd5hrb_di" bpmnElement="Task_0jd5hrb">
+        <dc:Bounds x="291" y="183" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1oq08s4_di" bpmnElement="SequenceFlow_1oq08s4">
+        <di:waypoint x="241" y="223" />
+        <di:waypoint x="291" y="223" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Task_03duqqg_di" bpmnElement="Task_03duqqg">
+        <dc:Bounds x="441" y="183" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_07ia5iu_di" bpmnElement="SequenceFlow_07ia5iu">
+        <di:waypoint x="391" y="223" />
+        <di:waypoint x="441" y="223" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Task_0qap5cy_di" bpmnElement="Task_0qap5cy">
+        <dc:Bounds x="591" y="183" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1qglcqm_di" bpmnElement="SequenceFlow_1qglcqm">
+        <di:waypoint x="541" y="223" />
+        <di:waypoint x="591" y="223" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Task_0apze4e_di" bpmnElement="Task_0apze4e">
+        <dc:Bounds x="741" y="183" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1gea8kj_di" bpmnElement="SequenceFlow_1gea8kj">
+        <di:waypoint x="691" y="223" />
+        <di:waypoint x="741" y="223" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Task_1rg0l1d_di" bpmnElement="Task_1rg0l1d">
+        <dc:Bounds x="891" y="183" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0ca4nd0_di" bpmnElement="SequenceFlow_0ca4nd0">
+        <di:waypoint x="841" y="223" />
+        <di:waypoint x="891" y="223" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="EndEvent_03bl43z_di" bpmnElement="EndEvent_03bl43z">
+        <dc:Bounds x="1041" y="205" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1050" y="248" width="19" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1kgdzxr_di" bpmnElement="SequenceFlow_1kgdzxr">
+        <di:waypoint x="991" y="223" />
+        <di:waypoint x="1041" y="223" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
