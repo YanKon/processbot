@@ -16,7 +16,7 @@ class ThreadingBpmn(object):
     until the application exits.
     """
 
-    def __init__(self, interval=10):
+    def __init__(self, interval=1):
         """ Constructor
         :type interval: int
         :param interval: Check interval, in seconds
@@ -43,7 +43,7 @@ class ThreadingBpmn(object):
                     process = Process.query.filter_by(processName = processName).first()
 
                     if (process == None):
-                        print("There is a new process: " + filename)
+                        # print("There is a new process: " + filename)
                         processGlobalImport.append(processName)
                         continue
                         
@@ -51,9 +51,10 @@ class ThreadingBpmn(object):
                     importDate = os.stat(path)[-2]
 
                     if (importDate == process.importDate):
-                        print("Process '" + process.processName + "' is up-to-date.")
+                        continue
+                        # print("Process '" + process.processName + "' is up-to-date.")
                     else:
-                        print("Process '" + process.processName + "' has updates.")
+                        # print("Process '" + process.processName + "' has updates.")
                         processGlobalUpdate.append(process.processName)
                     
                 else:

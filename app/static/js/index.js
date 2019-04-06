@@ -1,5 +1,10 @@
 //$("#live-chat").hide(0);
 
+var toastedProcesses = [];
+var setImportProcesses = [];
+var setUpdateProcesses = [];
+var setDeleteProcesses = [];
+
 // BESCHREIBUNG
 function handle_model(responseObject) {
  
@@ -174,28 +179,21 @@ function deactivateInput() {
 // holt sich alle Prozesse dich sich verändert haben und gibt notification aus
 // gibt aber die Notification nur aus, wenn sie nicht schonmal ausgegeben wurde => toastedProcesses
 // TODO: wenn button für die ABfrage geklickt wird (also nicht automatisch abgefragt wird) muss alle Ausgaben nochmal ausgegeben werden
-var toastedProcesses = [];
 var uptodateProcesses = false;
 
 // BESCHREIBUNG
 function threadingBPMN() {
   // Warumm $SCRIPT_ROOT ? (siehe http://flask.pocoo.org/docs/0.12/patterns/jquery/)
   $.post($SCRIPT_ROOT + '/get_status_bpmnDir', function (data) {
-    console.log(data)
-    // if (data.imports.length === 0 && data.updates.length === 0 && !uptodateProcesses) {
-    //   uptodateProcesses = true;
-    //   $.toast({
-    //     title: 'No processes changed!',
-    //     // subtitle: '11 mins ago', // könnte man noch berechnen!!!!
-    //     content: 'All processes are up-to-date.',
-    //     type: 'success',
-    //     delay: '5000'
-    //   });
-    // }
+    
     if (data.updates.length !== 0) {
-      $("#updatesBadge").html(data.updates.length)
+
+      $("#updateBadge").html(data.updates.length)
+      $("#updateAllButton").removeClass("hidden");
+      $("#updateDropdownText").addClass("hidden");
+
       data.updates.forEach(function (process) {
-        if (!toastedProcesses.includes(process)) {
+        if (!setUpdateProcesses.includes(process)) {
           $.toast({
             title: 'Process changed!',
             // subtitle: '11 mins ago', // könnte man noch berechnen!!!!
@@ -203,14 +201,14 @@ function threadingBPMN() {
             type: 'info',
             delay: '5000'
           });
-          toastedProcesses.push(process);
+          setUpdateProcesses.push(process);
 
-          $("#updateDropdown").append(
-            '<div class="row" style="margin: 5px 10px 0 10px; border-top: 1px solid #eee; padding-top: 5px;">' +
-            '<div class="col-8" style="margin-left: 3px">' +
+          $("#dropdown-menu-proceses-update").append(
+            '<div class="row h-100" id="' + process.replace(/\s+/g, '') + '_row_update" style="margin: 5px 10px 6px 10px; border-bottom: 1px solid #eee; padding: 5px 0 10px 0;">' +
+            '<div class="col-8"' +
             '<a class="align-middle">' + process + '</a>' +
             '</div>' +
-            '<div class="col-4 text-center" style="margin-right: -3px">' +
+            '<div class="col-4 text-center" style="margin-top: auto;margin-bottom: auto;">' +
             '<button class="btn btn-sm btn-success" id="' + process + '" onclick="bpmnUpdate(event)" type="submit">Update</button>' +
             '</div>' +
             '</div>'
@@ -220,9 +218,13 @@ function threadingBPMN() {
     }
 
     if (data.imports.length !== 0) {
+
       $("#importBadge").html(data.imports.length)
+      $("#importAllButton").removeClass("hidden");
+      $("#importDropdownText").addClass("hidden");
+
       data.imports.forEach(function (process) {
-        if (!toastedProcesses.includes(process)) {
+        if (!toastedProcesses.includes(process) && !setImportProcesses.includes(process)){
           $.toast({
             title: 'New process!',
             // subtitle: '11 mins ago', // könnte man noch berechnen!!!!
@@ -231,19 +233,26 @@ function threadingBPMN() {
             delay: '5000'
           });
           toastedProcesses.push(process);
+          setImportProcesses.push(process);
 
-          $("#importDropdown").append(
-            '<div class="row" id="' + process.replace(/\s+/g, '') + '_row" style="margin: 5px 10px 0 10px; border-top: 1px solid #eee; padding-top: 5px;">' +
-            '<div class="col-8" style="margin-left: 3px">' +
+          $("#dropdown-menu-proceses-import").append(
+            '<div class="row h-100" id="' + process.replace(/\s+/g, '') + '_row_import" style="margin: 5px 10px 6px 10px; border-bottom: 1px solid #eee; padding: 5px 0 10px 0;">' +
+            '<div class="col-8">' +
             '<a class="align-middle">' + process + '</a>' +
             '</div>' +
-            '<div class="col-4 text-center" style="margin-right: -3px">' +
-            '<button class="btn btn-sm btn-success" id="' + process + '" onclick="bpmnImport(event)" type="submit">Import</button>' +
+            '<div class="col-4 text-center" style="margin-top: auto;margin-bottom: auto;">' +
+            '<button class="btn btn-sm btn-info" id="' + process + '" onclick="bpmnImport(event)" type="submit">Import</button>' +
             '</div>' +
             '</div>'
           )
         }
       });
+    }
+
+    else {
+      $("#importBadge").html("")
+      $("#importAllButton").addClass("hidden");
+      $("#importDropdownText").removeClass("hidden");
     }
   });
 }
@@ -253,6 +262,7 @@ $(document).ready(function() {
 
   // BESCHREIBUNG
   threadingBPMN();
+  setDeleteDropwdown();
 
   // BESCHREIBUNG
   function handleUserInput() {
@@ -323,24 +333,7 @@ $(document).ready(function() {
     threadingBPMN();
   }, 10000);
 
-  // BESCHREIBUNG => EIGENE FUNKTION NOCH SCHREIBEN
-  $.post($SCRIPT_ROOT + '/get_all_processes', function(data) {
-    console.log(data)
-    if (data.length !== 0) {
-      data.forEach(function(process) {
-        $("#deleteDropdown").prepend(
-          '<div class="row" style="margin: 0 10px 0 10px; border-bottom: 1px solid #eee; padding-bottom: 5px;">' +
-          '<div class="col-8">' +
-            '<a class="align-middle">' + process + '</a>' +
-          '</div>' +
-          '<div class="col-4 text-center">' +
-            '<button class="btn btn-sm btn-danger" id="' + process + '" onclick="bpmnDelete(event)" type="submit">Delete</button>' +
-          '</div>' +
-        '</div>'
-        )
-      })
-    }
-  });
+  
 
 
 });
@@ -391,14 +384,26 @@ function bpmnDelete(e) {
     handle_response
     );
   
-    function handle_response(message) {
+    function handle_response(response) {
       $.toast({
         title: 'Processes deleted!',
-        // subtitle: '11 mins ago', // könnte man noch berechnen!!!!
-        content: "Successfully delete process: " + message,
+        content: "Successfully delete process <b>" + response.deletedProcess + "</b>",
         type: 'success',
         delay: '5000'
       });
+
+      // entfernt den Prozess aus dem delete dropdown
+      $("#" + response.deletedProcess.replace(/\s+/g, '') + "_row_delete").remove();
+
+      // löscht den gerade gelöschten Prozess aus den toastedProcess => damit er direkt nochmal importiert werden kann
+      toastedProcesses = toastedProcesses.filter(e => e !== response.deletedProcess);
+      setDeleteProcesses = setDeleteProcesses.filter(e => e !== response.deletedProcess);
+
+      // updatet das delete und import Dropdown
+      setTimeout(function () {
+        setDeleteDropwdown();
+        setImportDropwdown();
+      }, 1000);
     }
 };  
 
@@ -408,14 +413,28 @@ function bpmnDeleteAll() {
     handle_response
   );
   
-  function handle_response(message) {
+  function handle_response(response) {
     $.toast({
       title: 'Processes deleted!',
-      // subtitle: '11 mins ago', // könnte man noch berechnen!!!!
       content: "Successfully delete all processes.",
       type: 'success',
       delay: '5000'
     });
+
+    // löscht alle Prozesse aus dem delete dropdown
+    response.deletedProcesses.forEach(function(process) {
+      $("#" + process.replace(/\s+/g, '') + "_row_delete").remove();
+      toastedProcesses = toastedProcesses.filter(e => e !== process);
+      setDeleteProcesses = setDeleteProcesses.filter(e => e !== process);
+    })
+
+
+
+    // setzt die delete und import dropdowns 
+    setTimeout(function() {
+      setDeleteDropwdown();
+      setImportDropwdown();
+    }, 1000);
   }
 };
 
@@ -423,23 +442,242 @@ function bpmnDeleteAll() {
 // BESCHREIBUNG
 function bpmnImport(e) {  
   
-  $.post($SCRIPT_ROOT + '/import_process',
+  $.post($SCRIPT_ROOT + '/import_process_select',
     { 
       processName: e.target.id 
     },
     handle_response
   );
 
-  function handle_response(message) {
+  function handle_response(response) {
     $.toast({
       title: 'Process imported!',
       // subtitle: '11 mins ago', // könnte man noch berechnen!!!!
-      content: "Successfully import the process:" + message,
+      content: "Successfully import the process <b>" + response.processName + "</b>",
       type: 'success',
       delay: '5000'
     });
 
-    $("#" + e.target.id.replace(/\s+/g, '') + "_row").remove();
-    $("#importBadge").html(parseInt($("#importBadge").html()) - 1)
+    $("#" + response.processName.replace(/\s+/g, '') + "_row_import").remove();
+    if ((parseInt($("#importBadge").html())-1) === 0) 
+      $("#importBadge").html("")
+    else
+      $("#importBadge").html(parseInt($("#importBadge").html()) - 1)
+
+    setImportProcesses = setImportProcesses.filter(e => e !== response.processName);
+
+    setTimeout(function() {
+      setDeleteDropwdown();
+      setImportDropwdown();
+    }, 1000);
+
   }
+}
+
+function bpmnImportAll() {
+
+  $.post($SCRIPT_ROOT + '/import_process_all', $.param(
+    { 
+      processList: setImportProcesses
+    },
+    true),
+    handle_response
+  );
+
+  function handle_response(response) {
+    $.toast({
+      title: 'Process imported!',
+      // subtitle: '11 mins ago', // könnte man noch berechnen!!!!
+      content: "Successfully import all processes",
+      type: 'success',
+      delay: '5000'
+    });
+
+    response.processList.forEach(function(process) {
+      $("#" + process.replace(/\s+/g, '') + "_row_import").remove();
+      if ((parseInt($("#importBadge").html())-1) === 0) 
+        $("#importBadge").html("")
+      else
+        $("#importBadge").html(parseInt($("#importBadge").html()) - 1)
+
+      setImportProcesses = setImportProcesses.filter(e => e !== process);
+    });
+
+    setTimeout(function() {
+      setDeleteDropwdown();
+      setImportDropwdown();
+    }, 1000);
+
+  }
+  
+}
+
+function bpmnUpdate(e) {  
+  
+  $.post($SCRIPT_ROOT + '/update_process_select',
+    { 
+      processName: e.target.id 
+    },
+    handle_response
+  );
+
+  function handle_response(response) {
+    $.toast({
+      title: 'Process updated!',
+      // subtitle: '11 mins ago', // könnte man noch berechnen!!!!
+      content: "Successfully update all the processes <b>" + response.processName + "</b>",
+      type: 'success',
+      delay: '5000'
+    });
+
+    $("#" + response.processName.replace(/\s+/g, '') + "_row_update").remove();
+    if ((parseInt($("#updateBadge").html())-1) === 0) 
+      $("#updateBadge").html("")
+    else
+      $("#updateBadge").html(parseInt($("#updateBadge").html()) - 1)
+
+      setUpdateProcesses = setUpdateProcesses.filter(e => e !== response.processName);
+
+    setTimeout(function() {
+      setDeleteDropwdown();
+      setUpdateDropwdown();
+    }, 1000);
+
+  }
+}
+
+function bpmnUpdateAll(e) {  
+  
+  $.post($SCRIPT_ROOT + '/update_process_all', $.param(
+    { 
+      processList: setUpdateProcesses
+    },
+    true),
+    handle_response
+  );
+
+  function handle_response(response) {
+    $.toast({
+      title: 'Process updated!',
+      content: "Successfully update all the processes",
+      type: 'success',
+      delay: '5000'
+    });
+
+    response.processList.forEach(function(process) {
+      $("#" + process.replace(/\s+/g, '') + "_row_update").remove();
+      if ((parseInt($("#updateBadge").html())-1) === 0) 
+        $("#updateBadge").html("")
+      else
+        $("#updateBadge").html(parseInt($("#updateBadge").html()) - 1)
+
+      setUpdateProcesses = setUpdateProcesses.filter(e => e !== process);
+    });
+
+    setTimeout(function() {
+      setDeleteDropwdown();
+      setUpdateDropwdown();
+    }, 1000);
+
+  }
+}
+
+// BESCHREIBUNG
+function setDeleteDropwdown() {
+  $.post($SCRIPT_ROOT + '/get_all_processes', function(data) {
+    
+    if (data.length !== 0) {
+
+      $("#deleteAllButton").removeClass("hidden");
+      $("#deleteDropdownText").addClass("hidden");
+
+      data.forEach(function(process) {
+        if (!setDeleteProcesses.includes(process)) {
+          $("#dropdown-menu-proceses-delete").prepend(
+            '<div class="row h-100" id="' + process.replace(/\s+/g, '') + '_row_delete" style="margin: 5px 10px 6px 10px; border-bottom: 1px solid #eee; padding: 5px 0 10px 0;">' +
+            '<div class="col-8">' +
+              '<a class="align-middle">' + process + '</a>' +
+            '</div>' +
+            '<div class="col-4 text-center" style="margin-top: auto;margin-bottom: auto;">' +
+              '<button class="btn btn-sm btn-danger" id="' + process + '" onclick="bpmnDelete(event)" type="submit">Delete</button>' +
+            '</div>' +
+          '</div>'
+          )
+
+          setDeleteProcesses.push(process)
+        }
+      })
+    }
+
+    else {
+      $("#deleteAllButton").addClass("hidden");
+      $("#deleteDropdownText").removeClass("hidden");
+    }
+
+  });
+}
+
+// BESCHREIBUNG
+function setImportDropwdown() {
+  $.post($SCRIPT_ROOT + '/get_all_import_processes', function(data) {
+    
+    if (data.imports.length !== 0) {
+
+      $("#importBadge").html(data.imports.length)
+      $("#importAllButton").removeClass("hidden");
+      $("#importDropdownText").addClass("hidden");
+
+      data.imports.forEach(function(process) {
+        if (!setImportProcesses.includes(process)) {
+          $("#dropdown-menu-proceses-import").prepend(
+            '<div class="row h-100" id="' + process.replace(/\s+/g, '') + '_row_import" style="margin: 5px 10px 6px 10px; border-bottom: 1px solid #eee; padding: 5px 0 10px 0;">' +
+            '<div class="col-8">' +
+              '<a class="align-middle">' + process + '</a>' +
+            '</div>' +
+            '<div class="col-4 text-center" style="margin-top: auto;margin-bottom: auto;">' +
+              '<button class="btn btn-sm btn-info" id="' + process + '" onclick="bpmnImport(event)" type="submit">Import</button>' +
+            '</div>' +
+          '</div>'
+          )
+
+          $.toast({
+            title: 'New process!',
+            // subtitle: '11 mins ago', // könnte man noch berechnen!!!!
+            content: 'You can now import the process <b id="processName">' + process + '</b>.',
+            type: 'info',
+            delay: '5000'
+          });
+          toastedProcesses.push(process);
+          setImportProcesses.push(process);
+        }
+      })
+    }
+
+    else {
+      $("#importBadge").html("")
+      $("#importAllButton").addClass("hidden");
+      $("#importDropdownText").removeClass("hidden");
+    }
+
+  });
+}
+
+// BESCHREIBUNG
+function setUpdateDropwdown() {
+  $.post($SCRIPT_ROOT + '/get_all_update_processes', function(data) {
+    
+    if (data.updates.length !== 0) {
+
+      $("#updateBadge").html(data.updates.length)
+      $("#updateAllButton").removeClass("hidden");
+      $("#updateDropdownText").addClass("hidden");
+    }
+
+    else {
+      $("#updateBadge").html("")
+      $("#updateAllButton").addClass("hidden");
+      $("#updateDropdownText").removeClass("hidden");
+    }
+
+  });
 }

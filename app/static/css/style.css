@@ -462,10 +462,25 @@ button.botui-actions-buttons-button {
   background-color: #1a8a34 !important;
 }
 
-#updatesBadge, #importBadge {
+#updateBadge, #importBadge {
   background-color: #008000 !important;
 }
 
 .nav-left .nav-item {
   margin-right: 5px;
+}
+
+.dropdown-menu {
+  z-index: 9999;
+}
+
+.dropdown-menu-title {
+  padding-bottom: 5px;
+  font-weight: bold;
+  border-bottom: 1px solid #eee;
+  margin: 0 10px 0 10px;
+}
+
+.dropdown-menu-text {
+  margin: 10px;
 }

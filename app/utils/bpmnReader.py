@@ -30,8 +30,8 @@ def path_base_name(path):
 
 def readBpmn(processName):
 
-    path = "/Users/wizzy/Development/processbot/app/static/resources/bpmn/" + processName +".bpmn"
-    #path = "/Users/yannick/Developer/Projects/processbot/app/static/resources/bpmn/" + processName +".bpmn"
+    # path = "/Users/wizzy/Development/processbot/app/static/resources/bpmn/" + processName +".bpmn"
+    path = "/Users/yannick/Developer/Projects/processbot/app/static/resources/bpmn/" + processName +".bpmn"
 
     # Versucht die Prozess Metadaten zu lesen und in Datenbank zu committen.
     try:

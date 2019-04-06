@@ -11,7 +11,7 @@
       <bpmn:incoming>SequenceFlow_1ghjzvr</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0cixccz</bpmn:outgoing>
     </bpmn:intermediateThrowEvent>
-    <bpmn:task id="Task_1wapf2m" name="Eat the pizza" chatbot:instruction="Ejoy your pizza." chatbot:detailInstruction="You really need help for that?!">
+    <bpmn:task id="Task_1wapf2m" name="Eat the pizza" chatbot:instruction="Enjoy your pizza." chatbot:detailInstruction="You really need help for that?!">
       <bpmn:incoming>SequenceFlow_165ryd7</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0tvn0ie</bpmn:outgoing>
     </bpmn:task>

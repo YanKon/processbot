@@ -76,20 +76,17 @@ def get_image(process):
 @app.route("/init")
 def initDialogflow():
 
-    processes = []
-    tasks = []
-
     for process in Process.query.all():
         processName = process.processName
-        processes.append(processName)
+        # print(processName)
         dialogflowHelper.create_entity(PROCESS_NAME_ENTITY_TYPE_ID, processName, [])
 
     for task in Node.query.filter_by(type="task"):
         taskName = task.name
-        tasks.append(taskName)
+        print(taskName)
         dialogflowHelper.create_entity(TASK_NAME_ENTITY_TYPE_ID, taskName, [])
 
-    return jsonify(processes, tasks)
+    return render_template("index.html")
 
 # Route um eine Nachricht des Nutzers an Dialogflow zu schicken und dann die Bearbeitung für den Intent zu starten
 @app.route('/send_userText', methods=["POST"])
@@ -123,14 +120,25 @@ def delete_database_select():
     process = Process.query.filter_by(processName=processName).first()
     db.session.delete(process)
     db.session.commit()
-    return jsonify(processName)
+
+    response = {
+        "deletedProcess": process.processName
+    }
+    return jsonify(response)
 
 @app.route("/delete_database_all", methods=["POST"])
 def delete_database_all():
+    deletedProcesses = []
+    
     for process in Process.query.all():
         db.session.delete(process)
         db.session.commit()
-    return jsonify("")
+        deletedProcesses.append(process.processName)
+
+    response = {
+        "deletedProcesses": deletedProcesses,
+    }
+    return jsonify(response)
 
 @app.route("/get_all_processes", methods=["POST"])
 def get_all_processes():
@@ -140,8 +148,71 @@ def get_all_processes():
     return jsonify(processList)
     # return jsonify([])
 
-@app.route("/import_process", methods=["POST"])
-def import_process():
+@app.route("/import_process_select", methods=["POST"])
+def import_process_select():
     processName = request.form["processName"]
+    
     bpmnReader.readBpmn(processName)
-    return jsonify(processName)
+    response = {
+        "processName": processName,
+    }
+    return jsonify(response)
+
+@app.route("/import_process_all", methods=["POST"])
+def import_process_all():
+    processList = request.form.getlist('processList')
+
+    for processName in processList:
+        bpmnReader.readBpmn(processName)
+        
+    response = {
+        "processList": processList
+    }
+
+    return jsonify(response)
+
+@app.route("/get_all_import_processes", methods=["POST"])
+def get_all_import_processes():
+    response = {
+        "imports": threadingBpmn.processGlobalImport,
+    }
+    return jsonify(response)
+
+@app.route("/update_process_select", methods=["POST"])
+def update_process_select():
+    processName = request.form["processName"]
+
+    process = Process.query.filter_by(processName=processName).first()
+    db.session.delete(process)
+    db.session.commit()
+    
+    bpmnReader.readBpmn(processName)
+    response = {
+        "processName": processName,
+    }
+    return jsonify(response)
+
+@app.route("/update_process_all", methods=["POST"])
+def update_process_all():
+    processList = request.form.getlist('processList')
+
+    for processName in processList:
+        process = Process.query.filter_by(processName=processName).first()
+        db.session.delete(process)
+        db.session.commit()
+
+    for processName in processList:
+        bpmnReader.readBpmn(processName)
+        
+    response = {
+        "processList": processList
+    }
+
+    return jsonify(response)
+
+@app.route("/get_all_update_processes", methods=["POST"])
+def get_all_update_processes():
+    response = {
+        "updates": threadingBpmn.processGlobalUpdate,
+    }
+    return jsonify(response)

@@ -83,6 +83,21 @@
                     <span id="importBadge" class="badge badge-pill badge-secondary"></span>
                   </button>
                   <div class="dropdown-menu" id="importDropdown" aria-labelledby="dropdownMenuButton" style="width: 300px !important">
+                    <div class="dropdown-menu-title text-center">
+                      Import processes
+                    </div>
+                    <div class="dropdown-menu-text text-center" id="importDropdownText"> 
+                        There are no processes to import.
+                      </div>
+                      <div id="dropdown-menu-proceses-import">
+                      </div>
+                      <div class="row hidden" id="importAllButton" style="margin-bottom: 2px">
+                        <div class="col-12 text-center">
+                          <button class="btn btn-sm btn-info" style="margin-top:10px;" onclick="bpmnImportAll()" type="submit">
+                            Import all processes
+                          </button>
+                        </div>
+                      </div>
                   </div>
                 </div>
               </li>
@@ -91,9 +106,24 @@
                   <button class="btn btn-sm btn-outline-light dropdown-toggle" type="button" id="dropdownMenuButton"
                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Updates
-                    <span id="updatesBadge" class="badge badge-pill badge-secondary"></span>
+                    <span id="updateBadge" class="badge badge-pill badge-secondary"></span>
                   </button>
                   <div class="dropdown-menu" id="updateDropdown" aria-labelledby="dropdownMenuButton" style="width: 300px !important">
+                      <div class="dropdown-menu-title text-center">
+                        Update processes
+                      </div>
+                      <div class="dropdown-menu-text text-center" id="updateDropdownText"> 
+                        There are no processes to update.
+                      </div>
+                      <div id="dropdown-menu-proceses-update">
+                      </div>
+                      <div class="row hidden" id="updateAllButton" style="margin-bottom: 2px">
+                        <div class="col-12 text-center">
+                          <button class="btn btn-sm btn-success" style="margin-top:10px;" onclick="bpmnUpdateAll()" type="submit">
+                            Update all processes
+                          </button>
+                        </div>
+                      </div>
                   </div>
                 </div>
               </li>
@@ -104,7 +134,15 @@
                       Delete
                     </button>
                     <div class="dropdown-menu" id="deleteDropdown" aria-labelledby="dropdownMenuButton" style="width: 300px !important">
-                      <div class="row" style="margin-bottom: 2px">
+                      <div class="dropdown-menu-title text-center">
+                        Delete processes
+                      </div>
+                      <div class="dropdown-menu-text text-center" id="deleteDropdownText">
+                        There are no processes to be deleted in the database.
+                      </div>
+                      <div id="dropdown-menu-proceses-delete">
+                      </div>
+                      <div class="row hidden" id="deleteAllButton" style="margin-bottom: 2px">
                         <div class="col-12 text-center">
                           <button class="btn btn-sm btn-danger" style="margin-top:10px;" onclick="bpmnDeleteAll()" type="submit">Delete all processes</button>
                         </div>
@@ -112,9 +150,6 @@
                     </div>
                   </div>
                 </li>
-              <!-- <li class="nav-item">
-                <button class="btn btn-sm btn-outline-light" id="bpmnDelete" type="submit">Delete</button>
-              </li> -->
           </ul>
       </div>
       <div class="mx-auto order-0">
