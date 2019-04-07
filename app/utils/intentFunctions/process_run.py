@@ -1,6 +1,6 @@
 import json
 from google.protobuf.json_format import MessageToJson
-from app.models import Process, Edge, GeneralInstruction, DetailInstruction
+from app.models import Process, Edge, GeneralInstruction, DetailInstruction, SplitQuestion, Node, ButtonName
 from app.utils import responseHelper, dialogflowHelper
 from app.utils import buttons as buttons
 
@@ -60,22 +60,48 @@ def button_run(pressedButtonValue, currentProcess, currentProcessStep, previousP
       
         # TODO: Wenn kein General, dann Nachricht ausgeben
         message = DetailInstruction.query.filter_by(nodeId=currentProcessStep).first().text # Detail Anweisungen für aktuellen Schritt
+        if (message == ""):
+            message = "Unfortunately I can give you no futher information."
+
         return responseHelper.createResponseObject([message],buttons.REDUCED_RUN_BUTTONS,currentProcess, currentProcessStep, previousProcessStep)
     
     else: # Nächster Schritt --> "process_run_yes"
 
-        nextActivityId = Edge.query.filter(Edge.sourceId == currentProcessStep).filter_by(processId=currentProcess).first().targetId
+        nextNodeId = Edge.query.filter(Edge.sourceId == currentProcessStep).filter_by(processId=currentProcess).first().targetId
+        nextNode = Node.query.filter_by(id=nextNodeId).first()
         
+        # Falls dieser Node ein Gateway ist, stelle die Splitquestion
+        if (nextNode.type == "exclusiveGateway"):
+            try:
+                splitQuestion = SplitQuestion.query.filter_by(nodeId=nextNodeId).first().text
+            except:  # Falls es dafür keine Splitquestion gibt, dann handelt es sich um einen Join-Gateway --> Dann nächster Knoten ignorieren
+                print("####Join Gateway####")
+                #TODO: nicht schön
+                message1 = "You have reached a join gateway, press \"Yes\" to continue."
+                return responseHelper.createResponseObject([message1], buttons.REDUCED_RUN_BUTTONS, currentProcess, nextNodeId ,currentProcessStep)
+                
+            # Splitquestion und Buttons ausgeben
+            optionEdges = Edge.query.filter(Edge.sourceId == nextNodeId).filter_by(processId=currentProcess)
+            optionButtons = []
+            for edge in optionEdges:
+                eventId = edge.targetId
+                buttonName = ButtonName.query.filter_by(nodeId=eventId).first().text
+                optionButton = buttons.createCustomButton(buttonName,"process_run",eventId) # zB.: "process_run$customButton$IntermediateThrowEvent_1szmt2n"
+                optionButtons.append(optionButton)
+            # TODO: Help Button Hinzu!!!
+            optionButtons.extend(buttons.CANCEL_RUN_BUTTON) 
+            return responseHelper.createResponseObject([splitQuestion], optionButtons, currentProcess, nextNodeId ,currentProcessStep)
+
         # Wenn ein Fehler fliegt, dann gibt es keine Anweisung mehr für die Activity --> Ende erreicht
         try:
-            message = GeneralInstruction.query.filter_by(nodeId=nextActivityId).first().text # Generelle Anweisungen für den nächsten Schritt
+            message = GeneralInstruction.query.filter_by(nodeId=nextNodeId).first().text # Generelle Anweisungen für den nächsten Schritt
         except:
             print("End of process reached")
             processName = Process.query.filter_by(id=currentProcess).first().processName
             message = "You have successfully gone through the process \"" + processName + "\"."
             return responseHelper.createResponseObject([message], [], "", "", "")
 
-        return responseHelper.createResponseObject([message], buttons.STANDARD_RUN_BUTTONS, currentProcess, nextActivityId, currentProcessStep)
+        return responseHelper.createResponseObject([message], buttons.STANDARD_RUN_BUTTONS, currentProcess, nextNodeId, currentProcessStep)
 
 # Weg: man kommt hier her über submit_button(JS) --> send_button(PY Route) --> triggerButtonFunction (customButtonDict)
 def customButton_run(pressedButtonValue, currentProcess, currentProcessStep, previousProcessStep):

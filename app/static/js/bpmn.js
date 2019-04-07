@@ -17,12 +17,14 @@ $("#overlaySwitch").click(function(){
 });
 
 function loadBPMN(uri, bpmnViewer) {
+
+  // TODO: Canvas übergeben
     
   let modelLoadPromise = new Promise (function(resolve,reject){
     var bpmnXML;
     $.ajax({
-      url: "/static/resources/Process_1_new.bpmn",
-      // url: "/static/resources/" + uri + ".bpmn",
+      url: "/static/resources/bpmn/Order pizza.bpmn",
+      // url: "/static/resources/bpmn/" + uri + ".bpmn",
       success: function(data) {
         bpmnXML = data;
         bpmnViewer.importXML(bpmnXML, function(err) {
@@ -33,6 +35,7 @@ function loadBPMN(uri, bpmnViewer) {
             overlays = bpmnViewer.get("overlays");
             elementRegistry = bpmnViewer.get('elementRegistry');
             eventBus = bpmnViewer.get('eventBus');
+            bpmnViewer.get('canvas').zoom('fit-viewport');
 
             // you may hook into any of the following events
             var events = [
