@@ -22,4 +22,4 @@ def button_run(pressedButtonValue, currentProcess, currentProcessStep, previousP
         return responseHelper.createResponseObject(["Error: Button does not exist, please add it to the customButtonDict!"],[],"","","")
 
 
-    
+    # TODO Klasse löschen

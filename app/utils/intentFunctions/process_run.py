@@ -66,8 +66,10 @@ def button_run(pressedButtonValue, currentProcess, currentProcessStep, previousP
         return responseHelper.createResponseObject([message],buttons.REDUCED_RUN_BUTTONS,currentProcess, currentProcessStep, previousProcessStep)
     
     else: # Nächster Schritt --> "process_run_yes"
-
+        #print(currentProcess)
+        #print(currentProcessStep)
         nextNodeId = Edge.query.filter(Edge.sourceId == currentProcessStep).filter_by(processId=currentProcess).first().targetId
+        #print(nextNodeId)
         nextNode = Node.query.filter_by(id=nextNodeId).first()
         
         # Falls dieser Node ein Gateway ist, stelle die Splitquestion
@@ -105,7 +107,14 @@ def button_run(pressedButtonValue, currentProcess, currentProcessStep, previousP
 
 # Weg: man kommt hier her über submit_button(JS) --> send_button(PY Route) --> triggerButtonFunction (customButtonDict)
 def customButton_run(pressedButtonValue, currentProcess, currentProcessStep, previousProcessStep):
-     # zB. CustomButtonValue = "process_run$customButton$Reisekosten"
-    entity = pressedButtonValue[26:]
-    dialogflowResponse = dialogflowHelper.detect_intent_texts(entity)
-    return run(dialogflowResponse)
+    # zB. CustomButtonValue = "process_run$customButton$Reisekosten"
+    # zB.: "process_run$customButton$IntermediateThrowEvent_1szmt2n"
+
+    # Wenn kein currentProcess da ist, dann sind die ProzessButtons eingeblendet, andernfalls ist man an einem Split-Gateway
+    if (currentProcess == ""):
+        entity = pressedButtonValue[25:]
+        dialogflowResponse = dialogflowHelper.detect_intent_texts(entity)
+        return run(dialogflowResponse)
+    else:
+        eventId = pressedButtonValue[25:]
+        return button_run("process_run_yes",currentProcess,eventId,currentProcessStep)

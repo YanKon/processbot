@@ -47,6 +47,6 @@ def button_run(pressedButtonValue, currentProcess, currentProcessStep, previousP
 # Weg: man kommt hier her über submit_button(JS) --> send_button(PY Route) --> triggerButtonFunction (customButtonDict)
 def customButton_run(pressedButtonValue, currentProcess, currentProcessStep, previousProcessStep):
     # zB. CustomButtonValue = "process_show$customButton$Reisekosten"
-    entity = pressedButtonValue[27:]
+    entity = pressedButtonValue[26:]
     dialogflowResponse = dialogflowHelper.detect_intent_texts(entity)
     return run(dialogflowResponse)

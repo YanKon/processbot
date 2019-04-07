@@ -29,7 +29,7 @@ def button_run(pressedButtonValue, currentProcess, currentProcessStep, previousP
 # Weg: man kommt hier her über submit_button(JS) --> send_button(PY Route) --> triggerButtonFunction (customButtonDict)
 def customButton_run(pressedButtonValue, currentProcess, currentProcessStep, previousProcessStep):
     # zB. CustomButtonValue = "process_names$customButton$Reisekosten"
-    entity = pressedButtonValue[28:]
+    entity = pressedButtonValue[27:]
     # Wenn auf ein ProzessButton geklickt wurde, dann starte den Prozess --> process_run
     dialogflowResponse = dialogflowHelper.detect_intent_texts("run process " + entity)
     return process_run.run(dialogflowResponse)
