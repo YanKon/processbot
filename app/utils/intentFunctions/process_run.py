@@ -1,8 +1,10 @@
+# pylint: disable=no-member
 import json
 from google.protobuf.json_format import MessageToJson
 from app.models import Process, Edge, GeneralInstruction, DetailInstruction, SplitQuestion, Node, ButtonName
 from app.utils import responseHelper, dialogflowHelper
 from app.utils import buttons as buttons
+from app import db
 
 # Weg: man kommt hier her über submit_message(JS) --> send_userText(PY Route)
 def run(dialogflowResponse):
@@ -25,22 +27,28 @@ def run(dialogflowResponse):
         messages = [message1, message2]
         return responseHelper.createResponseObject(messages,runButtons,"","","")
     
-    # erste Aktivität im Prozess nehmen
-    firstActivityId = Edge.query.filter(Edge.sourceId.like(
-        'StartEvent_%')).filter_by(processId=process.id).first().targetId
-    previousStepId = Edge.query.filter(Edge.processId == process.id).filter(Edge.targetId == firstActivityId).first().sourceId
+    # falls Process zuvor abgebrochen wurde, frage ob an dieser Stelle fortfahren werden soll
+    try:
+        currentStepNode = Node.query.filter_by(currentStep = True).filter_by(processId = processId).first()
+        message1 = "I have detected, that you have started this process before. Do you want to resume your last state?"
+        return responseHelper.createResponseObject([message1],buttons.RESUME_RUN_BUTTONS,processId,currentStepNode.id,"")
+    except: # wenn nicht starte von vorne
+        # erste Aktivität im Prozess nehmen
+        firstActivityId = Edge.query.filter(Edge.sourceId.like(
+            'StartEvent_%')).filter_by(processId=process.id).first().targetId
+        previousStepId = Edge.query.filter(Edge.processId == process.id).filter(Edge.targetId == firstActivityId).first().sourceId
 
-   
-    message1 = dialogflowResponse.query_result.fulfillment_text # Okay, let's start process "Entity".
-    message2 = GeneralInstruction.query.filter_by(nodeId=firstActivityId).first().text # Generelle Anweisungen für ersten Schritt
-    message3 = "When you are done press \"Yes\", should you need further assistance press \"Help\"." # TODO: Besser machen bzw. irgendwoanders hinschreiben
-    messages = [message1, message2, message3]
     
-    currentProcess = processId
-    currentProcessStep = firstActivityId
-    previousProcessStep = previousStepId
+        message1 = dialogflowResponse.query_result.fulfillment_text # Okay, let's start process "Entity".
+        message2 = GeneralInstruction.query.filter_by(nodeId=firstActivityId).first().text # Generelle Anweisungen für ersten Schritt
+        message3 = "When you are done press \"Yes\", should you need further assistance press \"Help\"." # TODO: Besser machen bzw. irgendwoanders hinschreiben
+        messages = [message1, message2, message3]
+        
+        currentProcess = processId
+        currentProcessStep = firstActivityId
+        previousProcessStep = previousStepId
 
-    return responseHelper.createResponseObject(messages, buttons.STANDARD_RUN_BUTTONS,currentProcess, currentProcessStep,previousProcessStep)
+        return responseHelper.createResponseObject(messages, buttons.STANDARD_RUN_BUTTONS,currentProcess, currentProcessStep,previousProcessStep)
 
 
 # Weg: man kommt hier her über submit_button(JS) --> send_button(PY Route) --> triggerButtonFunction (ButtonDict)
@@ -50,26 +58,80 @@ def button_run(pressedButtonValue, currentProcess, currentProcessStep, previousP
     if pressedButtonValue == "process_run_cancel":
         try:
             processName = Process.query.filter_by(id=currentProcess).first().processName
-            message = "Okay, the current process instance of process \"" + processName + "\" will be canceled."
+            message1 = "Okay, the current process instance of process \"" + processName + "\" will be canceled."
+            message2 = "Your state will be saved for later."
+            node = Node.query.filter_by(id=currentProcessStep).filter_by(processId=currentProcess).first()
+            node.currentStep = True
+            db.session.commit()
+            messages = [message1,message2]
         except: # kein Prozessname
             message = "Alright, the request will be canceled."
-        return responseHelper.createResponseObject([message],[],"","","")    
+            messages = [message]
+        return responseHelper.createResponseObject(messages,[],"","","")    
     
     # Gebe die DetailInstruction aus
     elif pressedButtonValue == "process_run_help":
       
-        # TODO: Wenn kein General, dann Nachricht ausgeben
+        # TODO: Wenn kein General, dann Nachricht ausgeben mit try, except!
         message = DetailInstruction.query.filter_by(nodeId=currentProcessStep).first().text # Detail Anweisungen für aktuellen Schritt
-        if (message == ""):
-            message = "Unfortunately I can give you no futher information."
-
+        # if (message == ""):
+        #     message = "Unfortunately I can give you no futher information."
         return responseHelper.createResponseObject([message],buttons.REDUCED_RUN_BUTTONS,currentProcess, currentProcessStep, previousProcessStep)
-    
+
+     # Starte den Prozess von Vorne
+    elif pressedButtonValue == "process_run_no":
+        # currentStep in der Datenbank zurücksetzen
+        currentStepNode = Node.query.filter_by(id = currentProcessStep).first()
+        currentStepNode.currentStep = False
+        db.session.commit()
+        # von vorne starten
+        currentProcessName = Process.query.filter_by(id=currentProcess).first().processName
+        dialogflowResponse = dialogflowHelper.detect_intent_texts("run process " + currentProcessName)
+        return run(dialogflowResponse)
+
+     # Starte den Prozess an dem letzten State
+    elif pressedButtonValue == "process_run_resume":
+        # currentStep in der Datenbank zurücksetzen
+        currentStepNode = Node.query.filter_by(id = currentProcessStep).first()
+        currentStepNode.currentStep = False
+        db.session.commit()
+
+        #Prozess an dieser Stelle weitermachen:
+        # Falls dieser Node ein Gateway ist, stelle die Splitquestion
+        if (currentStepNode.type == "exclusiveGateway"):
+            try:
+                splitQuestion = SplitQuestion.query.filter_by(nodeId=currentProcessStep).first().text
+            except:  # Falls es dafür keine Splitquestion gibt, dann handelt es sich um einen Join-Gateway --> Dann nächster Knoten ignorieren
+                print("####Join Gateway####")
+                #TODO: nicht schön
+                message1 = "You have reached a join gateway, press \"Yes\" to continue."
+                return responseHelper.createResponseObject([message1], buttons.REDUCED_RUN_BUTTONS, currentProcess, currentProcessStep ,"")
+                
+            # Splitquestion und Buttons ausgeben
+            optionEdges = Edge.query.filter(Edge.sourceId == currentProcessStep).filter_by(processId=currentProcess)
+            optionButtons = []
+            for edge in optionEdges:
+                eventId = edge.targetId
+                buttonName = ButtonName.query.filter_by(nodeId=eventId).first().text
+                optionButton = buttons.createCustomButton(buttonName,"process_run",eventId) # zB.: "process_run$customButton$IntermediateThrowEvent_1szmt2n"
+                optionButtons.append(optionButton)
+            # TODO: Help Button Hinzu!!!
+            optionButtons.extend(buttons.CANCEL_RUN_BUTTON) 
+            return responseHelper.createResponseObject([splitQuestion], optionButtons, currentProcess, currentProcessStep ,"")
+
+        # Wenn ein Fehler fliegt, dann gibt es keine Anweisung mehr für die Activity --> Ende erreicht
+        try:
+            message = GeneralInstruction.query.filter_by(nodeId=currentProcessStep).first().text # Generelle Anweisungen für den nächsten Schritt
+        except:
+            print("End of process reached")
+            processName = Process.query.filter_by(id=currentProcess).first().processName
+            message = "You have successfully gone through the process \"" + processName + "\"."
+            return responseHelper.createResponseObject([message], [], "", "", "")
+
+        return responseHelper.createResponseObject([message], buttons.STANDARD_RUN_BUTTONS, currentProcess, currentProcessStep, "")
+
     else: # Nächster Schritt --> "process_run_yes"
-        #print(currentProcess)
-        #print(currentProcessStep)
         nextNodeId = Edge.query.filter(Edge.sourceId == currentProcessStep).filter_by(processId=currentProcess).first().targetId
-        #print(nextNodeId)
         nextNode = Node.query.filter_by(id=nextNodeId).first()
         
         # Falls dieser Node ein Gateway ist, stelle die Splitquestion

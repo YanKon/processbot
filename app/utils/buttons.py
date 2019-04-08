@@ -18,6 +18,18 @@ STANDARD_RUN_BUTTONS = [
     }
 ]
 
+RESUME_RUN_BUTTONS = [
+    {
+        "text": "Yes",
+        "value": "process_run_resume"
+    },
+    {
+        "text": "No",
+        "value": "process_run_no"
+
+    }
+]
+
 REDUCED_RUN_BUTTONS = [
     {
         "text": "Yes",

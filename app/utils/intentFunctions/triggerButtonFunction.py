@@ -8,6 +8,8 @@ from app.utils import responseHelper
 buttonDict = {
     # Process Fälle zusammenfassen
     "process_run_yes": process_run,
+    "process_run_resume": process_run,
+    "process_run_no": process_run,
     "process_run_help": process_run,
     "process_run_cancel": process_run,
     "process_show_cancel": process_show,
