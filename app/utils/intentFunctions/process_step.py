@@ -1,6 +1,6 @@
 import json
 from google.protobuf.json_format import MessageToJson
-from app.models import Process, Edge, Node, GeneralInstruction
+from app.models import Process, Edge, Node, GeneralInstruction, DetailDescription
 from app.utils import responseHelper, dialogflowHelper
 from app.utils import buttons as buttons
 
@@ -33,36 +33,70 @@ def run(dialogflowResponse):
 def button_run(pressedButtonValue, currentProcess, currentProcessStep, previousProcessStep):
     #TODO: Check if next Node is task!!
     # TODO: Oder ab hier mit Steps, damit auch Splits erläutert werden
+
     if (pressedButtonValue == "process_step_previous"):
         previousStepId = Edge.query.filter(Edge.processId == currentProcess).filter(Edge.targetId == currentProcessStep).first().sourceId
         previousStep = Node.query.filter(Node.id == previousStepId).first()
-        
-        try: #Wenn ein Fehler fliegt, dann gibt es keine Anweisung mehr für den Step  --> Anfang erreicht
-            message1 = "Alright, the previous step is: \"" + previousStep.name +"\". This is the documentation:"
-            message2 = GeneralInstruction.query.filter_by(nodeId=previousStep.id).first().text # Generelle Anweisungen für vorherigen Schritt
-            messages = [message1,message2]
-            return responseHelper.createResponseObject(messages,buttons.STANDARD_STEP_BUTTONS,currentProcess,previousStepId,"")
-        except:
+
+        if previousStep.type == "startEvent":
             message1 = "There is no previous step. You have reached the start of the process."
             messages = [message1]
             return responseHelper.createResponseObject(messages,buttons.NEXT_STEP_BUTTONS,currentProcess,currentProcessStep,"")
-            
+
+        elif (previousStep.type == "task"):
+            try: #Beschreibung holen
+                message1 = "Alright, the previous step is: \"" + previousStep.name +"\". This is the documentation:"
+                message2 = GeneralInstruction.query.filter_by(nodeId=previousStep.id).first().text # Generelle Anweisungen für vorherigen Schritt
+                messages = [message1,message2]
+                return responseHelper.createResponseObject(messages,buttons.STANDARD_STEP_BUTTONS,currentProcess,previousStepId,"")
+            except:
+                message1 = "There is no documentation for this step."
+                messages = [message1]
+                return responseHelper.createResponseObject(messages,buttons.STANDARD_STEP_BUTTONS,currentProcess,previousStepId,"")
+        
+        elif (previousStep.type == "exclusiveGateway"):
+                message1 = "There is no documentation for this step, as this is a gateway."
+                messages = [message1]
+                return responseHelper.createResponseObject(messages,buttons.STANDARD_STEP_BUTTONS,currentProcess,previousStepId,"")
+        
+        elif (previousStep.type == "intermediateThrowEvent"):
+                message1 =  DetailDescription.query.filter_by(nodeId=previousStep.id).first().text
+                messages = [message1]
+                return responseHelper.createResponseObject(messages,buttons.STANDARD_STEP_BUTTONS,currentProcess,previousStepId,"")
     
     elif (pressedButtonValue == "process_step_next"):
         nextStepId = Edge.query.filter(Edge.processId == currentProcess).filter(Edge.sourceId == currentProcessStep).first().targetId
         nextStep = Node.query.filter(Node.id == nextStepId).first()
-       
-        try: #Wenn ein Fehler fliegt, dann gibt es keine Anweisung mehr für den Step --> Ende erreicht
-            message1 = "Alright, the next step is: \"" + nextStep.name +"\". This is the documentation for:"
-            message2 = GeneralInstruction.query.filter_by(nodeId=nextStep.id).first().text # Generelle Anweisungen für nächsten Schritt
-            messages = [message1,message2]
-            return responseHelper.createResponseObject(messages,buttons.STANDARD_STEP_BUTTONS,currentProcess,nextStepId,"")
-        except:
+
+        if nextStep.type == "endEvent":
             message1 = "There is no next step. You have reached the end of the process."
             messages = [message1]
             return responseHelper.createResponseObject(messages,buttons.PREVIOUS_STEP_BUTTONS,currentProcess,currentProcessStep,"")
+
+        elif (nextStep.type == "task"):
+            try: #Beschreibung holen
+                message1 = "Alright, the next step is: \"" + nextStep.name +"\". This is the documentation:"
+                message2 = GeneralInstruction.query.filter_by(nodeId=nextStep.id).first().text # Generelle Anweisungen für vorherigen Schritt
+                messages = [message1,message2]
+                return responseHelper.createResponseObject(messages,buttons.STANDARD_STEP_BUTTONS,currentProcess,nextStepId,"")
+            except:
+                message1 = "There is no documentation for this step."
+                messages = [message1]
+                return responseHelper.createResponseObject(messages,buttons.STANDARD_STEP_BUTTONS,currentProcess,nextStepId,"")
+        
+        elif (nextStep.type == "exclusiveGateway"):
+                # Was machen hier? Welchen Pfal auswählen und gehen?
+                message1 = "There is no documentation for this step, as this is a gateway."
+                messages = [message1]
+                return responseHelper.createResponseObject(messages,buttons.STANDARD_STEP_BUTTONS,currentProcess,nextStepId,"")
+        
+        elif (nextStep.type == "intermediateThrowEvent"):
+                message1 =  DetailDescription.query.filter_by(nodeId=nextStep.id).first().text
+                messages = [message1]
+                return responseHelper.createResponseObject(messages,buttons.STANDARD_STEP_BUTTONS,currentProcess,nextStepId,"")
     
     else: #"process_step_cancel"
+        print ("end")
         message = "Alright, the request will be canceled."
         return responseHelper.createResponseObject([message],[],"","","")
 
