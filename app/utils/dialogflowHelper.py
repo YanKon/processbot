@@ -44,3 +44,15 @@ def create_entity(entity_type_id, entity_value, synonyms):
         entity_type_path, [entity])
 
     print('Entity created: {}'.format(response))
+
+# Delete Entities from DB
+def delete_entity(project_id, entity_type_id, entity_value):
+    """Delete entity with the given entity type and entity value."""
+    import dialogflow_v2 as dialogflow
+    entity_types_client = dialogflow.EntityTypesClient()
+
+    entity_type_path = entity_types_client.entity_type_path(
+        project_id, entity_type_id)
+
+    entity_types_client.batch_delete_entities(
+        entity_type_path, [entity_value])

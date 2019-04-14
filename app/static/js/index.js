@@ -28,26 +28,32 @@ function handle_model(responseObject) {
 
 // BESCHREIBUNG
 function showOverlays(processStep) {
-  var instruction = elementRegistry.get(processStep).businessObject.get("chatbot:instruction");
-  var detailInstruction = elementRegistry.get(processStep).businessObject.get("chatbot:detailInstruction");
+  shape = elementRegistry.get(processStep)
 
-  var $overlayHtml =
-    $('<div class="arrow_box_highlight">' +
-        '<p class="pheader1">general instruction</p>' +
-        '<div class="node-instruction-current">' + instruction + '</div>' +
-        '<p class="pheader2">detail instruction</p>' +
-        '<div class="node-instruction-current">' + detailInstruction + '</div>' +
-      '</div>').css({
-        width: elementRegistry.get(processStep).width * 2,
-      });
+  if (shape.type = "bmpn:Task") {
+    console.log(shape);
 
-  overlays.add(processStep, 'note', {
-    position: {
-      bottom: -7,
-      left: -(elementRegistry.get(processStep).width / 2)
-    },
-    html: $overlayHtml
-  });
+    var instruction = elementRegistry.get(processStep).businessObject.get("chatbot:instruction");
+    var detailInstruction = elementRegistry.get(processStep).businessObject.get("chatbot:detailInstruction");
+
+    var $overlayHtml =
+      $('<div class="arrow_box_highlight">' +
+          '<p class="pheader1">general instruction</p>' +
+          '<div class="node-instruction-current">' + instruction + '</div>' +
+          '<p class="pheader2">detail instruction</p>' +
+          '<div class="node-instruction-current">' + detailInstruction + '</div>' +
+        '</div>').css({
+          width: elementRegistry.get(processStep).width * 2,
+        });
+
+    overlays.add(processStep, 'note', {
+      position: {
+        bottom: -7,
+        left: -(elementRegistry.get(processStep).width / 2)
+      },
+      html: $overlayHtml
+    });
+  }
 }
 
 // BESCHREIBUNG

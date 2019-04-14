@@ -17,6 +17,8 @@ import json
 
 PROCESS_NAME_ENTITY_TYPE_ID = os.environ.get("PROCESS_NAME_ENTITY_TYPE_ID")
 TASK_NAME_ENTITY_TYPE_ID = os.environ.get("TASK_NAME_ENTITY_TYPE_ID")
+PROJECT_ID = os.environ.get("PROJECT_ID")
+
 
 # bpmnResourcesFolder = con.basedir + "/app/static/resources"
 # def checkBpmnFiles(bpmnResourcesFolder):
@@ -120,6 +122,7 @@ def delete_database_select():
     process = Process.query.filter_by(processName=processName).first()
     db.session.delete(process)
     db.session.commit()
+    # delete_all_entities(process.processName)
 
     response = {
         "deletedProcess": process.processName
@@ -134,6 +137,7 @@ def delete_database_all():
         db.session.delete(process)
         db.session.commit()
         deletedProcesses.append(process.processName)
+        # delete_all_entities(process.processName)
 
     response = {
         "deletedProcesses": deletedProcesses,
@@ -151,8 +155,9 @@ def get_all_processes():
 @app.route("/import_process_select", methods=["POST"])
 def import_process_select():
     processName = request.form["processName"]
-    
     bpmnReader.readBpmn(processName)
+    # create_all_entities(processName)
+
     response = {
         "processName": processName,
     }
@@ -164,6 +169,7 @@ def import_process_all():
 
     for processName in processList:
         bpmnReader.readBpmn(processName)
+        # create_all_entities(processName)
         
     response = {
         "processList": processList
@@ -185,8 +191,11 @@ def update_process_select():
     process = Process.query.filter_by(processName=processName).first()
     db.session.delete(process)
     db.session.commit()
+    # delete_all_entities(process.processName)
     
     bpmnReader.readBpmn(processName)
+    # create_all_entities(processName)
+
     response = {
         "processName": processName,
     }
@@ -200,9 +209,11 @@ def update_process_all():
         process = Process.query.filter_by(processName=processName).first()
         db.session.delete(process)
         db.session.commit()
+        # delete_all_entities(process.processName)
 
     for processName in processList:
         bpmnReader.readBpmn(processName)
+        # create_all_entities(processName)
         
     response = {
         "processList": processList
@@ -216,3 +227,19 @@ def get_all_update_processes():
         "updates": threadingBpmn.processGlobalUpdate,
     }
     return jsonify(response)
+
+
+def create_all_entities(processName):
+    dialogflowHelper.create_entity(PROJECT_ID ,PROCESS_NAME_ENTITY_TYPE_ID, processName)
+
+    for task in Node.query.filter_by(type="task"):
+        entityName = task.name + "_" + processName
+        synonmys = [task.name]
+        dialogflowHelper.create_entity(TASK_NAME_ENTITY_TYPE_ID, entityName, synonmys)
+
+def delete_all_entities(processName):
+    dialogflowHelper.delete_entity(PROJECT_ID ,PROCESS_NAME_ENTITY_TYPE_ID, processName)
+
+    for task in Node.query.filter_by(type="task"):
+        entityName = task.name + "_" + processName     
+        dialogflowHelper.delete_entity(PROJECT_ID, TASK_NAME_ENTITY_TYPE_ID, entityName)   
