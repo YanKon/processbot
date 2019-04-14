@@ -4,8 +4,8 @@ from app.utils import responseHelper
 def run(dialogflowResponse):
     # TODO implement a better way to show example commands
     message1 = "These are some commands you could type in, if you need support with your processes:"
-    message2 = "Start process \"Reisekosten\""
-    message3 = "What do I have to do at step \"Name eintragen\" in process \"Reisekosten\"?"
+    message2 = "Start process \"Order Pizza\""
+    message3 = "What do I have to do at step \"Enter name\" in process \"Travel expenses claim\"?"
     message4 = "Which processes can you help me with?"
     messages = [message1,message2,message3,message4]
     return responseHelper.createResponseObject(messages,[],"","","")
