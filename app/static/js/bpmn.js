@@ -16,15 +16,14 @@ $("#overlaySwitch").click(function(){
   }
 });
 
-function loadBPMN(uri, bpmnViewer) {
+function loadBPMN(processName, bpmnViewer) {
 
   // TODO: Canvas übergeben
     
   let modelLoadPromise = new Promise (function(resolve,reject){
     var bpmnXML;
     $.ajax({
-      url: "/static/resources/bpmn/Order pizza.bpmn",
-      // url: "/static/resources/bpmn/" + uri + ".bpmn",
+      url: "/static/resources/bpmn/" + processName + ".bpmn",
       success: function(data) {
         bpmnXML = data;
         bpmnViewer.importXML(bpmnXML, function(err) {

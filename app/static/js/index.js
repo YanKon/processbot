@@ -4,25 +4,44 @@ var toastedProcesses = [];
 var setImportProcesses = [];
 var setUpdateProcesses = [];
 var setDeleteProcesses = [];
+var loadedProcessModel = "";
 
 // BESCHREIBUNG
 function handle_model(responseObject) {
- 
-  if (responseObject.currentProcess !== "") { // CurrentProcess ist gesetzt
-    if(!viewer.get("canvas").hasOwnProperty("_rootElement")) { // --> model noch nicht angezeigt)
-      loadBPMN(responseObject.currentProcess, viewer).then(function () { // MODEL LADEN, dann warten, dann Highlighten
+
+  if (responseObject.currentProcessName !== "") { // CurrentProcess ist gesetzt
+  
+    if (loadedProcessModel != "" && loadedProcessModel != responseObject.currentProcessName) { // model ist geladen und das geladene ist ein anderes als ich anzeigen will
+      unloadBPMN();
+      loadedProcessModel = "";
+      loadBPMN(responseObject.currentProcessName, viewer).then(function () { // MODEL LADEN, dann warten, dann Highlighten
+        loadedProcessModel = responseObject.currentProcessName;
+        highlightStep(responseObject);
+      })
+      .catch(function(err) {
+        console.error("could not import BPMN 2.0 diagram", err);
+      });
+    }
+
+    else if(!viewer.get("canvas").hasOwnProperty("_rootElement")) { // --> model noch nicht angezeigt)
+      loadBPMN(responseObject.currentProcessName, viewer).then(function () { // MODEL LADEN, dann warten, dann Highlighten
+        loadedProcessModel = responseObject.currentProcessName;
         highlightStep(responseObject);
       })
       .catch(function(err) {
         console.error("could not import BPMN 2.0 diagram", err);
       });
     } 
+
     else // --> model schon angezeigt --> also direkt HIGHLIGHT
       highlightStep(responseObject);
   } 
+
   else { // CurrentProcess ist nicht gesetzt
+
     if(viewer.get("canvas").hasOwnProperty("_rootElement")) // --> model ist angezeigt)
-      unloadBPMN();;
+      unloadBPMN();
+      loadedProcessModel = "";
   }
 }
 
@@ -115,6 +134,7 @@ function handle_buttons(responseObject) {
           // Wird ausgeführt, wenn ein Button geklickt wurde
           submit_button(
             responseObject.currentProcess,
+            responseObject.currentProcessName,
             responseObject.currentProcessStep,
             responseObject.previousProcessStep,
             pressedButton.value
@@ -147,12 +167,13 @@ function submit_userText(userText) {
 
 // BESCHREIBUNG
 // ResponseObject mitübergeben, damit klar ist, in welchem Prozessschritt man sich befindet
-function submit_button(currentProcess, currentProcessStep, previousProcessStep, pressedButtonValue) {
+function submit_button(currentProcess, currentProcessName, currentProcessStep, previousProcessStep, pressedButtonValue) {
 
   $.post("/send_button",
     {
       pressedButtonValue: pressedButtonValue,
       currentProcess: currentProcess,
+      currentProcessName: currentProcessName,
       previousProcessStep: previousProcessStep,
       currentProcessStep: currentProcessStep
     },
@@ -357,6 +378,7 @@ function popoverInput() {
 $(".botui-messages-container").on("click",".botui-message", function(e){
   var processList = e.target.src.split("/");
   var processName = processList[processList.length-1].split(".")[0];
+  processName = processName.replace(/%20/g," ");
   
   var html = '<div id="bpmnCanvasOverlay" style="height:95%"></div>'
   createDialogOverlay(processName,html);

@@ -8,12 +8,12 @@ def run(dialogflowResponse):
     message3 = "What do I have to do at step \"Enter name\" in process \"Travel expenses claim\"?"
     message4 = "Which processes can you help me with?"
     messages = [message1,message2,message3,message4]
-    return responseHelper.createResponseObject(messages,[],"","","")
+    return responseHelper.createResponseObject(messages,[],"","","","")
 
 # Weg: man kommt hier her über submit_button(JS) --> send_button(PY Route) --> triggerButtonFunction (ButtonDict)
-def button_run(pressedButtonValue, currentProcess, currentProcessStep, previousProcessStep):
+def button_run(pressedButtonValue, currentProcess, currentProcessName, currentProcessStep, previousProcessStep):
     pass
 
 # Weg: man kommt hier her über submit_button(JS) --> send_button(PY Route) --> triggerButtonFunction (customButtonDict)
-def customButton_run(pressedButtonValue, currentProcess, currentProcessStep, previousProcessStep):
+def customButton_run(pressedButtonValue, currentProcess, currentProcessName, currentProcessStep, previousProcessStep):
     pass

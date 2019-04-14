@@ -7,7 +7,7 @@ PROJECT_ID = os.environ.get("PROJECT_ID")
 # Weg: man kommt hier her über submit_button(JS) --> send_button(PY Route) 
 # Nur bei CustomButtons
 # --> gebe ButtonText an Dialogflow
-def button_run(pressedButtonValue, currentProcess, currentProcessStep, previousProcessStep):
+def button_run(pressedButtonValue, currentProcess, currentProcessName, currentProcessStep, previousProcessStep):
     
     if (pressedButtonValue.startswith("Run_CustomButton_")):
         buttonText = pressedButtonValue[18:]
@@ -19,7 +19,7 @@ def button_run(pressedButtonValue, currentProcess, currentProcessStep, previousP
         dialogflowResponse = dialogflowHelper.detect_intent_texts(buttonText)
         return process_show.run(dialogflowResponse)
     else:
-        return responseHelper.createResponseObject(["Error: Button does not exist, please add it to the customButtonDict!"],[],"","","")
+        return responseHelper.createResponseObject(["Error: Button does not exist, please add it to the customButtonDict!"],[],"","","","")
 
 
     # TODO Klasse löschen

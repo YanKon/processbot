@@ -30,12 +30,12 @@ customButtonDict = {
 }
 
 # Führt die jeweiligen Button-Funktion aus
-# Input: pressedButtonValue, currentProcess, currentProcessStep, previousProcessStep
+# Input: pressedButtonValue, currentProcess, currentProcessName, currentProcessStep, previousProcessStep
 # Ouput: ResponseObject
-def run(pressedButtonValue, currentProcess, currentProcessStep, previousProcessStep):
+def run(pressedButtonValue, currentProcess, currentProcessName, currentProcessStep, previousProcessStep):
     
     if pressedButtonValue in buttonDict:
-        return buttonDict.get(pressedButtonValue).button_run(pressedButtonValue, currentProcess, currentProcessStep, previousProcessStep)
+        return buttonDict.get(pressedButtonValue).button_run(pressedButtonValue, currentProcess, currentProcessName, currentProcessStep, previousProcessStep)
     else:  # Button nicht im Dict --> customButton
         try: #Intent und Value aus Button holen (vgl. buttons.createCustomButton(text,intent,value))
             customButtonIntent = pressedButtonValue.split("$")[0]
@@ -43,7 +43,7 @@ def run(pressedButtonValue, currentProcess, currentProcessStep, previousProcessS
             raise ValueError("Button wrong format!")
 
         if customButtonIntent in customButtonDict:
-            return customButtonDict.get(customButtonIntent).customButton_run(pressedButtonValue, currentProcess, currentProcessStep, previousProcessStep)
+            return customButtonDict.get(customButtonIntent).customButton_run(pressedButtonValue, currentProcess, currentProcessName, currentProcessStep, previousProcessStep)
 
     #TODO Message ausgeben (Falscher Button) oder HTML Alert Fehler
     # neuer response Object Typ = Error und dann in index.js prüfen und Error anzeigen

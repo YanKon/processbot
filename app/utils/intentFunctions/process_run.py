@@ -25,13 +25,13 @@ def run(dialogflowResponse):
             runButtons.append(button)
         runButtons.extend(buttons.CANCEL_RUN_BUTTON)
         messages = [message1, message2]
-        return responseHelper.createResponseObject(messages,runButtons,"","","")
+        return responseHelper.createResponseObject(messages,runButtons,"","","","")
     
     # falls Process zuvor abgebrochen wurde, frage ob an dieser Stelle fortfahren werden soll
     try:
         currentStepNode = Node.query.filter_by(currentStep = True).filter_by(processId = processId).first()
         message1 = "I have detected, that you have started this process before. Do you want to resume your last state?"
-        return responseHelper.createResponseObject([message1],buttons.RESUME_RUN_BUTTONS,processId,currentStepNode.id,"")
+        return responseHelper.createResponseObject([message1],buttons.RESUME_RUN_BUTTONS,processId,processName,currentStepNode.id,"")
     except: # wenn nicht starte von vorne
         # erste Aktivität im Prozess nehmen
         firstActivityId = Edge.query.filter(Edge.sourceId.like(
@@ -45,14 +45,15 @@ def run(dialogflowResponse):
         messages = [message1, message2, message3]
         
         currentProcess = processId
+        currentProcessName = processName
         currentProcessStep = firstActivityId
         previousProcessStep = previousStepId
 
-        return responseHelper.createResponseObject(messages, buttons.STANDARD_RUN_BUTTONS,currentProcess, currentProcessStep,previousProcessStep)
+        return responseHelper.createResponseObject(messages, buttons.STANDARD_RUN_BUTTONS,currentProcess, currentProcessName, currentProcessStep,previousProcessStep)
 
 
 # Weg: man kommt hier her über submit_button(JS) --> send_button(PY Route) --> triggerButtonFunction (ButtonDict)
-def button_run(pressedButtonValue, currentProcess, currentProcessStep, previousProcessStep):
+def button_run(pressedButtonValue, currentProcess, currentProcessName, currentProcessStep, previousProcessStep):
 
     # Aktueller Prozesslauf abrechen
     if pressedButtonValue == "process_run_cancel":
@@ -67,7 +68,7 @@ def button_run(pressedButtonValue, currentProcess, currentProcessStep, previousP
         except: # kein Prozessname
             message = "Alright, the request will be canceled."
             messages = [message]
-        return responseHelper.createResponseObject(messages,[],"","","")    
+        return responseHelper.createResponseObject(messages,[],"","","","")    
     
     # Gebe die DetailInstruction aus
     elif pressedButtonValue == "process_run_help":
@@ -76,7 +77,7 @@ def button_run(pressedButtonValue, currentProcess, currentProcessStep, previousP
         message = DetailInstruction.query.filter_by(nodeId=currentProcessStep).first().text # Detail Anweisungen für aktuellen Schritt
         # if (message == ""):
         #     message = "Unfortunately I can give you no futher information."
-        return responseHelper.createResponseObject([message],buttons.REDUCED_RUN_BUTTONS,currentProcess, currentProcessStep, previousProcessStep)
+        return responseHelper.createResponseObject([message],buttons.REDUCED_RUN_BUTTONS,currentProcess, currentProcessName, currentProcessStep, previousProcessStep)
 
      # Starte den Prozess von Vorne
     elif pressedButtonValue == "process_run_no":
@@ -85,7 +86,6 @@ def button_run(pressedButtonValue, currentProcess, currentProcessStep, previousP
         currentStepNode.currentStep = False
         db.session.commit()
         # von vorne starten
-        currentProcessName = Process.query.filter_by(id=currentProcess).first().processName
         dialogflowResponse = dialogflowHelper.detect_intent_texts("run process " + currentProcessName)
         return run(dialogflowResponse)
 
@@ -105,7 +105,7 @@ def button_run(pressedButtonValue, currentProcess, currentProcessStep, previousP
                 print("####Join Gateway####")
                 #TODO: nicht schön
                 message1 = "You have reached a join gateway, press \"Yes\" to continue."
-                return responseHelper.createResponseObject([message1], buttons.REDUCED_RUN_BUTTONS, currentProcess, currentProcessStep ,"")
+                return responseHelper.createResponseObject([message1], buttons.REDUCED_RUN_BUTTONS, currentProcess, currentProcessName, currentProcessStep ,"")
                 
             # Splitquestion und Buttons ausgeben
             optionEdges = Edge.query.filter(Edge.sourceId == currentProcessStep).filter_by(processId=currentProcess)
@@ -117,18 +117,17 @@ def button_run(pressedButtonValue, currentProcess, currentProcessStep, previousP
                 optionButtons.append(optionButton)
             # TODO: Help Button Hinzu!!!
             optionButtons.extend(buttons.CANCEL_RUN_BUTTON) 
-            return responseHelper.createResponseObject([splitQuestion], optionButtons, currentProcess, currentProcessStep ,"")
+            return responseHelper.createResponseObject([splitQuestion], optionButtons, currentProcess, currentProcessName, currentProcessStep ,"")
 
         # Wenn ein Fehler fliegt, dann gibt es keine Anweisung mehr für die Activity --> Ende erreicht
         try:
             message = GeneralInstruction.query.filter_by(nodeId=currentProcessStep).first().text # Generelle Anweisungen für den nächsten Schritt
         except:
             print("End of process reached")
-            processName = Process.query.filter_by(id=currentProcess).first().processName
-            message = "You have successfully gone through the process \"" + processName + "\"."
-            return responseHelper.createResponseObject([message], [], "", "", "")
+            message = "You have successfully gone through the process \"" + currentProcessName + "\"."
+            return responseHelper.createResponseObject([message], [], "", "", "", "")
 
-        return responseHelper.createResponseObject([message], buttons.STANDARD_RUN_BUTTONS, currentProcess, currentProcessStep, "")
+        return responseHelper.createResponseObject([message], buttons.STANDARD_RUN_BUTTONS, currentProcess, currentProcessName, currentProcessStep, "")
 
     else: # Nächster Schritt --> "process_run_yes"
         nextNodeId = Edge.query.filter(Edge.sourceId == currentProcessStep).filter_by(processId=currentProcess).first().targetId
@@ -142,7 +141,7 @@ def button_run(pressedButtonValue, currentProcess, currentProcessStep, previousP
                 print("####Join Gateway####")
                 #TODO: nicht schön
                 message1 = "You have reached a join gateway, press \"Yes\" to continue."
-                return responseHelper.createResponseObject([message1], buttons.REDUCED_RUN_BUTTONS, currentProcess, nextNodeId ,currentProcessStep)
+                return responseHelper.createResponseObject([message1], buttons.REDUCED_RUN_BUTTONS, currentProcess, currentProcessName, nextNodeId ,currentProcessStep)
                 
             # Splitquestion und Buttons ausgeben
             optionEdges = Edge.query.filter(Edge.sourceId == nextNodeId).filter_by(processId=currentProcess)
@@ -154,7 +153,7 @@ def button_run(pressedButtonValue, currentProcess, currentProcessStep, previousP
                 optionButtons.append(optionButton)
             # TODO: Help Button Hinzu!!!
             optionButtons.extend(buttons.CANCEL_RUN_BUTTON) 
-            return responseHelper.createResponseObject([splitQuestion], optionButtons, currentProcess, nextNodeId ,currentProcessStep)
+            return responseHelper.createResponseObject([splitQuestion], optionButtons, currentProcess, currentProcessName, nextNodeId ,currentProcessStep)
 
         # Wenn ein Fehler fliegt, dann gibt es keine Anweisung mehr für die Activity --> Ende erreicht
         try:
@@ -163,12 +162,12 @@ def button_run(pressedButtonValue, currentProcess, currentProcessStep, previousP
             print("End of process reached")
             processName = Process.query.filter_by(id=currentProcess).first().processName
             message = "You have successfully gone through the process \"" + processName + "\"."
-            return responseHelper.createResponseObject([message], [], "", "", "")
+            return responseHelper.createResponseObject([message], [], "", "", "", "")
 
-        return responseHelper.createResponseObject([message], buttons.STANDARD_RUN_BUTTONS, currentProcess, nextNodeId, currentProcessStep)
+        return responseHelper.createResponseObject([message], buttons.STANDARD_RUN_BUTTONS, currentProcess, currentProcessName, nextNodeId, currentProcessStep)
 
 # Weg: man kommt hier her über submit_button(JS) --> send_button(PY Route) --> triggerButtonFunction (customButtonDict)
-def customButton_run(pressedButtonValue, currentProcess, currentProcessStep, previousProcessStep):
+def customButton_run(pressedButtonValue, currentProcess, currentProcessName, currentProcessStep, previousProcessStep):
     # zB. CustomButtonValue = "process_run$customButton$Reisekosten"
     # zB.: "process_run$customButton$IntermediateThrowEvent_1szmt2n"
 
@@ -179,4 +178,4 @@ def customButton_run(pressedButtonValue, currentProcess, currentProcessStep, pre
         return run(dialogflowResponse)
     else:
         eventId = pressedButtonValue[25:]
-        return button_run("process_run_yes",currentProcess,eventId,currentProcessStep)
+        return button_run("process_run_yes",currentProcess, currentProcessName, eventId,currentProcessStep)

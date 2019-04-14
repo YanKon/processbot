@@ -72,7 +72,7 @@ def get_status_bpmnDir():
 @app.route("/get_image/<process>.html")
 def get_image(process):
     # TODO: Welcome Messages anzeigen!
-    return send_file('./static/resources/svg/'+process+'.svg', mimetype='image/svg+xml')
+    return send_file('./static/resources/bpmn/'+process+'.svg', mimetype='image/svg+xml')
 
 # Route um Dialogflow zu initialisieren
 @app.route("/init")
@@ -104,10 +104,11 @@ def send_userText():
 def send_button():
     pressedButtonValue = request.form["pressedButtonValue"]
     currentProcess = request.form["currentProcess"]
+    currentProcessName = request.form["currentProcessName"]
     previousProcessStep = request.form["previousProcessStep"]
     currentProcessStep = request.form["currentProcessStep"]
     
-    responseObject = triggerButtonFunction.run(pressedButtonValue, currentProcess, currentProcessStep, previousProcessStep)
+    responseObject = triggerButtonFunction.run(pressedButtonValue, currentProcess, currentProcessName, currentProcessStep, previousProcessStep)
 
     return responseObject
 
@@ -120,9 +121,10 @@ def send_button():
 def delete_database_select():
     processName = request.form["processName"]
     process = Process.query.filter_by(processName=processName).first()
+    delete_all_entities(process.processName)
     db.session.delete(process)
     db.session.commit()
-    # delete_all_entities(process.processName)
+    
 
     response = {
         "deletedProcess": process.processName
@@ -134,10 +136,11 @@ def delete_database_all():
     deletedProcesses = []
     
     for process in Process.query.all():
+        delete_all_entities(process.processName)
         db.session.delete(process)
         db.session.commit()
         deletedProcesses.append(process.processName)
-        # delete_all_entities(process.processName)
+        
 
     response = {
         "deletedProcesses": deletedProcesses,
@@ -156,7 +159,7 @@ def get_all_processes():
 def import_process_select():
     processName = request.form["processName"]
     bpmnReader.readBpmn(processName)
-    # create_all_entities(processName)
+    create_all_entities(processName)
 
     response = {
         "processName": processName,
@@ -169,7 +172,7 @@ def import_process_all():
 
     for processName in processList:
         bpmnReader.readBpmn(processName)
-        # create_all_entities(processName)
+        create_all_entities(processName)
         
     response = {
         "processList": processList
@@ -189,12 +192,13 @@ def update_process_select():
     processName = request.form["processName"]
 
     process = Process.query.filter_by(processName=processName).first()
+    delete_all_entities(process.processName)
     db.session.delete(process)
     db.session.commit()
-    # delete_all_entities(process.processName)
+   
     
     bpmnReader.readBpmn(processName)
-    # create_all_entities(processName)
+    create_all_entities(processName)
 
     response = {
         "processName": processName,
@@ -207,13 +211,14 @@ def update_process_all():
 
     for processName in processList:
         process = Process.query.filter_by(processName=processName).first()
+        delete_all_entities(process.processName)
         db.session.delete(process)
         db.session.commit()
-        # delete_all_entities(process.processName)
+        
 
     for processName in processList:
         bpmnReader.readBpmn(processName)
-        # create_all_entities(processName)
+        create_all_entities(processName)
         
     response = {
         "processList": processList
@@ -230,16 +235,20 @@ def get_all_update_processes():
 
 
 def create_all_entities(processName):
-    dialogflowHelper.create_entity(PROJECT_ID ,PROCESS_NAME_ENTITY_TYPE_ID, processName)
+    dialogflowHelper.create_entity(PROCESS_NAME_ENTITY_TYPE_ID, processName, [])
 
     for task in Node.query.filter_by(type="task"):
-        entityName = task.name + "_" + processName
+        entityName = task.name
         synonmys = [task.name]
         dialogflowHelper.create_entity(TASK_NAME_ENTITY_TYPE_ID, entityName, synonmys)
+    return
 
 def delete_all_entities(processName):
-    dialogflowHelper.delete_entity(PROJECT_ID ,PROCESS_NAME_ENTITY_TYPE_ID, processName)
+    processId = Process.query.filter_by(processName = processName).first().id
+    dialogflowHelper.delete_entity(PROCESS_NAME_ENTITY_TYPE_ID, processName)
 
-    for task in Node.query.filter_by(type="task"):
-        entityName = task.name + "_" + processName     
-        dialogflowHelper.delete_entity(PROJECT_ID, TASK_NAME_ENTITY_TYPE_ID, entityName)   
+    for task in Node.query.filter(Node.type == "task").filter_by(processId=processId):
+        queryResult = Node.query.filter_by(name = task.name)
+        if queryResult.count() == 1:
+            dialogflowHelper.delete_entity(TASK_NAME_ENTITY_TYPE_ID, task.name)   
+    return

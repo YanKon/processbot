@@ -27,7 +27,7 @@ def run(dialogflowResponse):
         docButtons.extend(buttons.CANCEL_DOC_BUTTON)
         messages = [message1, message2]
 
-        return responseHelper.createResponseObject(messages,docButtons,"","","")
+        return responseHelper.createResponseObject(messages,docButtons,"","","","")
 
     try:
         message1 = dialogflowResponse.query_result.fulfillment_text 
@@ -35,23 +35,23 @@ def run(dialogflowResponse):
         messages = [message1, message2]
         currentProcess = processId
          # TODO: Buttons für Show Process Model! "Soll model gezeigt werden?" oder Buttons für start
-        return responseHelper.createResponseObject(messages,[],currentProcess,"","")
+        return responseHelper.createResponseObject(messages,[],currentProcess,processName,"","")
     except: # Für angegebenen Prozess gibt es keine Doku
         message1 = "Unfortunately there is no documentation for process \"" + processName + "\"."
-        return responseHelper.createResponseObject([message1],[],"","","")
+        return responseHelper.createResponseObject([message1],[],"","","","")
 
 
 # Weg: man kommt hier her über submit_button(JS) --> send_button(PY Route) --> triggerButtonFunction (ButtonDict)
-def button_run(pressedButtonValue, currentProcess, currentProcessStep, previousProcessStep):
+def button_run(pressedButtonValue, currentProcess, currentProcessName, currentProcessStep, previousProcessStep):
     if pressedButtonValue == "process_doc_cancel":
         message = "Alright, the request will be canceled."
-        return responseHelper.createResponseObject([message],[],"","","")   
+        return responseHelper.createResponseObject([message],[],"","","","")   
     else:
         #TODO RAISE ERROR RESPONSEOBJECT 
         pass
 
 # Weg: man kommt hier her über submit_button(JS) --> send_button(PY Route) --> triggerButtonFunction (customButtonDict)
-def customButton_run(pressedButtonValue, currentProcess, currentProcessStep, previousProcessStep):
+def customButton_run(pressedButtonValue, currentProcess, currentProcessName, currentProcessStep, previousProcessStep):
     # zB. CustomButtonValue = "process_doc$customButton$Reisekosten"
     entity = pressedButtonValue[25:]
     print(entity)

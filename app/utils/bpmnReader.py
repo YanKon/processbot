@@ -2,36 +2,19 @@
 # https://stackoverflow.com/questions/5033547/sqlalchemy-cascade-delete
 
 import os, time, datetime, sys
+import config as con
 import psycopg2
 import xml.etree.ElementTree as ET
 import psycopg2.extras
 from app import db
 import app.models as models
 
-# tree = ET.parse('app/static/resources/testProcess.bpmn')
-# root = tree.getroot()
-
-# for child in root[0]:
-#     print(child.tag, child.attrib)
-
-
-# https://stackoverflow.com/a/46811091
-def file_base_name(file_name):
-    if '.' in file_name:
-        separator_index = file_name.index('.')
-        base_name = file_name[:separator_index]
-        return base_name
-    else:
-        return file_name
-
-def path_base_name(path):
-    file_name = os.path.basename(path)
-    return file_base_name(file_name)
 
 def readBpmn(processName):
-
-    path = "/Users/wizzy/Development/processbot/app/static/resources/bpmn/" + processName +".bpmn"
-    #path = "/Users/yannick/Developer/Projects/processbot/app/static/resources/bpmn/" + processName +".bpmn"
+    
+    bpmnResourcesFolder = con.basedir + "/app/static/resources/bpmn/"
+    filename = processName + ".bpmn"
+    path = bpmnResourcesFolder + filename
 
     # Versucht die Prozess Metadaten zu lesen und in Datenbank zu committen.
     try:
@@ -39,7 +22,6 @@ def readBpmn(processName):
         root = tree.getroot()
         
         processId = root[0].attrib['id']
-        processName = root[0].attrib['name']
         importDate = os.stat(path)[-2]
 
         # Process in Datenbank

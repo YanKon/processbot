@@ -15,19 +15,19 @@ def run(dialogflowResponse):
         processButtons.append(button)
     processButtons.extend(buttons.CANCEL_NAMES_BUTTON)
 
-    return responseHelper.createResponseObject([message1],processButtons,"","","")
+    return responseHelper.createResponseObject([message1],processButtons,"","","","")
 
 # Weg: man kommt hier her über submit_button(JS) --> send_button(PY Route) --> triggerButtonFunction (ButtonDict)
-def button_run(pressedButtonValue, currentProcess, currentProcessStep, previousProcessStep):
+def button_run(pressedButtonValue, currentProcess, currentProcessName, currentProcessStep, previousProcessStep):
     if pressedButtonValue == "process_names_cancel":
         message = "Alright, the request will be canceled."
-        return responseHelper.createResponseObject([message],[],"","","")   
+        return responseHelper.createResponseObject([message],[],"","","","")   
     else:
         #TODO RAISE ERROR RESPONSEOBJECT 
         pass
 
 # Weg: man kommt hier her über submit_button(JS) --> send_button(PY Route) --> triggerButtonFunction (customButtonDict)
-def customButton_run(pressedButtonValue, currentProcess, currentProcessStep, previousProcessStep):
+def customButton_run(pressedButtonValue, currentProcess, currentProcessName, currentProcessStep, previousProcessStep):
     # zB. CustomButtonValue = "process_names$customButton$Reisekosten"
     entity = pressedButtonValue[27:]
     # Wenn auf ein ProzessButton geklickt wurde, dann starte den Prozess --> process_run
