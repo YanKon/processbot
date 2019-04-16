@@ -21,7 +21,6 @@ def run(dialogflowResponse):
         for process in Process.query.all():
             button = buttons.createCustomButton(process.processName,"process_show",process.processName)
             showButtons.append(button)
-        # TODO: Hier noch ein eigener Cancel Button machen & eigene button_run definieren!
         showButtons.extend(buttons.CANCEL_SHOW_BUTTON)
 
 
@@ -31,7 +30,6 @@ def run(dialogflowResponse):
     currentProcess = processId
     currentProcessName = processName 
 
-    # TODO: CurrentProcess am besten einfach Dateiname => würde meiner Meinung nach vieles auch in der Datenbank vereinfachen
     message2 = '<div id="processSVG" style="cursor:pointer;padding: 5px 0 5px 0;">![BPMN Model](http://127.0.0.1:5000/get_image/' + currentProcessName + '.html)</div>'
 
     return responseHelper.createResponseObject([message1, message2],[],currentProcess, currentProcessName, "","")
@@ -40,10 +38,7 @@ def run(dialogflowResponse):
 def button_run(pressedButtonValue, currentProcess, currentProcessName, currentProcessStep, previousProcessStep):
     if pressedButtonValue == "process_show_cancel":
         message = "Alright, the request will be canceled."
-        return responseHelper.createResponseObject([message],[],"","","","")   
-    else:
-        #TODO RAISE ERROR RESPONSEOBJECT 
-        pass
+        return responseHelper.createResponseObject([message],[],"","","","")
 
 # Weg: man kommt hier her über submit_button(JS) --> send_button(PY Route) --> triggerButtonFunction (customButtonDict)
 def customButton_run(pressedButtonValue, currentProcess, currentProcessName, currentProcessStep, previousProcessStep):

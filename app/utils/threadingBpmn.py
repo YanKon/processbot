@@ -6,7 +6,6 @@ import config as con
 
 from app.models import Process
 
-
 processGlobalImport= []
 processGlobalUpdate= []
 
@@ -38,12 +37,10 @@ class ThreadingBpmn(object):
 
             for filename in os.listdir(bpmnResourcesFolder):
                 if filename.endswith(".bpmn"):
-                    # TODO: prozessName aus BPMN Datei holen (ReadFileName funktion schreiben)
                     processName = filename.split(".")[0]
                     process = Process.query.filter_by(processName = processName).first()
 
                     if (process == None):
-                        # print("There is a new process: " + filename)
                         processGlobalImport.append(processName)
                         continue
                         
@@ -52,18 +49,10 @@ class ThreadingBpmn(object):
 
                     if (importDate == process.importDate):
                         continue
-                        # print("Process '" + process.processName + "' is up-to-date.")
                     else:
-                        # print("Process '" + process.processName + "' has updates.")
                         processGlobalUpdate.append(process.processName)
                     
                 else:
                     continue
 
             time.sleep(self.interval)
-
-# example = ThreadingExample()
-# time.sleep(3)
-# print('Checkpoint')
-# time.sleep(2)
-# print('Bye')

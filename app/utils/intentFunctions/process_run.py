@@ -8,7 +8,6 @@ from app import db
 
 # Weg: man kommt hier her über submit_message(JS) --> send_userText(PY Route)
 def run(dialogflowResponse):
-    #TODO: Check if next Edge is task!!
     parameters_json = json.loads(MessageToJson(dialogflowResponse.query_result.parameters))
     processName = parameters_json['process_name_parameter']
 
@@ -34,14 +33,12 @@ def run(dialogflowResponse):
         return responseHelper.createResponseObject([message1],buttons.RESUME_RUN_BUTTONS,processId,processName,currentStepNode.id,"")
     except: # wenn nicht starte von vorne
         # erste Aktivität im Prozess nehmen
-        firstActivityId = Edge.query.filter(Edge.sourceId.like(
-            'StartEvent_%')).filter_by(processId=process.id).first().targetId
+        firstActivityId = Edge.query.filter(Edge.sourceId.like('StartEvent_%')).filter_by(processId=process.id).first().targetId
         previousStepId = Edge.query.filter(Edge.processId == process.id).filter(Edge.targetId == firstActivityId).first().sourceId
 
-    
         message1 = dialogflowResponse.query_result.fulfillment_text # Okay, let's start process "Entity".
         message2 = GeneralInstruction.query.filter_by(nodeId=firstActivityId).first().text # Generelle Anweisungen für ersten Schritt
-        message3 = "When you are done press \"Yes\", should you need further assistance press \"Help\"." # TODO: Besser machen bzw. irgendwoanders hinschreiben
+        message3 = "When you are done press \"Yes\", should you need further assistance press \"Help\"."
         messages = [message1, message2, message3]
         
         currentProcess = processId
@@ -71,12 +68,11 @@ def button_run(pressedButtonValue, currentProcess, currentProcessName, currentPr
         return responseHelper.createResponseObject(messages,[],"","","","")    
     
     # Gebe die DetailInstruction aus
-    elif pressedButtonValue == "process_run_help":
-      
-        # TODO: Wenn kein General, dann Nachricht ausgeben mit try, except!
-        message = DetailInstruction.query.filter_by(nodeId=currentProcessStep).first().text # Detail Anweisungen für aktuellen Schritt
-        # if (message == ""):
-        #     message = "Unfortunately I can give you no futher information."
+    elif pressedButtonValue == "process_run_help":      
+        try:
+            message = DetailInstruction.query.filter_by(nodeId=currentProcessStep).first().text # Detail Anweisungen für aktuellen Schritt
+        except:
+            message = "Sorry, I can't provide you any further help for this task."
         return responseHelper.createResponseObject([message],buttons.REDUCED_RUN_BUTTONS,currentProcess, currentProcessName, currentProcessStep, previousProcessStep)
 
      # Starte den Prozess von Vorne
@@ -102,10 +98,9 @@ def button_run(pressedButtonValue, currentProcess, currentProcessName, currentPr
             try:
                 splitQuestion = SplitQuestion.query.filter_by(nodeId=currentProcessStep).first().text
             except:  # Falls es dafür keine Splitquestion gibt, dann handelt es sich um einen Join-Gateway --> Dann nächster Knoten ignorieren
-                print("####Join Gateway####")
-                #TODO: nicht schön
-                message1 = "You have reached a join gateway, press \"Yes\" to continue."
-                return responseHelper.createResponseObject([message1], buttons.REDUCED_RUN_BUTTONS, currentProcess, currentProcessName, currentProcessStep ,"")
+                message = "You have reached a join gateway, press \"Yes\" to continue."
+                messages = [message]
+                return responseHelper.createResponseObject(messages, buttons.REDUCED_RUN_BUTTONS, currentProcess, currentProcessName, currentProcessStep ,"")
                 
             # Splitquestion und Buttons ausgeben
             optionEdges = Edge.query.filter(Edge.sourceId == currentProcessStep).filter_by(processId=currentProcess)
@@ -115,7 +110,6 @@ def button_run(pressedButtonValue, currentProcess, currentProcessName, currentPr
                 buttonName = ButtonName.query.filter_by(nodeId=eventId).first().text
                 optionButton = buttons.createCustomButton(buttonName,"process_run",eventId) # zB.: "process_run$customButton$IntermediateThrowEvent_1szmt2n"
                 optionButtons.append(optionButton)
-            # TODO: Help Button Hinzu!!!
             optionButtons.extend(buttons.CANCEL_RUN_BUTTON) 
             return responseHelper.createResponseObject([splitQuestion], optionButtons, currentProcess, currentProcessName, currentProcessStep ,"")
 
@@ -123,7 +117,6 @@ def button_run(pressedButtonValue, currentProcess, currentProcessName, currentPr
         try:
             message = GeneralInstruction.query.filter_by(nodeId=currentProcessStep).first().text # Generelle Anweisungen für den nächsten Schritt
         except:
-            print("End of process reached")
             message = "You have successfully gone through the process \"" + currentProcessName + "\"."
             return responseHelper.createResponseObject([message], [], "", "", "", "")
 
@@ -138,8 +131,6 @@ def button_run(pressedButtonValue, currentProcess, currentProcessName, currentPr
             try:
                 splitQuestion = SplitQuestion.query.filter_by(nodeId=nextNodeId).first().text
             except:  # Falls es dafür keine Splitquestion gibt, dann handelt es sich um einen Join-Gateway --> Dann nächster Knoten ignorieren
-                print("####Join Gateway####")
-                #TODO: nicht schön
                 message1 = "You have reached a join gateway, press \"Yes\" to continue."
                 return responseHelper.createResponseObject([message1], buttons.REDUCED_RUN_BUTTONS, currentProcess, currentProcessName, nextNodeId ,currentProcessStep)
                 
@@ -151,7 +142,6 @@ def button_run(pressedButtonValue, currentProcess, currentProcessName, currentPr
                 buttonName = ButtonName.query.filter_by(nodeId=eventId).first().text
                 optionButton = buttons.createCustomButton(buttonName,"process_run",eventId) # zB.: "process_run$customButton$IntermediateThrowEvent_1szmt2n"
                 optionButtons.append(optionButton)
-            # TODO: Help Button Hinzu!!!
             optionButtons.extend(buttons.CANCEL_RUN_BUTTON) 
             return responseHelper.createResponseObject([splitQuestion], optionButtons, currentProcess, currentProcessName, nextNodeId ,currentProcessStep)
 

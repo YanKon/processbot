@@ -31,8 +31,6 @@ def run(dialogflowResponse):
 
 # Weg: man kommt hier her über submit_button(JS) --> send_button(PY Route) --> triggerButtonFunction (ButtonDict)
 def button_run(pressedButtonValue, currentProcess, currentProcessName, currentProcessStep, previousProcessStep):
-    #TODO: Check if next Node is task!!
-    # TODO: Oder ab hier mit Steps, damit auch Splits erläutert werden
 
     if (pressedButtonValue == "process_step_previous"):
         previousStepId = Edge.query.filter(Edge.processId == currentProcess).filter(Edge.targetId == currentProcessStep).first().sourceId

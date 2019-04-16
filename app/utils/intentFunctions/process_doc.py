@@ -34,7 +34,6 @@ def run(dialogflowResponse):
         message2 = ProcessDoc.query.filter_by(processId=processId).first().description # Prozessdoku für Prozess
         messages = [message1, message2]
         currentProcess = processId
-         # TODO: Buttons für Show Process Model! "Soll model gezeigt werden?" oder Buttons für start
         return responseHelper.createResponseObject(messages,[],currentProcess,processName,"","")
     except: # Für angegebenen Prozess gibt es keine Doku
         message1 = "Unfortunately there is no documentation for process \"" + processName + "\"."

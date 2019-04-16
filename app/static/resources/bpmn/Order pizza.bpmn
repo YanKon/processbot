@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:chatbot="http://chatbot" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_1d2s9sr" targetNamespace="http://bpmn.io/schema/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="3.2.1">
-  <bpmn:process id="order_pizza" name="Order pizza" isExecutable="false">
+  <bpmn:process name="Order pizza" isExecutable="false">
     <bpmn:documentation>This model implements the process for ordering a pizza from a customers point of view.</bpmn:documentation>
     <bpmn:exclusiveGateway id="ExclusiveGateway_0kmeowq" name="Status?" chatbot:splitQuestion="What happend?">
       <bpmn:incoming>SequenceFlow_0b4h2it</bpmn:incoming>
@@ -18,7 +18,7 @@
     <bpmn:startEvent id="StartEvent_05fxvo0" name="Hungry for pizza">
       <bpmn:outgoing>SequenceFlow_1lvg7cl</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:task id="Task_0yv8qj8" name="Select a pizza" chatbot:instruction="Select your desired pizza." chatbot:detailInstruction="In this step you should decide which pizza you want to order. Therefore you can have a look at the restaurants [menu](https://www.dominos.com.au/menu-pizza&#34;).">
+    <bpmn:task id="Task_0yv8qj8" name="Select a pizza" chatbot:instruction="Select your desired pizza." chatbot:detailInstruction="In this step you should decide which pizza you want to order. Therefore you can have a look at the restaurants [menu](https://www.dominos.com.au/menu-pizza&#34;)^.">
       <bpmn:incoming>SequenceFlow_1lvg7cl</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0tsqs4l</bpmn:outgoing>
     </bpmn:task>
@@ -39,7 +39,7 @@
       <bpmn:incoming>SequenceFlow_1ilmh8x</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0m940vr</bpmn:outgoing>
     </bpmn:intermediateThrowEvent>
-    <bpmn:task id="Task_0a3yhoa" name="Pay the pizza" chatbot:instruction="Pay the pizza via your chosen payment method." chatbot:detailInstruction="if you have chosen [PayPal] (https://www.paypal.com), you can skip this step. If you decided to pay with cash, hand the delivery guy the right amount of money.">
+    <bpmn:task id="Task_0a3yhoa" name="Pay the pizza" chatbot:instruction="Pay the pizza via your chosen payment method." chatbot:detailInstruction="if you have chosen [PayPal](https://www.paypal.com)^, you can skip this step. If you decided to pay with cash, hand the delivery guy the right amount of money.">
       <bpmn:incoming>SequenceFlow_0m940vr</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_165ryd7</bpmn:outgoing>
     </bpmn:task>

@@ -79,6 +79,9 @@
                 <div class="dropdown">
                   <button class="btn btn-sm btn-outline-light dropdown-toggle" type="button" id="dropdownMenuButton"
                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <div class="spinner-border spinner-border-sm hidden" id="importSpinner" role="status">
+                      <span class="sr-only">Loading...</span>
+                    </div>
                     Imports
                     <span id="importBadge" class="badge badge-pill badge-secondary"></span>
                   </button>
@@ -105,6 +108,9 @@
                 <div class="dropdown">
                   <button class="btn btn-sm btn-outline-light dropdown-toggle" type="button" id="dropdownMenuButton"
                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <div class="spinner-border spinner-border-sm hidden" id="updateSpinner" role="status">
+                      <span class="sr-only">Loading...</span>
+                    </div>
                     Updates
                     <span id="updateBadge" class="badge badge-pill badge-secondary"></span>
                   </button>
@@ -131,6 +137,9 @@
                   <div class="dropdown">
                     <button class="btn btn-sm btn-outline-light dropdown-toggle" type="button" id="dropdownMenuButton"
                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      <div class="spinner-border spinner-border-sm hidden" id="deleteSpinner" role="status">
+                        <span class="sr-only">Loading...</span>
+                      </div>
                       Delete
                     </button>
                     <div class="dropdown-menu" id="deleteDropdown" aria-labelledby="dropdownMenuButton" style="width: 300px !important">

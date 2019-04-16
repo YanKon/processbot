@@ -16,9 +16,7 @@ $("#overlaySwitch").click(function(){
 });
 
 function loadBPMN(processName, bpmnViewer) {
-
   // TODO: Canvas übergeben
-    
   let modelLoadPromise = new Promise (function(resolve,reject){
     var bpmnXML;
     $.ajax({
@@ -42,36 +40,49 @@ function loadBPMN(processName, bpmnViewer) {
             ];
           
             // var elements = elementRegistry.getAll();
-            events.forEach(function(event) {
-
-              eventBus.on(event, function(e) {
+            events.forEach(function (event) {
+              eventBus.on(event, function (e) {
                 if ($("#overlaySwitch").prop('checked')) {
                   if (event === "element.hover") {
                     if (e.element.type === "bpmn:Task") {
                       if (!bpmnViewer.get('canvas').hasMarker(e.element.id, "highlight")) {
-                        
+
                         var instruction = elementRegistry.get(e.element.id).businessObject.get("chatbot:instruction");
-                        var detailInstruction= elementRegistry.get(e.element.id).businessObject.get("chatbot:detailInstruction");
-                        var $overlayHtml = 
-                          $('<div class="arrow_box">'+
-                              '<p class="pheader1">general instruction</p>' +
-                              '<div class="node-instruction-current">'+ instruction + '</div>'+
-                              '<p class="pheader2">detail instruction</p>' +
-                              '<div class="node-instruction-current">'+ detailInstruction + '</div>'+
+                        var detailInstruction = elementRegistry.get(e.element.id).businessObject.get("chatbot:detailInstruction");
+                        var $overlayHtml =
+                          $('<div class="arrow_box">' +
+                            '<p class="pheader1">general instruction</p>' +
+                            '<div class="node-instruction-current">' + instruction + '</div>' +
+                            '<p class="pheader2">detail instruction</p>' +
+                            '<div class="node-instruction-current">' + detailInstruction + '</div>' +
                             '</div>').css({
+                              width: elementRegistry.get(e.element.id).width * 2,
+                            });
+                      }
+                    }
+                    else if (e.element.type === "bpmn:ExclusiveGateway" && elementRegistry.get(e.element.id).businessObject.get("chatbot:splitQuestion") !== undefined) {
+                      var splitQuestion = elementRegistry.get(e.element.id).businessObject.get("chatbot:splitQuestion");
+                      
+                      var $overlayHtml =
+                        $('<div class="arrow_box">' +
+                          '<p class="pheader1">split question</p>' +
+                          '<div class="node-instruction-current">' + splitQuestion + '</div>' +
+                          '</div>').css({
                             width: elementRegistry.get(e.element.id).width * 2,
                           });
-
-                        overlays.add(e.element.id, 'note', {
-                          position: {
-                            bottom: -7,
-                            left: -(elementRegistry.get(e.element.id).width / 2)
-                          },
-                          html: $overlayHtml
-                        });
-
-                      } 
                     }
+                    // wenn type nicht Task oder ExlusiveGateway ist sollen keine Overlays angezeigt werden 
+                    else 
+                      return;
+
+                    overlays.add(e.element.id, 'note', {
+                      position: {
+                        bottom: -7,
+                        left: -(elementRegistry.get(e.element.id).width / 2)
+                      },
+                      html: $overlayHtml
+                    });
+
                   }
                 }
                 if (event === "element.out") {
@@ -81,21 +92,6 @@ function loadBPMN(processName, bpmnViewer) {
                 }
               });
             });
-            
-            // elements.forEach(function(element) {
-            //   if (element.type === "bpmn:Task") {
-            //     var instruction = elementRegistry.get(element.id).businessObject.get("chatbot:instruction");
-            //     var detailInstruction= elementRegistry.get(element.id).businessObject.get("chatbot:instruction");
-            //     overlays.add(element.id, 'note', {
-            //       position: {
-            //         bottom: 3,
-            //         left: -5
-            //       },
-            //       html: '<div class="node-instruction">'+detailInstruction+'</div>'
-            //     });
-                
-            //   }            
-            // });
             resolve();
           }
         });

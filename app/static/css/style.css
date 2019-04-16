@@ -406,6 +406,7 @@ button.botui-actions-buttons-button {
 }
 
 .arrow_box {
+  word-break: break-word;
   z-index: 501;
   font-family: Arial, sans-serif;
   font-size: 12px;
@@ -484,4 +485,8 @@ button.botui-actions-buttons-button {
 
 .dropdown-menu-text {
   margin: 10px;
+}
+
+.botui-message-content-link {
+  color: #008000;
 }

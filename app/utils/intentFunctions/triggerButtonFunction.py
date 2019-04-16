@@ -1,10 +1,8 @@
 import sys
 from app.utils.intentFunctions import process_names, process_run, process_show, process_doc, process_step, chatbot_help
-from app.utils.intentFunctions import customButtonFunction
 from app.utils import responseHelper
 
 # Mapt alle Button Values einer entsprechenden Button-Funktion
-# TODO: Hier eventuell andere Lösung anstatt Dict
 buttonDict = {
     # Process Fälle zusammenfassen
     "process_run_yes": process_run,
@@ -47,6 +45,5 @@ def run(pressedButtonValue, currentProcess, currentProcessName, currentProcessSt
 
     #TODO Message ausgeben (Falscher Button) oder HTML Alert Fehler
     # neuer response Object Typ = Error und dann in index.js prüfen und Error anzeigen
-    # return customButtonFunction.button_run(pressedButtonValue, currentProcess, currentProcessStep, previousProcessStep)
         
     

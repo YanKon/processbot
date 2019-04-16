@@ -225,7 +225,6 @@ function deactivateInput() {
 
 // holt sich alle Prozesse dich sich verändert haben und gibt notification aus
 // gibt aber die Notification nur aus, wenn sie nicht schonmal ausgegeben wurde => toastedProcesses
-// TODO: wenn button für die ABfrage geklickt wird (also nicht automatisch abgefragt wird) muss alle Ausgaben nochmal ausgegeben werden
 var uptodateProcesses = false;
 
 // BESCHREIBUNG
@@ -425,14 +424,17 @@ $(".botui-messages-container").on("click",".botui-message", function(e){
 
 // BESCHREIBUNG
 function bpmnDelete(e) {
+  $('#deleteSpinner').removeClass("hidden");
+
   $.post($SCRIPT_ROOT + '/delete_database_select', 
     { 
       processName: e.target.id 
-    },
-    handle_response
-    );
+    })
+    .done(handle_response)
   
     function handle_response(response) {
+      $('#deleteSpinner').addClass("hidden");
+
       $.toast({
         title: 'Processes deleted!',
         content: "Successfully delete process <b>" + response.deletedProcess + "</b>",
@@ -457,11 +459,15 @@ function bpmnDelete(e) {
 
 // BESCHREIBUNG
 function bpmnDeleteAll() {
+  $('#deleteSpinner').removeClass("hidden");
+
   $.post($SCRIPT_ROOT + '/delete_database_all',
     handle_response
   );
   
   function handle_response(response) {
+    $('#deleteSpinner').addClass("hidden");
+
     $.toast({
       title: 'Processes deleted!',
       content: "Successfully delete all processes.",
@@ -489,15 +495,24 @@ function bpmnDeleteAll() {
 
 // BESCHREIBUNG
 function bpmnImport(e) {  
+  $('#importSpinner').removeClass("hidden");
   
-  $.post($SCRIPT_ROOT + '/import_process_select',
-    { 
-      processName: e.target.id 
-    },
-    handle_response
-  );
+  $.post($SCRIPT_ROOT + '/import_process_select', {processName: e.target.id})
+  .done(handle_response)
+  .fail(function(error) { 
+    $('#importSpinner').addClass("hidden");
+    $.toast({
+      title: 'Errory process import!',
+      // subtitle: '11 mins ago', // könnte man noch berechnen!!!!
+      content: error.responseJSON.message,
+      type: 'danger',
+      delay: '7000'
+    });
+  });
 
   function handle_response(response) {
+    $('#importSpinner').addClass("hidden");
+
     $.toast({
       title: 'Process imported!',
       // subtitle: '11 mins ago', // könnte man noch berechnen!!!!
@@ -523,6 +538,7 @@ function bpmnImport(e) {
 }
 
 function bpmnImportAll() {
+  $('#importSpinner').removeClass("hidden");
 
   $.post($SCRIPT_ROOT + '/import_process_all', $.param(
     { 
@@ -533,6 +549,8 @@ function bpmnImportAll() {
   );
 
   function handle_response(response) {
+    $('#importSpinner').addClass("hidden");
+
     $.toast({
       title: 'Process imported!',
       // subtitle: '11 mins ago', // könnte man noch berechnen!!!!
@@ -561,6 +579,7 @@ function bpmnImportAll() {
 }
 
 function bpmnUpdate(e) {  
+  $('#updateSpinner').removeClass("hidden");
   
   $.post($SCRIPT_ROOT + '/update_process_select',
     { 
@@ -570,6 +589,8 @@ function bpmnUpdate(e) {
   );
 
   function handle_response(response) {
+    $('#updateSpinner').addClass("hidden");
+
     $.toast({
       title: 'Process updated!',
       // subtitle: '11 mins ago', // könnte man noch berechnen!!!!
@@ -595,6 +616,7 @@ function bpmnUpdate(e) {
 }
 
 function bpmnUpdateAll(e) {  
+  $('#updateSpinner').removeClass("hidden");
   
   $.post($SCRIPT_ROOT + '/update_process_all', $.param(
     { 
@@ -605,6 +627,8 @@ function bpmnUpdateAll(e) {
   );
 
   function handle_response(response) {
+    $('#updateSpinner').addClass("hidden");
+
     $.toast({
       title: 'Process updated!',
       content: "Successfully update all the processes",
@@ -632,6 +656,7 @@ function bpmnUpdateAll(e) {
 
 // BESCHREIBUNG
 function setDeleteDropwdown() {
+
   $.post($SCRIPT_ROOT + '/get_all_processes', function(data) {
     
     if (data.length !== 0) {

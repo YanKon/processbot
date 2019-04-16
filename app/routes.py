@@ -63,15 +63,8 @@ def get_status_bpmnDir():
     return jsonify(response)
     # return jsonify([])
 
-
-#TODO: datenbank mit geänderten Prozessen refreshen => aus frontend Prozess bekommen der aktualisiert werden soll
-# @app.route("/update_database", methods=["POST"])
-# def update_database():
-#     return
-
 @app.route("/get_image/<process>.html")
 def get_image(process):
-    # TODO: Welcome Messages anzeigen!
     return send_file('./static/resources/bpmn/'+process+'.svg', mimetype='image/svg+xml')
 
 # Route um Dialogflow zu initialisieren
@@ -158,8 +151,12 @@ def get_all_processes():
 @app.route("/import_process_select", methods=["POST"])
 def import_process_select():
     processName = request.form["processName"]
-    bpmnReader.readBpmn(processName)
-    create_all_entities(processName)
+    try:
+        bpmnReader.readBpmn(processName)
+        create_all_entities(processName)
+        
+    except Exception as e:
+        return jsonify(message=str(e)),404
 
     response = {
         "processName": processName,

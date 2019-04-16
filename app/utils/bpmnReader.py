@@ -30,8 +30,10 @@ def readBpmn(processName):
         db.session.commit()
 
     except:
-        print("Error occured while trying to read the meta data (processId, processName and importDate) or commit the process to the database")    
-        return
+        # print("Error occured while trying to read the meta data (processId, processName and importDate) or commit the process to the database")    
+        # return
+        raise Exception("Error occured while trying to read the meta data (processId, processName and importDate) or commit the process to the database")
+
         
     # Versucht die Prozess Elemente zu lesen und in die Datenbank zu committen.    
     try:
@@ -112,7 +114,8 @@ def readBpmn(processName):
                 
     except:
         e = sys.exc_info()[0]
-        print("This error occured while trying to read a process Element or committing to the database:\n" + e)
+        # print("This error occured while trying to read a process Element or committing to the database:\n" + e)
         db.session.delete(process)
         db.session.commit()
-        return
+        raise Exception("This error occured while trying to read a process Element or committing to the database:\n" + e)
+        # return
