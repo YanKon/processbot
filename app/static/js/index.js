@@ -502,11 +502,11 @@ function bpmnImport(e) {
   .fail(function(error) { 
     $('#importSpinner').addClass("hidden");
     $.toast({
-      title: 'Errory process import!',
+      title: 'Error process import!',
       // subtitle: '11 mins ago', // könnte man noch berechnen!!!!
       content: error.responseJSON.message,
       type: 'danger',
-      delay: '7000'
+      delay: '10000'
     });
   });
 
