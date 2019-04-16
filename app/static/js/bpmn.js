@@ -3,7 +3,6 @@ var viewer = new BpmnJS({ container: "#canvas" });
 var elementRegistry;
 var overlays;
 var eventBus;
-var activateOverlay = false;
 
 $("#overlaySwitch").click(function(){
   var check = $("#overlaySwitch").prop('checked');

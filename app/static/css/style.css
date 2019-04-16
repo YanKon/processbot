@@ -369,6 +369,7 @@ button.botui-actions-buttons-button {
 }
 
 .arrow_box_highlight {
+  word-break: break-word;
   z-index: 500;
   font-family: Arial, sans-serif;
   font-size: 12px;

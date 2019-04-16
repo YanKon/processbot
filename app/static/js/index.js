@@ -47,32 +47,52 @@ function handle_model(responseObject) {
 
 // BESCHREIBUNG
 function showOverlays(processStep) {
-  shape = elementRegistry.get(processStep)
 
-  if (shape.type = "bmpn:Task") {
-    console.log(shape);
+  // prüft ob die Overlays angezeigt werden sollen
+  var check = $("#overlaySwitch").prop('checked');
+  if (check == true) {
+    display = "";
+  } else {
+    display = " hidden";
+  }
 
-    var instruction = elementRegistry.get(processStep).businessObject.get("chatbot:instruction");
-    var detailInstruction = elementRegistry.get(processStep).businessObject.get("chatbot:detailInstruction");
+  var instruction = elementRegistry.get(processStep).businessObject.get("chatbot:instruction");
+  var detailInstruction = elementRegistry.get(processStep).businessObject.get("chatbot:detailInstruction");
 
-    var $overlayHtml =
-      $('<div class="arrow_box_highlight">' +
-          '<p class="pheader1">general instruction</p>' +
-          '<div class="node-instruction-current">' + instruction + '</div>' +
-          '<p class="pheader2">detail instruction</p>' +
-          '<div class="node-instruction-current">' + detailInstruction + '</div>' +
+  // ist type ungleich Task
+  if (instruction === undefined) {
+    var splitQuestion = elementRegistry.get(processStep).businessObject.get("chatbot:splitQuestion");
+    if (splitQuestion === undefined)
+      return;
+    else {
+      var $overlayHtml =
+      $('<div class="arrow_box_highlight' + display + '">' +
+        '<p class="pheader1">split question</p>' +
+        '<div class="node-instruction-current">' + splitQuestion + '</div>' +
         '</div>').css({
           width: elementRegistry.get(processStep).width * 2,
         });
-
-    overlays.add(processStep, 'note', {
-      position: {
-        bottom: -7,
-        left: -(elementRegistry.get(processStep).width / 2)
-      },
-      html: $overlayHtml
+    }
+  }
+  else {
+    var $overlayHtml =
+    $('<div class="arrow_box_highlight' + display + '">' +
+      '<p class="pheader1">general instruction</p>' +
+      '<div class="node-instruction-current">' + instruction + '</div>' +
+      '<p class="pheader2">detail instruction</p>' +
+      '<div class="node-instruction-current">' + detailInstruction + '</div>' +
+      '</div>').css({
+        width: elementRegistry.get(processStep).width * 2,
     });
   }
+
+  overlays.add(processStep, 'note', {
+    position: {
+      bottom: -7,
+      left: -(elementRegistry.get(processStep).width / 2)
+    },
+    html: $overlayHtml
+  });
 }
 
 // BESCHREIBUNG
