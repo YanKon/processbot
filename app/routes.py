@@ -154,9 +154,9 @@ def import_process_select():
     try:
         bpmnReader.readBpmn(processName)
         create_all_entities(processName)
-        
+
     except Exception as e:
-        return jsonify(message=str(e)),404
+        return jsonify(message=str(e)),500
 
     response = {
         "processName": processName,

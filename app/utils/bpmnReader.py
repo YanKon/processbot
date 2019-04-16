@@ -41,8 +41,11 @@ def readBpmn(processName):
         procsesDoc = models.ProcessDoc(description = root[0][0].text, processId = processId)
         db.session.add(procsesDoc)
         db.session.commit()
+
+        sequenceFlows = []
         
         for actor in root[0].iter():
+            print(actor)
             tagType = actor.tag.split("}")[1]
 
             if (tagType == "task"):
@@ -108,14 +111,25 @@ def readBpmn(processName):
                 db.session.commit()
 
             elif (tagType == "sequenceFlow"):
-                edge = models.Edge(id = actor.attrib['id'], processId = processId, sourceId = actor.attrib['sourceRef'], targetId = actor.attrib['targetRef'])
-                db.session.add(edge)
-                db.session.commit()
+                # edge = models.Edge(id = actor.attrib['id'], processId = processId, sourceId = actor.attrib['sourceRef'], targetId = actor.attrib['targetRef'])
+                sequenceFlows.append((actor.attrib['id'], processId, actor.attrib['sourceRef'], actor.attrib['targetRef']))
+                # db.session.add(edge)
+                # db.session.commit()
+            
+        
+        # ist nötig, weil bei jedem db.session.add() geprüft wird ob es die entsprechenden foreignkeys existieren!
+        # da ein Sequenceflow insbesondere aus einer sourceId und targetId besteht müsssen erste alle Nodes in der Datenbank exisiteren, daher werden die Sequeneces in einer Liste zwicshengespeichert und erst am Ende wird über diese Liste nochmal itertiert => dann alle adden und committen
+        for sequenceFlow in sequenceFlows:
+            print(sequenceFlow[0])
+            edge = models.Edge(id=sequenceFlow[0], processId=sequenceFlow[1], sourceId=sequenceFlow[2], targetId=sequenceFlow[3])
+            db.session.add(edge)
+        db.session.commit()
+
                 
     except:
         e = sys.exc_info()[0]
         # print("This error occured while trying to read a process Element or committing to the database:\n" + e)
         db.session.delete(process)
         db.session.commit()
-        raise Exception("This error occured while trying to read a process Element or committing to the database:\n" + e)
+        raise Exception("This error occured while trying to read a process Element or committing to the database:" + str(e))
         # return
