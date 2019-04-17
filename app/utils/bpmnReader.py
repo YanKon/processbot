@@ -112,6 +112,8 @@ def readBpmn(processName):
         def addToSession(elements):
             for element in elements:
                 db.session.add(element)
+
+        db.session.commit()
                 
         addToSession(sequenceFlows)    
         addToSession(instructions)  
