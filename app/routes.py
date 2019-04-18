@@ -113,32 +113,51 @@ def send_button():
 @app.route("/delete_database_select", methods=["POST"])
 def delete_database_select():
     processName = request.form["processName"]
-    process = Process.query.filter_by(processName=processName).first()
-    delete_all_entities(process.processName)
-    db.session.delete(process)
-    db.session.commit()
-    
 
-    response = {
-        "deletedProcess": process.processName
-    }
-    return jsonify(response)
+    try: 
+        process = Process.query.filter_by(processName=processName).first()
+        delete_all_entities(process.processName)
+        db.session.delete(process)
+        db.session.commit()
+    
+        response = {
+            "processName": process.processName,
+            "source": "delete"
+        }
+        return jsonify(response)
+    
+    except Exception as e:
+        response = {
+            "message": str(e),
+            "source": "import"
+        }
+        return jsonify(response),500
+    
 
 @app.route("/delete_database_all", methods=["POST"])
 def delete_database_all():
     deletedProcesses = []
     
-    for process in Process.query.all():
-        delete_all_entities(process.processName)
-        db.session.delete(process)
-        db.session.commit()
-        deletedProcesses.append(process.processName)
-        
+    try:
+        for process in Process.query.all():
+            delete_all_entities(process.processName)
+            db.session.delete(process)
+            db.session.commit()
+            deletedProcesses.append(process.processName)
+            
 
-    response = {
-        "deletedProcesses": deletedProcesses,
-    }
-    return jsonify(response)
+        response = {
+            "processList": deletedProcesses,
+            "source": "delete"
+        }
+        return jsonify(response)
+
+    except Exception as e:
+        response = {
+            "message": str(e),
+            "source": "import"
+        }
+        return jsonify(response),500
 
 @app.route("/get_all_processes", methods=["POST"])
 def get_all_processes():
@@ -154,28 +173,39 @@ def import_process_select():
     try:
         bpmnReader.readBpmn(processName)
         create_all_entities(processName)
+        response = {
+            "processName": processName,
+            "source": "import"
+        }
+        return jsonify(response)
 
     except Exception as e:
-        return jsonify(message=str(e)),500
-
-    response = {
-        "processName": processName,
-    }
-    return jsonify(response)
+        response = {
+            "message": str(e),
+            "source": "import"
+        }
+        return jsonify(response),500
 
 @app.route("/import_process_all", methods=["POST"])
 def import_process_all():
     processList = request.form.getlist('processList')
 
-    for processName in processList:
-        bpmnReader.readBpmn(processName)
-        create_all_entities(processName)
-        
-    response = {
-        "processList": processList
-    }
+    try:
+        for processName in processList:
+            bpmnReader.readBpmn(processName)
+            create_all_entities(processName)   
+        response = {
+            "processList": processList,
+            "source": "import"
+        }
+        return jsonify(response)
+    except Exception as e:
+        response = {
+            "message": str(e),
+            "source": "import"
+        }
+        return jsonify(response),500
 
-    return jsonify(response)
 
 @app.route("/get_all_import_processes", methods=["POST"])
 def get_all_import_processes():
@@ -188,40 +218,57 @@ def get_all_import_processes():
 def update_process_select():
     processName = request.form["processName"]
 
-    process = Process.query.filter_by(processName=processName).first()
-    delete_all_entities(process.processName)
-    db.session.delete(process)
-    db.session.commit()
+    try:
+        process = Process.query.filter_by(processName=processName).first()
+        delete_all_entities(process.processName)
+        db.session.delete(process)
+        db.session.commit()
    
-    
-    bpmnReader.readBpmn(processName)
-    create_all_entities(processName)
+        bpmnReader.readBpmn(processName)
+        create_all_entities(processName)
 
-    response = {
-        "processName": processName,
-    }
-    return jsonify(response)
+        response = {
+            "processName": processName,
+            "source": "update"
+        }
+        return jsonify(response)
+
+    except Exception as e:
+        response = {
+            "message": str(e),
+            "source": "update"
+        }
+        return jsonify(response),500
 
 @app.route("/update_process_all", methods=["POST"])
 def update_process_all():
     processList = request.form.getlist('processList')
 
-    for processName in processList:
-        process = Process.query.filter_by(processName=processName).first()
-        delete_all_entities(process.processName)
-        db.session.delete(process)
-        db.session.commit()
-        
+    try:
+        for processName in processList:
+            process = Process.query.filter_by(processName=processName).first()
+            delete_all_entities(process.processName)
+            db.session.delete(process)
+            db.session.commit()
+            
 
-    for processName in processList:
-        bpmnReader.readBpmn(processName)
-        create_all_entities(processName)
-        
-    response = {
-        "processList": processList
-    }
+        for processName in processList:
+            bpmnReader.readBpmn(processName)
+            create_all_entities(processName)
+            
+        response = {
+            "processList": processList,
+            "source": "update"
+        }
 
-    return jsonify(response)
+        return jsonify(response)
+    
+    except Exception as e:
+        response = {
+            "message": str(e),
+            "source": "update"
+        }
+        return jsonify(response),500
 
 @app.route("/get_all_update_processes", methods=["POST"])
 def get_all_update_processes():

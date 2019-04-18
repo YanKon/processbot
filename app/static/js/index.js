@@ -1,5 +1,3 @@
-//$("#live-chat").hide(0);
-
 var toastedProcesses = [];
 var setImportProcesses = [];
 var setUpdateProcesses = [];
@@ -8,13 +6,11 @@ var loadedProcessModel = "";
 
 // BESCHREIBUNG
 function handle_model(responseObject) {
-
   if (responseObject.currentProcessName !== "") { // CurrentProcess ist gesetzt
-  
     if (loadedProcessModel != "" && loadedProcessModel != responseObject.currentProcessName) { // model ist geladen und das geladene ist ein anderes als ich anzeigen will
       unloadBPMN();
       loadedProcessModel = "";
-      loadBPMN(responseObject.currentProcessName, viewer).then(function () { // MODEL LADEN, dann warten, dann Highlighten
+      loadBPMN(responseObject.currentProcessName).then(function () { // MODEL LADEN, dann warten, dann Highlighten
         loadedProcessModel = responseObject.currentProcessName;
         highlightStep(responseObject);
       })
@@ -24,7 +20,7 @@ function handle_model(responseObject) {
     }
 
     else if(!viewer.get("canvas").hasOwnProperty("_rootElement")) { // --> model noch nicht angezeigt)
-      loadBPMN(responseObject.currentProcessName, viewer).then(function () { // MODEL LADEN, dann warten, dann Highlighten
+      loadBPMN(responseObject.currentProcessName).then(function () { // MODEL LADEN, dann warten, dann Highlighten
         loadedProcessModel = responseObject.currentProcessName;
         highlightStep(responseObject);
       })
@@ -38,9 +34,8 @@ function handle_model(responseObject) {
   } 
 
   else { // CurrentProcess ist nicht gesetzt
-
     if(viewer.get("canvas").hasOwnProperty("_rootElement")) // --> model ist angezeigt)
-      unloadBPMN();
+      unloadBPMN(viewer);
       loadedProcessModel = "";
   }
 }
@@ -49,12 +44,10 @@ function handle_model(responseObject) {
 function showOverlays(processStep) {
 
   // prüft ob die Overlays angezeigt werden sollen
-  var check = $("#overlaySwitch").prop('checked');
-  if (check == true) {
+  if ($("#overlaySwitch").prop('checked')) 
     display = "";
-  } else {
+  else 
     display = " hidden";
-  }
 
   var instruction = elementRegistry.get(processStep).businessObject.get("chatbot:instruction");
   var detailInstruction = elementRegistry.get(processStep).businessObject.get("chatbot:detailInstruction");
@@ -95,7 +88,7 @@ function showOverlays(processStep) {
   });
 }
 
-// BESCHREIBUNG
+// Entfernt an dem aktuellen Step das Overlay
 function hideOverlays(processStep) {
   overlays.remove({ element: processStep });
 }
@@ -209,14 +202,14 @@ function submit_button(currentProcess, currentProcessName, currentProcessStep, p
   }
 };
 
-// BESCHREIBUNG
+// Reaktiviert das Inputfeld des Chatfensters => Usereingaben sind dann wieder möglich 
 function reactivateInput() {
   $("#InputField").removeAttr("disabled");  // unclickable
   $("#InputField").removeClass("InputField-inactive");
   $("#chat_send").removeClass("disable-me");  // unclickable
 };
 
-// BESCHREIBUNG
+// Deaktiviert das Inputfeld des Chatfensters => Usereingaben sind nicht möglich
 function deactivateInput() {
   $("#InputField").attr("disabled", "disabled");  // unclickable
   $("#InputField").addClass("InputField-inactive");
@@ -323,7 +316,6 @@ $(document).ready(function() {
       });
     }
   }
-
   // BESCHREIBUNG
   $("#chat_send").click(function(e) {
     handleUserInput();
@@ -348,7 +340,6 @@ $(document).ready(function() {
     $("#live-chat").fadeIn(300);
     $("#prime").hide(0);
   });  
-
   
   // soll nachher in dialog.js und für jeden intent eigene funktion 
   $('#toggleScreenOverlay').click(function(e) {
@@ -378,10 +369,6 @@ $(document).ready(function() {
   setInterval(function() {
     threadingBPMN();
   }, 10000);
-
-  
-
-
 });
 
 // BESCHREIBUNG
@@ -395,20 +382,25 @@ function popoverInput() {
 
 // BESCHREIBUNG
 $(".botui-messages-container").on("click",".botui-message", function(e){
-  var processList = e.target.src.split("/");
-  var processName = processList[processList.length-1].split(".")[0];
-  processName = processName.replace(/%20/g," ");
+  if (e.target.src !== undefined) {
+    var processList = e.target.src.split("/");
+    var processName = processList[processList.length-1].split(".")[0];
+    processName = processName.replace(/%20/g," ");
+    
+    var html = '<div id="bpmnCanvasOverlay" style="height:95%"></div>'
+    createDialogOverlay(processName,html);
+    var bpmnViewerOverlay = new BpmnJS({ container: "#bpmnCanvasOverlay" });
   
-  var html = '<div id="bpmnCanvasOverlay" style="height:95%"></div>'
-  createDialogOverlay(processName,html);
-  var bpmnViewerOverlay = new BpmnJS({ container: "#bpmnCanvasOverlay" });
-  $("#overlaySwitch").click();
-  loadBPMN(processName, bpmnViewerOverlay);
+    if (!$("#overlaySwitch").prop('checked')) 
+      $("#overlaySwitch").click();
 
-  // AKTION DIE BEIM SCHLIESSEN DES OVERLAYS AUSGEFÜHRT WERDEN
-  $('.fa-times').click(function() {
-    $("#overlaySwitch").click();
-  });
+    loadSecondBPMN(processName, bpmnViewerOverlay);
+
+    // AKTION DIE BEIM SCHLIESSEN DES OVERLAYS AUSGEFÜHRT WERDEN
+    $('.fa-times').click(function() {
+      $("#overlaySwitch").click();
+    });
+  }
 
   // BEISPIEL FÜR SVG LADEN
   // $.ajax({
@@ -422,272 +414,129 @@ $(".botui-messages-container").on("click",".botui-message", function(e){
 
 });
 
-// BESCHREIBUNG
-function bpmnDelete(e) {
-  $('#deleteSpinner').removeClass("hidden");
-
-  $.post($SCRIPT_ROOT + '/delete_database_select', 
-    { 
-      processName: e.target.id 
-    })
-    .done(handle_response)
-  
-    function handle_response(response) {
-      $('#deleteSpinner').addClass("hidden");
-
-      $.toast({
-        title: 'Processes deleted!',
-        content: "Successfully delete process <b>" + response.deletedProcess + "</b>",
-        type: 'success',
-        delay: '5000'
-      });
-
-      // entfernt den Prozess aus dem delete dropdown
-      $("#" + response.deletedProcess.replace(/\s+/g, '') + "_row_delete").remove();
-
-      // löscht den gerade gelöschten Prozess aus den toastedProcess => damit er direkt nochmal importiert werden kann
-      toastedProcesses = toastedProcesses.filter(e => e !== response.deletedProcess);
-      setDeleteProcesses = setDeleteProcesses.filter(e => e !== response.deletedProcess);
-
-      // updatet das delete und import Dropdown
-      setTimeout(function () {
-        setDeleteDropwdown();
-        setImportDropwdown();
-      }, 1000);
-    }
-};  
+// **************************************************************************
+// ************* handle_functions für import, update und delete ************* 
+// **************************************************************************
 
 // BESCHREIBUNG
-function bpmnDeleteAll() {
-  $('#deleteSpinner').removeClass("hidden");
+function handle_response_select(response) {
+  $('#' + response.source + 'Spinner').addClass("hidden");
 
-  $.post($SCRIPT_ROOT + '/delete_database_all',
-    handle_response
-  );
-  
-  function handle_response(response) {
-    $('#deleteSpinner').addClass("hidden");
-
-    $.toast({
-      title: 'Processes deleted!',
-      content: "Successfully delete all processes.",
-      type: 'success',
-      delay: '5000'
-    });
-
-    // löscht alle Prozesse aus dem delete dropdown
-    response.deletedProcesses.forEach(function(process) {
-      $("#" + process.replace(/\s+/g, '') + "_row_delete").remove();
-      toastedProcesses = toastedProcesses.filter(e => e !== process);
-      setDeleteProcesses = setDeleteProcesses.filter(e => e !== process);
-    })
-
-
-
-    // setzt die delete und import dropdowns 
-    setTimeout(function() {
-      setDeleteDropwdown();
-      setImportDropwdown();
-    }, 1000);
-  }
-};
-
-
-// BESCHREIBUNG
-function bpmnImport(e) {  
-  $('#importSpinner').removeClass("hidden");
-  
-  $.post($SCRIPT_ROOT + '/import_process_select', {processName: e.target.id})
-  .done(handle_response)
-  .fail(function(error) { 
-    $('#importSpinner').addClass("hidden");
-    $.toast({
-      title: 'Error process import!',
-      // subtitle: '11 mins ago', // könnte man noch berechnen!!!!
-      content: error.responseJSON.message,
-      type: 'danger',
-      delay: '10000'
-    });
+  $.toast({
+    title: 'Process ' + response.source + 'ed!',
+    // subtitle: '11 mins ago', // könnte man noch berechnen!!!!
+    content: "Successfully "+ response.source + " the process <b>" + response.processName + "</b>",
+    type: 'success',
+    delay: '5000'
   });
 
-  function handle_response(response) {
-    $('#importSpinner').addClass("hidden");
-
-    $.toast({
-      title: 'Process imported!',
-      // subtitle: '11 mins ago', // könnte man noch berechnen!!!!
-      content: "Successfully import the process <b>" + response.processName + "</b>",
-      type: 'success',
-      delay: '5000'
-    });
-
-    $("#" + response.processName.replace(/\s+/g, '') + "_row_import").remove();
-    if ((parseInt($("#importBadge").html())-1) === 0) 
-      $("#importBadge").html("")
+  $("#" + response.processName.replace(/\s+/g, '') + "_row_"+ response.source).remove();
+    if ((parseInt($("#"+ response.source + "Badge").html())-1) === 0) 
+      $("#"+ response.source + "Badge").html("")
     else
-      $("#importBadge").html(parseInt($("#importBadge").html()) - 1)
-
+      $("#"+ response.source + "Badge").html(parseInt($("#"+ response.source + "Badge").html()) - 1)
+  
+  if (response.source === "import") {
     setImportProcesses = setImportProcesses.filter(e => e !== response.processName);
 
     setTimeout(function() {
       setDeleteDropwdown();
       setImportDropwdown();
     }, 1000);
-
   }
+
+  else if (response.source === "update") {
+    setUpdateProcesses = setUpdateProcesses.filter(e => e !== response.processName);
+
+    setTimeout(function() {
+      setDeleteDropwdown();
+      setUpdateDropwdown();
+    }, 1000);
+  }
+}
+
+// BESCHREIBUNG
+function handle_response_all(response) {
+  $('#' + response.source + 'Spinner').addClass("hidden");
+
+  $.toast({
+    title: 'Process ' + response.source + 'ed!',
+    // subtitle: '11 mins ago', // könnte man noch berechnen!!!!
+    content: "Successfully " + response.source + " all processes",
+    type: 'success',
+    delay: '5000'
+  });
+
+  response.processList.forEach(function(process) {
+    $("#" + process.replace(/\s+/g, '') + "_row_" + response.source).remove();
+    // deleteDropdown hat keine Badge => daher nur für die anderen beiden Badge aktualisieren
+    if (response.source !== "delete") {
+      if ((parseInt($("#" + response.source + "Badge").html())-1) === 0) 
+        $("#" + response.source + "Badge").html("")
+      else
+        $("#" + response.source + "Badge").html(parseInt($("#" + response.source + "Badge").html()) - 1)
+    }
+    if (response.source === "import")
+      setImportProcesses = setImportProcesses.filter(e => e !== process);
+    else if (response.source === "update")
+      setUpdateProcesses = setUpdateProcesses.filter(e => e !== process);
+    else { //reponse.source === "delete"
+      toastedProcesses = toastedProcesses.filter(e => e !== process);
+      setDeleteProcesses = setDeleteProcesses.filter(e => e !== process);
+    }
+  });
+
+  if (response.source === "import") {
+    setTimeout(function() {
+      setDeleteDropwdown();
+      setImportDropwdown();
+    }, 1000);
+  }
+  else if (response.source === "update") {
+    setTimeout(function() {
+      setDeleteDropwdown();
+      setUpdateDropwdown();
+    }, 1000);
+  }
+  else { //reponse.source === "delete"
+    setTimeout(function() {
+      setDeleteDropwdown();
+      setImportDropwdown();
+    }, 1000);
+  }
+}
+
+// BESCHREIBUNG
+function handle_error(error) {
+  $('#' + error.responseJSON.source + 'Spinner').addClass("hidden");
+  $.toast({
+    title: 'Error process ' + error.responseJSON.source + '!',
+    // subtitle: '11 mins ago', // könnte man noch berechnen!!!!
+    content: error.responseJSON.message,
+    type: 'danger',
+    delay: '10000'
+  });
+}
+
+// ******************************************
+// ************* Import SECTION ************* 
+// ******************************************
+
+// BESCHREIBUNG
+function bpmnImport(e) {  
+  $('#importSpinner').removeClass("hidden");
+  
+  $.post($SCRIPT_ROOT + '/import_process_select', {processName: e.target.id})
+  .done(handle_response_select)
+  .fail(handle_error)
 }
 
 function bpmnImportAll() {
   $('#importSpinner').removeClass("hidden");
 
-  $.post($SCRIPT_ROOT + '/import_process_all', $.param(
-    { 
-      processList: setImportProcesses
-    },
-    true),
-    handle_response
-  );
-
-  function handle_response(response) {
-    $('#importSpinner').addClass("hidden");
-
-    $.toast({
-      title: 'Process imported!',
-      // subtitle: '11 mins ago', // könnte man noch berechnen!!!!
-      content: "Successfully import all processes",
-      type: 'success',
-      delay: '5000'
-    });
-
-    response.processList.forEach(function(process) {
-      $("#" + process.replace(/\s+/g, '') + "_row_import").remove();
-      if ((parseInt($("#importBadge").html())-1) === 0) 
-        $("#importBadge").html("")
-      else
-        $("#importBadge").html(parseInt($("#importBadge").html()) - 1)
-
-      setImportProcesses = setImportProcesses.filter(e => e !== process);
-    });
-
-    setTimeout(function() {
-      setDeleteDropwdown();
-      setImportDropwdown();
-    }, 1000);
-
-  }
-  
-}
-
-function bpmnUpdate(e) {  
-  $('#updateSpinner').removeClass("hidden");
-  
-  $.post($SCRIPT_ROOT + '/update_process_select',
-    { 
-      processName: e.target.id 
-    },
-    handle_response
-  );
-
-  function handle_response(response) {
-    $('#updateSpinner').addClass("hidden");
-
-    $.toast({
-      title: 'Process updated!',
-      // subtitle: '11 mins ago', // könnte man noch berechnen!!!!
-      content: "Successfully update all the processes <b>" + response.processName + "</b>",
-      type: 'success',
-      delay: '5000'
-    });
-
-    $("#" + response.processName.replace(/\s+/g, '') + "_row_update").remove();
-    if ((parseInt($("#updateBadge").html())-1) === 0) 
-      $("#updateBadge").html("")
-    else
-      $("#updateBadge").html(parseInt($("#updateBadge").html()) - 1)
-
-      setUpdateProcesses = setUpdateProcesses.filter(e => e !== response.processName);
-
-    setTimeout(function() {
-      setDeleteDropwdown();
-      setUpdateDropwdown();
-    }, 1000);
-
-  }
-}
-
-function bpmnUpdateAll(e) {  
-  $('#updateSpinner').removeClass("hidden");
-  
-  $.post($SCRIPT_ROOT + '/update_process_all', $.param(
-    { 
-      processList: setUpdateProcesses
-    },
-    true),
-    handle_response
-  );
-
-  function handle_response(response) {
-    $('#updateSpinner').addClass("hidden");
-
-    $.toast({
-      title: 'Process updated!',
-      content: "Successfully update all the processes",
-      type: 'success',
-      delay: '5000'
-    });
-
-    response.processList.forEach(function(process) {
-      $("#" + process.replace(/\s+/g, '') + "_row_update").remove();
-      if ((parseInt($("#updateBadge").html())-1) === 0) 
-        $("#updateBadge").html("")
-      else
-        $("#updateBadge").html(parseInt($("#updateBadge").html()) - 1)
-
-      setUpdateProcesses = setUpdateProcesses.filter(e => e !== process);
-    });
-
-    setTimeout(function() {
-      setDeleteDropwdown();
-      setUpdateDropwdown();
-    }, 1000);
-
-  }
-}
-
-// BESCHREIBUNG
-function setDeleteDropwdown() {
-
-  $.post($SCRIPT_ROOT + '/get_all_processes', function(data) {
-    
-    if (data.length !== 0) {
-
-      $("#deleteAllButton").removeClass("hidden");
-      $("#deleteDropdownText").addClass("hidden");
-
-      data.forEach(function(process) {
-        if (!setDeleteProcesses.includes(process)) {
-          $("#dropdown-menu-proceses-delete").prepend(
-            '<div class="row h-100" id="' + process.replace(/\s+/g, '') + '_row_delete" style="margin: 5px 10px 6px 10px; border-bottom: 1px solid #eee; padding: 5px 0 10px 0;">' +
-            '<div class="col-8">' +
-              '<a class="align-middle">' + process + '</a>' +
-            '</div>' +
-            '<div class="col-4 text-center" style="margin-top: auto;margin-bottom: auto;">' +
-              '<button class="btn btn-sm btn-danger" id="' + process + '" onclick="bpmnDelete(event)" type="submit">Delete</button>' +
-            '</div>' +
-          '</div>'
-          )
-
-          setDeleteProcesses.push(process)
-        }
-      })
-    }
-
-    else {
-      $("#deleteAllButton").addClass("hidden");
-      $("#deleteDropdownText").removeClass("hidden");
-    }
-
-  });
+  $.post($SCRIPT_ROOT + '/import_process_all', $.param({ processList: setImportProcesses },true))
+  .done(handle_response_all)
+  .fail(handle_error)  
 }
 
 // BESCHREIBUNG
@@ -735,6 +584,27 @@ function setImportDropwdown() {
   });
 }
 
+
+// ******************************************
+// ************* Update SECTION ************* 
+// ******************************************
+
+function bpmnUpdate(e) {  
+  $('#updateSpinner').removeClass("hidden");
+  
+  $.post($SCRIPT_ROOT + '/update_process_select',{ processName: e.target.id })
+  .done(handle_response_select)
+  .fail(handle_error)
+}
+
+function bpmnUpdateAll(e) {  
+  $('#updateSpinner').removeClass("hidden");
+  
+  $.post($SCRIPT_ROOT + '/update_process_all', $.param({ processList: setUpdateProcesses },true))
+  .done(handle_response_all)
+  .fail(handle_error)
+}
+
 // BESCHREIBUNG
 function setUpdateDropwdown() {
   $.post($SCRIPT_ROOT + '/get_all_update_processes', function(data) {
@@ -750,6 +620,64 @@ function setUpdateDropwdown() {
       $("#updateBadge").html("")
       $("#updateAllButton").addClass("hidden");
       $("#updateDropdownText").removeClass("hidden");
+    }
+
+  });
+}
+
+// ******************************************
+// ************* Delete SECTION ************* 
+// ******************************************
+
+// BESCHREIBUNG
+function bpmnDelete(e) {
+  $('#deleteSpinner').removeClass("hidden");
+
+  $.post($SCRIPT_ROOT + '/delete_database_select', { processName: e.target.id })
+    .done(handle_response_select)
+    .fail(handle_error)
+};  
+
+// BESCHREIBUNG
+function bpmnDeleteAll() {
+  $('#deleteSpinner').removeClass("hidden");
+
+  $.post($SCRIPT_ROOT + '/delete_database_all')
+  .done(handle_response_all)
+  .fail(handle_error)
+};
+
+// BESCHREIBUNG
+function setDeleteDropwdown() {
+
+  $.post($SCRIPT_ROOT + '/get_all_processes', function(data) {
+    
+    if (data.length !== 0) {
+
+      $("#deleteAllButton").removeClass("hidden");
+      $("#deleteDropdownText").addClass("hidden");
+
+      data.forEach(function(process) {
+        if (!setDeleteProcesses.includes(process)) {
+          $("#dropdown-menu-proceses-delete").prepend(
+            '<div class="row h-100" id="' + process.replace(/\s+/g, '') + '_row_delete" style="margin: 5px 10px 6px 10px; border-bottom: 1px solid #eee; padding: 5px 0 10px 0;">' +
+            '<div class="col-8">' +
+              '<a class="align-middle">' + process + '</a>' +
+            '</div>' +
+            '<div class="col-4 text-center" style="margin-top: auto;margin-bottom: auto;">' +
+              '<button class="btn btn-sm btn-danger" id="' + process + '" onclick="bpmnDelete(event)" type="submit">Delete</button>' +
+            '</div>' +
+          '</div>'
+          )
+
+          setDeleteProcesses.push(process)
+        }
+      })
+    }
+
+    else {
+      $("#deleteAllButton").addClass("hidden");
+      $("#deleteDropdownText").removeClass("hidden");
     }
 
   });
