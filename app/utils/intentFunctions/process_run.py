@@ -31,23 +31,48 @@ def run(dialogflowResponse):
         currentStepNode = Node.query.filter_by(currentStep = True).filter_by(processId = processId).first()
         message1 = "I have detected, that you have started this process before. Do you want to resume your last state?"
         return responseHelper.createResponseObject([message1],buttons.RESUME_RUN_BUTTONS,processId,processName,currentStepNode.id,"")
-    except: # wenn nicht starte von vorne
+    
+    except: # wenn nicht starte von vorne    
         # erste Aktivität im Prozess nehmen
         firstActivityId = Edge.query.filter(Edge.sourceId.like('StartEvent_%')).filter_by(processId=process.id).first().targetId
         previousStepId = Edge.query.filter(Edge.processId == process.id).filter(Edge.targetId == firstActivityId).first().sourceId
+        firstActivity = Node.query.filter_by(id = firstActivityId).first()
 
-        message1 = dialogflowResponse.query_result.fulfillment_text # Okay, let's start process "Entity".
-        message2 = GeneralInstruction.query.filter_by(nodeId=firstActivityId).first().text # Generelle Anweisungen für ersten Schritt
-        message3 = "When you are done press \"Yes\", should you need further assistance press \"Help\"."
-        messages = [message1, message2, message3]
-        
-        currentProcess = processId
-        currentProcessName = processName
-        currentProcessStep = firstActivityId
-        previousProcessStep = previousStepId
+        if(firstActivity.type == "exclusiveGateway"):
+            try:
+                splitQuestion = SplitQuestion.query.filter_by(nodeId=firstActivityId).first().text
+            except:  # Falls es dafür keine Splitquestion gibt, dann handelt es sich um einen Join-Gateway --> Dann nächster Knoten ignorieren
+                message = "You have reached a join gateway, press \"Yes\" to continue."
+                messages = [message]
+                return responseHelper.createResponseObject(messages, buttons.REDUCED_RUN_BUTTONS, processId, processName, firstActivityId, previousStepId)
+                    
+            # Splitquestion und Buttons ausgeben
+            optionEdges = Edge.query.filter(Edge.sourceId == firstActivityId).filter_by(processId=processId)
+            optionButtons = []
+            for edge in optionEdges:
+                eventId = edge.targetId
+                buttonName = ButtonName.query.filter_by(nodeId=eventId).first().text
+                optionButton = buttons.createCustomButton(buttonName,"process_run",eventId) # zB.: "process_run$customButton$IntermediateThrowEvent_1szmt2n"
+                optionButtons.append(optionButton)
+            optionButtons.extend(buttons.CANCEL_RUN_BUTTON) 
+            return responseHelper.createResponseObject([splitQuestion], optionButtons, processId, processName, firstActivityId ,previousStepId)
 
-        return responseHelper.createResponseObject(messages, buttons.STANDARD_RUN_BUTTONS,currentProcess, currentProcessName, currentProcessStep,previousProcessStep)
+        elif(firstActivity.type == "task"):
+            message1 = dialogflowResponse.query_result.fulfillment_text # Okay, let's start process "Entity".
+            message2 = GeneralInstruction.query.filter_by(nodeId=firstActivityId).first().text # Generelle Anweisungen für ersten Schritt
+            message3 = "When you are done press \"Yes\", should you need further assistance press \"Help\"."
+            messages = [message1, message2, message3]
+            
+            currentProcess = processId
+            currentProcessName = processName
+            currentProcessStep = firstActivityId
+            previousProcessStep = previousStepId
 
+            return responseHelper.createResponseObject(messages, buttons.STANDARD_RUN_BUTTONS,currentProcess, currentProcessName, currentProcessStep,previousProcessStep)
+
+        else: #Intermediate Throw Event?
+            pass #dürfte nicht vorkommen
+       
 
 # Weg: man kommt hier her über submit_button(JS) --> send_button(PY Route) --> triggerButtonFunction (ButtonDict)
 def button_run(pressedButtonValue, currentProcess, currentProcessName, currentProcessStep, previousProcessStep):
