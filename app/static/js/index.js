@@ -427,7 +427,7 @@ function handle_response_select(response) {
   $.toast({
     title: 'Process ' + response.source + 'ed!',
     // subtitle: '11 mins ago', // könnte man noch berechnen!!!!
-    content: "Successfully "+ response.source + " the process <b>" + response.processName + "</b>",
+    content: "Successfully "+ response.source + "ed" + "" the process <b>" + response.processName + "</b>",
     type: 'success',
     delay: '5000'
   });
@@ -464,7 +464,7 @@ function handle_response_all(response) {
   $.toast({
     title: 'Process ' + response.source + 'ed!',
     // subtitle: '11 mins ago', // könnte man noch berechnen!!!!
-    content: "Successfully " + response.source + " all processes",
+    content: "Successfully " + response.source + "ed" + " all processes",
     type: 'success',
     delay: '5000'
   });
