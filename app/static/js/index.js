@@ -101,6 +101,8 @@ function highlightStep(responseObject) {
       hideOverlays(lastHighlighted)
 
     } 
+    // removeMarker "done" falls Node nochmal besucht wird
+    viewer.get("canvas").removeMarker(responseObject.currentProcessStep, "done");
     viewer.get("canvas").addMarker(responseObject.currentProcessStep, "highlight");
     lastHighlighted = responseObject.currentProcessStep;
     showOverlays(responseObject.currentProcessStep);
