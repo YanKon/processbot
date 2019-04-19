@@ -345,26 +345,14 @@ $(document).ready(function() {
   
   // soll nachher in dialog.js und für jeden intent eigene funktion 
   $('#toggleScreenOverlay').click(function(e) {
-    var html;
-    $.ajax({
-      url: "/static/resources/svg/pizza.svg",
-      success: function(data) {
-        html = new XMLSerializer().serializeToString(data.documentElement);
-        createDialogOverlay('Pizza.bpmn',html);
-      },
-      async: false // <- this turns it into synchronous
-    });
-
-    // BEISPIEL WAS DER BOT KANN OVERLAY
-
-    // var html = 
-    //   '<p style="text-align:left; border-bottom: 1px solid LightGrey; font-weight:bold;">Process</p>' +
-    //   '<p>"run process Reisekosten"</p>' +
-    //   '<p>"which processes?"</p>' +
-    //   '</br>' +
-    //   '<p style="text-align:left; border-bottom: 1px solid LightGrey; font-weight:bold;">Task</p>' +
-    //   '<p>"Ask 1"</p>' 
-    // createDialogOverlay('For example, you could ask me the following:',html)
+    var html = 
+      '<p style="text-align:left; border-bottom: 1px solid LightGrey; font-weight:bold;">Process</p>' +
+      '<p>"run process Reisekosten"</p>' +
+      '<p>"which processes?"</p>' +
+      '</br>' +
+      '<p style="text-align:left; border-bottom: 1px solid LightGrey; font-weight:bold;">Task</p>' +
+      '<p>"Ask 1"</p>' 
+    createDialogOverlay('For example, you could ask me the following:',html)
   });
 
   // BESCHREIBUNG
