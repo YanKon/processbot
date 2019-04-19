@@ -17,7 +17,6 @@ $("#overlaySwitch").click(function(){
 });
 
 function loadBPMN(processName) {
-  // TODO: Canvas übergeben
   let modelLoadPromise = new Promise(function (resolve, reject) {
     var bpmnXML;
     $.ajax({

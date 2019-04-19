@@ -12,5 +12,3 @@ def createResponseObject(messages, buttons, currentProcess, currentProcessName, 
        }
 
     return jsonify(responseObject)
-
-# TODO createErrorResponseObject

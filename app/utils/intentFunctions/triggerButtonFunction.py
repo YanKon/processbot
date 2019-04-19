@@ -42,8 +42,3 @@ def run(pressedButtonValue, currentProcess, currentProcessName, currentProcessSt
 
         if customButtonIntent in customButtonDict:
             return customButtonDict.get(customButtonIntent).customButton_run(pressedButtonValue, currentProcess, currentProcessName, currentProcessStep, previousProcessStep)
-
-    #TODO Message ausgeben (Falscher Button) oder HTML Alert Fehler
-    # neuer response Object Typ = Error und dann in index.js prüfen und Error anzeigen
-        
-    

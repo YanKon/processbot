@@ -53,7 +53,6 @@ def index():
     threadingBpmn.ThreadingBpmn()
     return render_template("index.html")
 
-#TODO:  sich klassen angucken; => mit getMethoden aus threadingBPMN eine Prozessliste bekommen mit den Prozessen die sich geändert haben 
 @app.route("/get_status_bpmnDir", methods=["POST"])
 def get_status_bpmnDir():
     response = {

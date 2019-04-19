@@ -22,9 +22,7 @@ def button_run(pressedButtonValue, currentProcess, currentProcessName, currentPr
     if pressedButtonValue == "process_names_cancel":
         message = "Alright, the request will be canceled."
         return responseHelper.createResponseObject([message],[],"","","","")   
-    else:
-        #TODO RAISE ERROR RESPONSEOBJECT 
-        pass
+
 
 # Weg: man kommt hier her über submit_button(JS) --> send_button(PY Route) --> triggerButtonFunction (customButtonDict)
 def customButton_run(pressedButtonValue, currentProcess, currentProcessName, currentProcessStep, previousProcessStep):
