@@ -117,7 +117,7 @@ def button_run(pressedButtonValue, currentProcess, currentProcessName, currentPr
         currentStepNode.currentStep = False
         db.session.commit()
 
-        #Prozess an dieser Stelle weitermachen:
+        # Prozess an dieser Stelle weitermachen:
         # Falls dieser Node ein Gateway ist, stelle die Splitquestion
         if (currentStepNode.type == "exclusiveGateway"):
             try:
