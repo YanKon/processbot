@@ -17,7 +17,6 @@ import json
 
 PROCESS_NAME_ENTITY_TYPE_ID = os.environ.get("PROCESS_NAME_ENTITY_TYPE_ID")
 TASK_NAME_ENTITY_TYPE_ID = os.environ.get("TASK_NAME_ENTITY_TYPE_ID")
-PROJECT_ID = os.environ.get("PROJECT_ID")
 
 # Standard Route zum Anzeigen der Index.html
 @app.route("/")
