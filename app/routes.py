@@ -19,40 +19,13 @@ PROCESS_NAME_ENTITY_TYPE_ID = os.environ.get("PROCESS_NAME_ENTITY_TYPE_ID")
 TASK_NAME_ENTITY_TYPE_ID = os.environ.get("TASK_NAME_ENTITY_TYPE_ID")
 PROJECT_ID = os.environ.get("PROJECT_ID")
 
-
-# bpmnResourcesFolder = con.basedir + "/app/static/resources"
-# def checkBpmnFiles(bpmnResourcesFolder):
-#     # alle aktuellen Prozessnamen aus der Datenbank laden
-#     processesList = []
-#     for process in Process.query.all():
-#         processesList.append((process.processName, process.importDate))
-    
-#     for process in processesList:
-#         if (process[1] == None):
-#             print(process[0] + " importDate: none")
-#         else:
-#             print(process[0] + " importDate: " + process[1])
-
-#     for filename in os.listdir(bpmnResourcesFolder):
-#         if filename.endswith(".bpmn"):
-#             print((os.path.join(bpmnResourcesFolder, filename)))
-#         else:
-#             continue
-
-    # for root, dirnames, filenames in os.walk(path):
-    #     for filename in filenames:
-    #         process, fileType = filename.split(".")
-    #         if (fileType == "bpmn"):
-    #             path = os.path.join(root, filename)
-    #             print((os.stat(path)[-2]))
-
 # Standard Route zum Anzeigen der Index.html
-
 @app.route("/")
 def index():
     threadingBpmn.ThreadingBpmn()
     return render_template("index.html")
 
+# Route checkt ob es neue Imports/Updates gibt
 @app.route("/get_status_bpmnDir", methods=["POST"])
 def get_status_bpmnDir():
     response = {
@@ -60,8 +33,8 @@ def get_status_bpmnDir():
         "updates": threadingBpmn.processGlobalUpdate
     }
     return jsonify(response)
-    # return jsonify([])
 
+# Route läd Prozessmodell aus Prozessrepository
 @app.route("/get_image/<process>.html")
 def get_image(process):
     return send_file('./static/resources/bpmn/'+process+'.svg', mimetype='image/svg+xml')
@@ -104,11 +77,7 @@ def send_button():
 
     return responseObject
 
-# @app.route("/test")
-# def test():
-#     bpmnReader.readBpmn()
-#     return jsonify("Success")
-
+# Route um ausgewählte Prozesse zu löschen
 @app.route("/delete_database_select", methods=["POST"])
 def delete_database_select():
     processName = request.form["processName"]
@@ -132,7 +101,7 @@ def delete_database_select():
         }
         return jsonify(response),500
     
-
+# Route um alle Prozesse zu löschen
 @app.route("/delete_database_all", methods=["POST"])
 def delete_database_all():
     deletedProcesses = []
@@ -158,14 +127,15 @@ def delete_database_all():
         }
         return jsonify(response),500
 
+# Route liefert alle Prozesse
 @app.route("/get_all_processes", methods=["POST"])
 def get_all_processes():
     processList = []
     for process in Process.query.all():
         processList.append(process.processName)
     return jsonify(processList)
-    # return jsonify([])
 
+# Route importiert die ausgewählen Prozesse
 @app.route("/import_process_select", methods=["POST"])
 def import_process_select():
     processName = request.form["processName"]
@@ -185,6 +155,7 @@ def import_process_select():
         }
         return jsonify(response),500
 
+# Route importiert alle neuen Prozesse
 @app.route("/import_process_all", methods=["POST"])
 def import_process_all():
     processList = request.form.getlist('processList')
@@ -205,7 +176,7 @@ def import_process_all():
         }
         return jsonify(response),500
 
-
+# Route liefert alle importierten Prozesse
 @app.route("/get_all_import_processes", methods=["POST"])
 def get_all_import_processes():
     response = {
@@ -213,6 +184,7 @@ def get_all_import_processes():
     }
     return jsonify(response)
 
+# Route updatet die ausgewählten Prozesse
 @app.route("/update_process_select", methods=["POST"])
 def update_process_select():
     processName = request.form["processName"]
@@ -239,6 +211,7 @@ def update_process_select():
         }
         return jsonify(response),500
 
+# Route updatet alle Prozesse
 @app.route("/update_process_all", methods=["POST"])
 def update_process_all():
     processList = request.form.getlist('processList')
@@ -269,6 +242,7 @@ def update_process_all():
         }
         return jsonify(response),500
 
+# Route liefert alle geupdateten Prozesse
 @app.route("/get_all_update_processes", methods=["POST"])
 def get_all_update_processes():
     response = {
@@ -276,7 +250,7 @@ def get_all_update_processes():
     }
     return jsonify(response)
 
-
+# Route legt in Dialogflow alle Entitys eines Prozesses an. (Schnittstelle zwischen Dialogflow & Prozessdatenbank)
 def create_all_entities(processName):
     dialogflowHelper.create_entity(PROCESS_NAME_ENTITY_TYPE_ID, processName, [])
 
@@ -286,12 +260,14 @@ def create_all_entities(processName):
         dialogflowHelper.create_entity(TASK_NAME_ENTITY_TYPE_ID, entityName, synonmys)
     return
 
+# Route löscht in Dialogflow alle Entitys eines Prozesses. (Schnittstelle zwischen Dialogflow & Prozessdatenbank)
 def delete_all_entities(processName):
     processId = Process.query.filter_by(processName = processName).first().id
     dialogflowHelper.delete_entity(PROCESS_NAME_ENTITY_TYPE_ID, processName)
 
     for task in Node.query.filter(Node.type == "task").filter_by(processId=processId):
         queryResult = Node.query.filter_by(name = task.name)
+        # Wenn in unserer Datenbank ein Prozess mehrfach vorkommt, dann lösche das Entity nicht, da in Dialogflow nur eine Instanz für mehrere Prozesse
         if queryResult.count() == 1:
             dialogflowHelper.delete_entity(TASK_NAME_ENTITY_TYPE_ID, task.name)   
     return
