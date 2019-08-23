@@ -124,7 +124,6 @@ CANCEL_DOC_BUTTON = [
     }
 ]
 
-# INTENT IMMER OHNE "process_"
 def createCustomButton(buttonText, intent, value):
     button = {
         "text": buttonText,

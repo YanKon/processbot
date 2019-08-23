@@ -216,6 +216,7 @@ def update_process_all():
     processList = request.form.getlist('processList')
 
     try:
+        # löscht erst alten Prozess raus
         for processName in processList:
             process = Process.query.filter_by(processName=processName).first()
             delete_all_entities(process.processName)

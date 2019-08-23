@@ -343,16 +343,9 @@ $(document).ready(function() {
     $("#prime").hide(0);
   });  
   
-  // soll nachher in dialog.js und für jeden intent eigene funktion 
+  // erzeugt das Help-Overlay, welches alle verfügbaren Befehle anzeigt
   $('#toggleScreenOverlay').click(function(e) {
-    var html = 
-      '<p style="text-align:left; border-bottom: 1px solid LightGrey; font-weight:bold;">Process</p>' +
-      '<p>"run process Reisekosten"</p>' +
-      '<p>"which processes?"</p>' +
-      '</br>' +
-      '<p style="text-align:left; border-bottom: 1px solid LightGrey; font-weight:bold;">Task</p>' +
-      '<p>"Ask 1"</p>' 
-    createDialogOverlay('For example, you could ask me the following:',html)
+    createHelpOverlay();
   });
 
   // BESCHREIBUNG
@@ -451,7 +444,6 @@ function handle_response_all(response) {
 
   $.toast({
     title: 'Process ' + response.source + 'ed!',
-    // subtitle: '11 mins ago', // könnte man noch berechnen!!!!
     content: "Successfully " + response.source + "ed" + " all processes",
     type: 'success',
     delay: '5000'
