@@ -1,4 +1,6 @@
 // benötigt animate.css & jquery
+
+// erzeugt ein fullscreen Overlay (siehe Help button und Prozess-Thumbnail)
 function createDialogOverlay(title,html) {
     $('body').prepend(
       '<div class="io-dialog animated fadeInDown faster">' +
@@ -23,6 +25,7 @@ function createDialogOverlay(title,html) {
 
   }
 
+// erzeugt das Help Overlay, wenn in der UI auf Help geklickt wird
 function createHelpOverlay() {
   var html = 
     '<p style="text-align:left; border-bottom: 1px solid LightGrey; font-weight:bold;">Processbot</p>' +

@@ -3,14 +3,18 @@ var setImportProcesses = [];
 var setUpdateProcesses = [];
 var setDeleteProcesses = [];
 var loadedProcessModel = "";
+var lastHighlighted = "";
 
-// BESCHREIBUNG
+// Managet das laden und schließen (unloaden) von BPMN Modellen
+
 function handle_model(responseObject) {
   if (responseObject.currentProcessName !== "") { // CurrentProcess ist gesetzt
     if (loadedProcessModel != "" && loadedProcessModel != responseObject.currentProcessName) { // model ist geladen und das geladene ist ein anderes als ich anzeigen will
+      // altes Modell "löschen"
       unloadBPMN();
       loadedProcessModel = "";
-      loadBPMN(responseObject.currentProcessName).then(function () { // MODEL LADEN, dann warten, dann Highlighten
+      // MODEL LADEN, dann warten, dann Highlighten
+      loadBPMN(responseObject.currentProcessName).then(function () { 
         loadedProcessModel = responseObject.currentProcessName;
         highlightStep(responseObject);
       })
@@ -20,6 +24,8 @@ function handle_model(responseObject) {
     }
 
     else if(!viewer.get("canvas").hasOwnProperty("_rootElement")) { // --> model noch nicht angezeigt)
+      // wenn zuvor ein anderes model gestartet wurde muss lastHighlighted zurückgesetzt werden
+      lastHighlighted = "";
       loadBPMN(responseObject.currentProcessName).then(function () { // MODEL LADEN, dann warten, dann Highlighten
         loadedProcessModel = responseObject.currentProcessName;
         highlightStep(responseObject);
@@ -34,13 +40,13 @@ function handle_model(responseObject) {
   } 
 
   else { // CurrentProcess ist nicht gesetzt
-    if(viewer.get("canvas").hasOwnProperty("_rootElement")) // --> model ist angezeigt)
+    if(viewer.get("canvas").hasOwnProperty("_rootElement")) // --> model ist angezeigt
       unloadBPMN(viewer);
       loadedProcessModel = "";
   }
 }
 
-// BESCHREIBUNG
+// Blendet ein Overlays über den aktuell Prozessschritt ein
 function showOverlays(processStep) {
 
   // prüft ob die Overlays angezeigt werden sollen
@@ -52,7 +58,8 @@ function showOverlays(processStep) {
   var instruction = elementRegistry.get(processStep).businessObject.get("chatbot:instruction");
   var detailInstruction = elementRegistry.get(processStep).businessObject.get("chatbot:detailInstruction");
 
-  // ist type ungleich Task
+  // prüft beim Overlay um welches Element es sich handelt (split oder task)
+  // events haben noch keine overlays
   if (instruction === undefined) {
     var splitQuestion = elementRegistry.get(processStep).businessObject.get("chatbot:splitQuestion");
     if (splitQuestion === undefined)
@@ -79,6 +86,7 @@ function showOverlays(processStep) {
     });
   }
 
+  // bpmn.io spezifisch => positioniert das Overlay letztendlicha an gewünschter Stelle
   overlays.add(processStep, 'note', {
     position: {
       bottom: -7,
@@ -93,13 +101,13 @@ function hideOverlays(processStep) {
   overlays.remove({ element: processStep });
 }
 
-var lastHighlighted = "";
+// Highlightet den aktuellen Prozesschritt (grünen Hintergrund)
+// und entfernt aus vorherigen Schritt den grünen Hintergrund und macht ihn grau, indem er als "done" gekennzeichnet wird
 function highlightStep(responseObject) {
   if (responseObject.currentProcessStep !== "") {
     if (lastHighlighted !== ""){
       viewer.get("canvas").removeMarker(lastHighlighted, "highlight");
       hideOverlays(lastHighlighted)
-
     } 
     // removeMarker "done" falls Node nochmal besucht wird
     viewer.get("canvas").removeMarker(responseObject.currentProcessStep, "done");
@@ -114,7 +122,7 @@ function highlightStep(responseObject) {
 
 }
 
-// BESCHREIBUNG
+// dient dem Ausgeben aller Messages im Response Objekt
 // Geht über alle Messages und gibt sie aus
 // 1000 * index + 500 => gibt messages mit Verzögerung aus (abhängig von index größe)
 function handle_messages(responseObject) {
@@ -130,16 +138,18 @@ function handle_messages(responseObject) {
   });
 }
 
-// BESCHREIBUNG
+// dient dem Ausgeben aller Buttons im Response Objekt
 // blendet Buttons, falls vorhanden, ein
 // erkennt button klick und führt Funktion aus
 function handle_buttons(responseObject) {
-  // Buttons? --> anzeigen & geklickter Button auslesen
+  // Buttons --> anzeigen & geklickter Button auslesen
 
   //  geändert zu length ungleich 0, weil er bei != [] trotz leerer Liste reingegangen ist
   if (responseObject.buttons.length != 0) {
+    // deaktivitert das Inputfeld => nur noch Buttons als Antwort erlaubt
     deactivateInput();
     setTimeout(function() {
+      // botui spezifische Befehle
       botui.action
         .button({
           action: responseObject.buttons,
@@ -162,7 +172,7 @@ function handle_buttons(responseObject) {
     reactivateInput();
 }
 
-// BESCHREIBUNG
+// Sendet des UserText an das Backend über die route /send_userText in routes.py
 function submit_userText(userText) {
   $.post("/send_userText", 
     { 
@@ -171,16 +181,20 @@ function submit_userText(userText) {
     handle_response
   );
 
+  // wenn Antwort erhalten, dann folgende Schritte ausführen
   function handle_response(responseObject) {
         
+    // entsprechendes Modell anzeigen
     handle_model(responseObject);
+    // Messages ausgeben
     handle_messages(responseObject);
+    // Buttons anzeigen, falls vorhande
     handle_buttons(responseObject);
 
   }
 }
 
-// BESCHREIBUNG
+// Sendet den value eines buttons an das Backend, falls diese geklickt werden 
 // ResponseObject mitübergeben, damit klar ist, in welchem Prozessschritt man sich befindet
 function submit_button(currentProcess, currentProcessName, currentProcessStep, previousProcessStep, pressedButtonValue) {
 
@@ -194,7 +208,8 @@ function submit_button(currentProcess, currentProcessName, currentProcessStep, p
     },
     handle_response
   );
-
+  
+  // wenn Antwort erhalten, dann folgende Schritte ausführen (wie bei send_userText)
   function handle_response(responseObject) {
 
     handle_model(responseObject);
@@ -222,7 +237,8 @@ function deactivateInput() {
 // gibt aber die Notification nur aus, wenn sie nicht schonmal ausgegeben wurde => toastedProcesses
 var uptodateProcesses = false;
 
-// BESCHREIBUNG
+// Überprüft von Beginn an in regelmäßigen Abstand ob es neues oder veränderte Prozesse gibt
+// über ThreadingBpmn.py im Ordner utils
 function threadingBPMN() {
   // Warumm $SCRIPT_ROOT ? (siehe http://flask.pocoo.org/docs/0.12/patterns/jquery/)
   $.post($SCRIPT_ROOT + '/get_status_bpmnDir', function (data) {
@@ -233,8 +249,10 @@ function threadingBPMN() {
       $("#updateAllButton").removeClass("hidden");
       $("#updateDropdownText").addClass("hidden");
 
+      // itertiert über alle geupdateten Prozesse
       data.updates.forEach(function (process) {
         if (!setUpdateProcesses.includes(process)) {
+          // fügt eine Benachrichtigung ein 
           $.toast({
             title: 'Process changed!',
             // subtitle: '11 mins ago', // könnte man noch berechnen!!!!
@@ -243,7 +261,8 @@ function threadingBPMN() {
             delay: '5000'
           });
           setUpdateProcesses.push(process);
-
+          
+          // fügt den Prozess in das Dropdown "Update" hinzu
           $("#dropdown-menu-proceses-update").append(
             '<div class="row h-100" id="' + process.replace(/\s+/g, '') + '_row_update" style="margin: 5px 10px 6px 10px; border-bottom: 1px solid #eee; padding: 5px 0 10px 0;">' +
             '<div class="col-8"' +
@@ -264,8 +283,10 @@ function threadingBPMN() {
       $("#importAllButton").removeClass("hidden");
       $("#importDropdownText").addClass("hidden");
 
+      // itertiert über alle importfähigen Prozesse
       data.imports.forEach(function (process) {
         if (!toastedProcesses.includes(process) && !setImportProcesses.includes(process)){
+          // fügt eine Benachrichtigung ein 
           $.toast({
             title: 'New process!',
             // subtitle: '11 mins ago', // könnte man noch berechnen!!!!
@@ -275,7 +296,8 @@ function threadingBPMN() {
           });
           toastedProcesses.push(process);
           setImportProcesses.push(process);
-
+          
+          // fügt den Prozess in das Dropdown "Import" hinzu
           $("#dropdown-menu-proceses-import").append(
             '<div class="row h-100" id="' + process.replace(/\s+/g, '') + '_row_import" style="margin: 5px 10px 6px 10px; border-bottom: 1px solid #eee; padding: 5px 0 10px 0;">' +
             '<div class="col-8">' +
@@ -298,14 +320,15 @@ function threadingBPMN() {
   });
 }
 
-// BESCHREIBUNG
+// alles was hier drinnen ist, wird direkt beim Start der Anwendung ausgeführt
 $(document).ready(function() {
 
-  // BESCHREIBUNG
+  // startet den Thread, der prüft ob es zum Start neue oder veränderte Prozesse gibt
   threadingBPMN();
+  // fügt alle Prozesse die in der Datenbank sind, in das "Delete" Dropdown 
   setDeleteDropwdown();
 
-  // BESCHREIBUNG
+  // übergibt den eingegeben Text an die Funktion submit_userText => die es wiederum ans backend sendet
   function handleUserInput() {
     var userText = $("#InputField").val();
 
@@ -318,25 +341,26 @@ $(document).ready(function() {
       });
     }
   }
-  // BESCHREIBUNG
+
+  // regisiert ein Klick auf das Senden-Icon und sendet die Nachricht
   $("#chat_send").click(function(e) {
     handleUserInput();
   });
 
-  // BESCHREIBUNG
+  // regisiert ein Enter klicken und sendet die Nachricht
   $("#InputField").keypress(function(e) {
     if (e.keyCode == 13)
       handleUserInput();
   });
 
-  // BESCHREIBUNG
+  // schließt das chatbot Fenster
   $(".chat-close").on("click", function(e) {
     e.preventDefault();
     $("#live-chat").fadeOut(300);
     $("#prime").fadeIn(300);
   });
   
-  // BESCHREIBUNG
+  // öffnet das chabot Fenster
   $("#prime").on("click", function(e) {
     e.preventDefault();
     $("#live-chat").fadeIn(300);
@@ -348,13 +372,13 @@ $(document).ready(function() {
     createHelpOverlay();
   });
 
-  // BESCHREIBUNG
+  // setzt das Interval, wie oft vom Frontend geprüft wird ob es neue Prozesse im backend gibt
   setInterval(function() {
     threadingBPMN();
   }, 10000);
 });
 
-// BESCHREIBUNG
+// gibt einfach nur eine Popover aus, wenn das Inpurtfeld nicht klickbar ist, weil Buttons eingeblendet sind
 function popoverInput() {
   $('[data-toggle="tooltip"]').tooltip({ animation: true })
   if ($("#InputField").hasClass("InputField-inactive"))
@@ -363,7 +387,7 @@ function popoverInput() {
     $('[data-toggle="tooltip"]').tooltip('disable');
 }
 
-// BESCHREIBUNG
+// registiert ein Klick auf ein Prozess-Thumbnail im Chatbot-Fenster und blendet ein Fullscreen-Overlay ein
 $(".botui-messages-container").on("click",".botui-message", function(e){
   if (e.target.src !== undefined) {
     var processList = e.target.src.split("/");
@@ -385,23 +409,13 @@ $(".botui-messages-container").on("click",".botui-message", function(e){
     });
   }
 
-  // BEISPIEL FÜR SVG LADEN
-  // $.ajax({
-  //   url: "/static/resources/svg/"+processName+".svg",
-  //   success: function(data) {
-  //     html = new XMLSerializer().serializeToString(data.documentElement);
-  //     createDialogOverlay(processName+'.svg',html);
-  //   },
-  //   async: true // <- this turns it into synchronous
-  // });
-
 });
 
 // **************************************************************************
 // ************* handle_functions für import, update und delete ************* 
 // **************************************************************************
 
-// BESCHREIBUNG
+// 
 function handle_response_select(response) {
   $('#' + response.source + 'Spinner').addClass("hidden");
 
@@ -504,7 +518,7 @@ function handle_error(error) {
 // ************* Import SECTION ************* 
 // ******************************************
 
-// BESCHREIBUNG
+// registriert den geklicket Prozess, der importiert werden soll und schickt ihn an routes.py
 function bpmnImport(e) {  
   $('#importSpinner').removeClass("hidden");
   
@@ -513,6 +527,7 @@ function bpmnImport(e) {
   .fail(handle_error)
 }
 
+// importiert alle Prozesse die im Import Dropdown vorhanden sind über routes.py
 function bpmnImportAll() {
   $('#importSpinner').removeClass("hidden");
 
@@ -521,7 +536,7 @@ function bpmnImportAll() {
   .fail(handle_error)  
 }
 
-// BESCHREIBUNG
+// Zeigt alle Prozesse die importiert werden können im Dropdown "Import"
 function setImportDropwdown() {
   $.post($SCRIPT_ROOT + '/get_all_import_processes', function(data) {
     
@@ -571,6 +586,7 @@ function setImportDropwdown() {
 // ************* Update SECTION ************* 
 // ******************************************
 
+// registriert den geklicket Prozess, der importiert werden soll und schickt ihn an routes.py
 function bpmnUpdate(e) {  
   $('#updateSpinner').removeClass("hidden");
   
@@ -579,6 +595,7 @@ function bpmnUpdate(e) {
   .fail(handle_error)
 }
 
+// importiert alle Prozesse die im Update Dropdown vorhanden sind über routes.py
 function bpmnUpdateAll(e) {  
   $('#updateSpinner').removeClass("hidden");
   
@@ -587,7 +604,7 @@ function bpmnUpdateAll(e) {
   .fail(handle_error)
 }
 
-// BESCHREIBUNG
+// Zeigt alle Prozesse die geupdatet werden können im Dropdown "Update"
 function setUpdateDropwdown() {
   $.post($SCRIPT_ROOT + '/get_all_update_processes', function(data) {
     
@@ -611,7 +628,7 @@ function setUpdateDropwdown() {
 // ************* Delete SECTION ************* 
 // ******************************************
 
-// BESCHREIBUNG
+// registriert den geklicket Prozess, der gelöscht werden soll und schickt ihn an routes.py
 function bpmnDelete(e) {
   $('#deleteSpinner').removeClass("hidden");
 
@@ -620,7 +637,7 @@ function bpmnDelete(e) {
     .fail(handle_error)
 };  
 
-// BESCHREIBUNG
+// löscht alle Prozesse die im Update Dropdown vorhanden sind über routes.py
 function bpmnDeleteAll() {
   $('#deleteSpinner').removeClass("hidden");
 
@@ -629,7 +646,7 @@ function bpmnDeleteAll() {
   .fail(handle_error)
 };
 
-// BESCHREIBUNG
+// Zeigt alle Prozesse die in der Datenbank vorhanden sind im Dropdown "Delete" an
 function setDeleteDropwdown() {
 
   $.post($SCRIPT_ROOT + '/get_all_processes', function(data) {

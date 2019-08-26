@@ -6,6 +6,7 @@ import config as con
 
 from app.models import Process
 
+# hier werden die Prozesse gespeichert, die geupdatet oder importiert werden können
 processGlobalImport= []
 processGlobalUpdate= []
 
@@ -25,6 +26,7 @@ class ThreadingBpmn(object):
         thread.daemon = True    # Daemonize thread
         thread.start()          # Start the execution
 
+    # prüft regelmäßig ob Veränderungen im Order /app/static/resources/bpmn vorhanden sind
     def run(self):
 
         """ Method that runs forever """

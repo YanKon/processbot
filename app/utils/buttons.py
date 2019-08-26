@@ -124,9 +124,10 @@ CANCEL_DOC_BUTTON = [
     }
 ]
 
+# erzeugt ein CustomButton
 def createCustomButton(buttonText, intent, value):
     button = {
         "text": buttonText,
         "value": intent + "$customButton$" + value
-        }
+    }
     return button

@@ -8,7 +8,7 @@ import psycopg2.extras
 from app import db
 import app.models as models
 
-
+# liest ein BPMN ein und speichert es in der Prozessatenbank
 def readBpmn(processName):
     
     bpmnResourcesFolder = con.basedir + "/app/static/resources/bpmn/"
@@ -47,9 +47,12 @@ def readBpmn(processName):
         detailDescriptions = []
         buttonNames = []
         
+        # iteriert über jedes Element und speichert die entsprechenden Eigenschaften eines Element
+        # wie id, name und chatbot-spezifische Attribute
         for actor in root[0].iter():
             tagType = actor.tag.split("}")[1]
 
+            # Element ist ein Task
             if (tagType == "task"):
                 for attribute in actor.attrib.items():
                     attributeType = attribute[0].split("}")
@@ -63,10 +66,12 @@ def readBpmn(processName):
                 node = models.Node(id = actor.attrib['id'], name = actor.attrib['name'], type = 'task', processId = processId)
                 db.session.add(node)
 
+            # Element ist ein StartEvent
             elif (tagType == "startEvent"):
                 node = models.Node(id = actor.attrib['id'], name = actor.attrib['name'], type = 'startEvent', processId = processId)
                 db.session.add(node)
             
+            # Element ist ein exclusiveGateway
             elif (tagType == "exclusiveGateway"):
                 # wenn exlusiveGateway kein Name hat <=> exclusiveGateway ist ein join
                 if "name" not in actor.attrib:
@@ -84,6 +89,7 @@ def readBpmn(processName):
                                 splitQuestion = models.SplitQuestion(text = attribute[1], nodeId = actor.attrib['id'])
                                 splitQuestions.append(splitQuestion)
 
+            # Element ist ein intermediateThrowEvent
             elif (tagType == "intermediateThrowEvent"):
                 node = models.Node(id = actor.attrib['id'], name = actor.attrib['name'], type = 'intermediateThrowEvent', processId = processId)
                 db.session.add(node)
@@ -98,17 +104,21 @@ def readBpmn(processName):
                         elif (attributeType[1] == "button"):
                             buttonName = models.ButtonName(text = attribute[1], nodeId = actor.attrib['id'])
                             buttonNames.append(buttonName)
-                        
+
+            # Element ist ein endEvent 
             elif (tagType == "endEvent"):
                 node = models.Node(id = actor.attrib['id'], name = actor.attrib['name'], type = 'endEvent', processId = processId)
                 db.session.add(node)
 
+            # Element ist ein sequenceFlow => spiechert die Verbindungen zu den Elementen
             elif (tagType == "sequenceFlow"):
                 edge = models.Edge(id = actor.attrib['id'], processId = processId, sourceId = actor.attrib['sourceRef'], targetId = actor.attrib['targetRef'])
                 sequenceFlows.append(edge)
             
         # ist nötig, weil bei jedem db.session.add() geprüft wird ob es die entsprechenden foreignkeys existieren!
-        # da ein Sequenceflow insbesondere aus einer sourceId und targetId besteht müsssen erste alle Nodes in der Datenbank exisiteren, daher werden die Sequeneces in einer Liste zwicshengespeichert und erst am Ende wird über diese Liste nochmal itertiert => dann alle adden und committen        
+        # da ein Sequenceflow insbesondere aus einer sourceId und targetId besteht müsssen erste alle Nodes in der 
+        # Datenbank exisiteren, daher werden die Sequeneces in einer Liste zwischengespeichert und erst am Ende 
+        # wird über diese Liste nochmal itertiert => dann alle adden und committen        
         def addToSession(elements):
             for element in elements:
                 db.session.add(element)
@@ -123,7 +133,8 @@ def readBpmn(processName):
         addToSession(buttonNames)  
 
         db.session.commit()
-                
+
+    # wenn es Probleme beim Import geben, Mitteilung senden    
     except:
         e = sys.exc_info()[0]
         # print("This error occured while trying to read a process Element or committing to the database:\n" + e)

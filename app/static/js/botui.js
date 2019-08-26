@@ -1,4 +1,7 @@
+// initialisert BOTUI
 var botui = new BotUI('my-botui-app');      
+
+// Sind die Start-Messages die beim Start des Chatbots angezeigt werden
 botui.message.bot({
   content: 'Hello There!',
   delay: 1,

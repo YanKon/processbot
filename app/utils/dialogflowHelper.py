@@ -1,3 +1,5 @@
+# Ist die Schnittstelle zu Dialogflow 
+
 import os
 import dialogflow_v2 as dialogflow
 
